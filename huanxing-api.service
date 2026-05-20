@@ -1,0 +1,18 @@
+# File path: /etc/systemd/system/huanxing-api.service
+# sudo systemctl daemon-reload
+# sudo systemctl start huanxing-api
+# sudo systemctl enable huanxing-api
+# sudo systemctl status huanxing-api
+[Unit]
+Description=huanxing-api Service
+After=network.target
+
+[Service]
+User=ubuntu  # Change this user as needed.
+WorkingDirectory=/path/to/huanxing-api  # Change this path as needed.
+ExecStart=/path/to/huanxing-api/huanxing-api --port 3000 --log-dir /path/to/huanxing-api/logs  # Change path and port as needed.
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

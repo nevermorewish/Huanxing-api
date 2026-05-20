@@ -8,13 +8,13 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	constant2 "github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
+	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/logger"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
+	constant2 "github.com/huanxing/huanxing-api/relay/constant"
+	"github.com/huanxing/huanxing-api/types"
 
 	"github.com/gin-gonic/gin"
 )

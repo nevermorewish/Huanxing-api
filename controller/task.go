@@ -3,13 +3,13 @@ package controller
 import (
 	"strconv"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/relay"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
+	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/relay"
+	"github.com/huanxing/huanxing-api/service"
+	"github.com/huanxing/huanxing-api/types"
 
 	"github.com/gin-gonic/gin"
 )

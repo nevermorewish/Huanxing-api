@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
 	"github.com/gin-gonic/gin"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/logger"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/service"
+	"github.com/huanxing/huanxing-api/setting"
+	"github.com/huanxing/huanxing-api/setting/operation_setting"
 	"github.com/shopspring/decimal"
 	"github.com/thanhpk/randstr"
 )
@@ -97,7 +97,7 @@ func getWaffoPancakeBuyerEmail(user *model.User) string {
 		return user.Email
 	}
 	if user != nil {
-		return fmt.Sprintf("%d@new-api.local", user.Id)
+		return fmt.Sprintf("%d@huanxing-api.local", user.Id)
 	}
 	return ""
 }

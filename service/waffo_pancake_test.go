@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting"
 	"github.com/glebarez/sqlite"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/setting"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )

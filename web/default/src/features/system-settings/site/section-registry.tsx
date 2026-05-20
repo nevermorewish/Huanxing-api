@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 huanxing
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-For commercial licensing, please contact support@quantumnous.com
+For commercial licensing, please contact support@huanxing.com
 */
 import { SystemInfoSection } from '../general/system-info-section'
 import {
@@ -41,6 +41,7 @@ const SITE_SECTIONS = [
             frontend: settings['theme.frontend'] as 'default' | 'classic',
           },
           SystemName: settings.SystemName,
+          SystemNameEn: settings.SystemNameEn,
           Logo: settings.Logo,
           Footer: settings.Footer,
           About: settings.About,

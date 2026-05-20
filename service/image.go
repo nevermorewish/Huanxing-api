@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
 
 	"golang.org/x/image/webp"
 )

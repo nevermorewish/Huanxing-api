@@ -3,12 +3,12 @@ package service
 import (
 	"errors"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting"
 	"github.com/gin-gonic/gin"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
+	"github.com/huanxing/huanxing-api/logger"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/setting"
 )
 
 type RetryParam struct {

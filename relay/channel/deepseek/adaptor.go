@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/relay/channel"
-	"github.com/QuantumNous/new-api/relay/channel/claude"
-	"github.com/QuantumNous/new-api/relay/channel/openai"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/relay/constant"
-	"github.com/QuantumNous/new-api/setting/reasoning"
-	"github.com/QuantumNous/new-api/types"
 	"github.com/gin-gonic/gin"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/relay/channel"
+	"github.com/huanxing/huanxing-api/relay/channel/claude"
+	"github.com/huanxing/huanxing-api/relay/channel/openai"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
+	"github.com/huanxing/huanxing-api/relay/constant"
+	"github.com/huanxing/huanxing-api/setting/reasoning"
+	"github.com/huanxing/huanxing-api/types"
 )
 
 type Adaptor struct {

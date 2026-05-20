@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/logger"
+	"github.com/huanxing/huanxing-api/model"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
+	"github.com/huanxing/huanxing-api/types"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-gonic/gin"

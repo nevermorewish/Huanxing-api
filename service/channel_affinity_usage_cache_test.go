@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/types"
 	"github.com/gin-gonic/gin"
+	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
 	"github.com/gin-gonic/gin"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/i18n"
+	"github.com/huanxing/huanxing-api/logger"
+	"github.com/huanxing/huanxing-api/model"
 )
 
 func init() {

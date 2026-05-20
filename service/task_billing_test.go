@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/glebarez/sqlite"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/model"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"

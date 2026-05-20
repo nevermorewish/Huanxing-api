@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/middleware"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/oauth"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/console_setting"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
+	"github.com/huanxing/huanxing-api/logger"
+	"github.com/huanxing/huanxing-api/middleware"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/oauth"
+	"github.com/huanxing/huanxing-api/setting"
+	"github.com/huanxing/huanxing-api/setting/console_setting"
+	"github.com/huanxing/huanxing-api/setting/operation_setting"
+	"github.com/huanxing/huanxing-api/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,6 +63,7 @@ func GetStatus(c *gin.Context) {
 		"telegram_bot_name":           common.TelegramBotName,
 		"theme":                       system_setting.GetThemeSettings().Frontend,
 		"system_name":                 common.SystemName,
+		"system_name_en":              common.SystemNameEn,
 		"logo":                        common.Logo,
 		"footer_html":                 common.Footer,
 		"wechat_qrcode":               common.WeChatAccountQRCodeImageURL,

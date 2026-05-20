@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 huanxing
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-For commercial licensing, please contact support@quantumnous.com
+For commercial licensing, please contact support@huanxing.com
 */
 import * as z from 'zod'
 import type { Resolver } from 'react-hook-form'
@@ -22,6 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { DEFAULT_SYSTEM_NAME } from '@/lib/constants'
 import {
   Form,
   FormControl,
@@ -52,6 +53,7 @@ const _systemInfoSchema = z.object({
     frontend: z.enum(['default', 'classic']),
   }),
   SystemName: z.string().min(1),
+  SystemNameEn: z.string().min(1),
   ServerAddress: z.string().optional(),
   Logo: z.string().url().optional().or(z.literal('')),
   Footer: z.string().optional(),
@@ -84,6 +86,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
         defaultValues.theme?.frontend === 'classic' ? 'classic' : 'default',
     },
     SystemName: normalizeValue(defaultValues.SystemName),
+    SystemNameEn: normalizeValue(defaultValues.SystemNameEn),
     ServerAddress: normalizeValue(defaultValues.ServerAddress),
     Logo: normalizeValue(defaultValues.Logo),
     Footer: normalizeValue(defaultValues.Footer),
@@ -101,6 +104,9 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
     }),
     SystemName: z.string().min(1, {
       error: () => t('System name is required'),
+    }),
+    SystemNameEn: z.string().min(1, {
+      error: () => t('English system name is required'),
     }),
     ServerAddress: z.string().optional(),
     Logo: z.string().url().optional().or(z.literal('')),
@@ -196,10 +202,29 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                 <FormItem>
                   <FormLabel>{t('System Name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('New API')} {...field} />
+                    <Input placeholder={DEFAULT_SYSTEM_NAME} {...field} />
                   </FormControl>
                   <FormDescription>
                     {t('The name displayed across the application')}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='SystemNameEn'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('English System Name')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder='huanxing' {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {t(
+                      'The name displayed when the interface language is English'
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -300,7 +325,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                   <FormLabel>{t('Home Page Content')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t('Welcome to our New API...')}
+                      placeholder={`${normalizedDefaults.SystemName || DEFAULT_SYSTEM_NAME}...`}
                       rows={6}
                       {...field}
                     />

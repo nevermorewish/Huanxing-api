@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/QuantumNous/new-api/dto"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	relayconstant "github.com/QuantumNous/new-api/relay/constant"
+	"github.com/huanxing/huanxing-api/dto"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
+	relayconstant "github.com/huanxing/huanxing-api/relay/constant"
 
 	"github.com/gin-gonic/gin"
 )

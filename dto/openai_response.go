@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/types"
 )
 
 const (

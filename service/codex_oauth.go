@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
+	"github.com/huanxing/huanxing-api/common"
 )
 
 const (

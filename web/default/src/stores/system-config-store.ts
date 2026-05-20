@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 huanxing
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -14,11 +14,15 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-For commercial licensing, please contact support@quantumnous.com
+For commercial licensing, please contact support@huanxing.com
 */
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { DEFAULT_SYSTEM_NAME, DEFAULT_LOGO } from '@/lib/constants'
+import {
+  DEFAULT_SYSTEM_NAME,
+  DEFAULT_SYSTEM_NAME_EN,
+  DEFAULT_LOGO,
+} from '@/lib/constants'
 
 export type CurrencyDisplayType = 'USD' | 'CNY' | 'TOKENS' | 'CUSTOM'
 
@@ -39,6 +43,7 @@ export interface CurrencyConfig {
 
 export interface SystemConfig {
   systemName: string
+  systemNameEn: string
   logo: string
   footerHtml?: string
   demoSiteEnabled?: boolean
@@ -73,6 +78,7 @@ export const useSystemConfigStore = create<SystemConfigState>()(
     (set) => ({
       config: {
         systemName: DEFAULT_SYSTEM_NAME,
+        systemNameEn: DEFAULT_SYSTEM_NAME_EN,
         logo: DEFAULT_LOGO,
         currency: { ...DEFAULT_CURRENCY_CONFIG },
       },
@@ -105,6 +111,9 @@ export const useSystemConfigStore = create<SystemConfigState>()(
 // Selector helpers for convenience
 export const getSystemName = () =>
   useSystemConfigStore.getState().config.systemName
+
+export const getSystemNameEn = () =>
+  useSystemConfigStore.getState().config.systemNameEn
 
 export const getLogo = () => useSystemConfigStore.getState().config.logo
 

@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/model"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

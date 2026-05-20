@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting/system_setting"
 	"github.com/gin-gonic/gin"
+	"github.com/huanxing/huanxing-api/i18n"
+	"github.com/huanxing/huanxing-api/logger"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/setting/system_setting"
 )
 
 func init() {

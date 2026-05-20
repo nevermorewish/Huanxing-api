@@ -6,9 +6,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/pkg/billingexpr"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
+	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/pkg/billingexpr"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
 	"github.com/shopspring/decimal"
 )
 

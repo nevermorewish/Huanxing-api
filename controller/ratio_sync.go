@@ -16,13 +16,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/logger"
 
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/setting/billing_setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
+	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/model"
+	"github.com/huanxing/huanxing-api/setting/billing_setting"
+	"github.com/huanxing/huanxing-api/setting/ratio_setting"
 	"github.com/samber/lo"
 
 	"github.com/gin-gonic/gin"

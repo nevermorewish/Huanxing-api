@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/config"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/setting/performance_setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/setting"
+	"github.com/huanxing/huanxing-api/setting/config"
+	"github.com/huanxing/huanxing-api/setting/operation_setting"
+	"github.com/huanxing/huanxing-api/setting/performance_setting"
+	"github.com/huanxing/huanxing-api/setting/ratio_setting"
+	"github.com/huanxing/huanxing-api/setting/system_setting"
 )
 
 type Option struct {
@@ -68,6 +68,7 @@ func InitOptionMap() {
 	common.OptionMap["HomePageContent"] = ""
 	common.OptionMap["Footer"] = common.Footer
 	common.OptionMap["SystemName"] = common.SystemName
+	common.OptionMap["SystemNameEn"] = common.SystemNameEn
 	common.OptionMap["Logo"] = common.Logo
 	common.OptionMap["ServerAddress"] = ""
 	common.OptionMap["WorkerUrl"] = system_setting.WorkerUrl
@@ -459,6 +460,8 @@ func updateOptionMap(key string, value string) (err error) {
 		common.Footer = value
 	case "SystemName":
 		common.SystemName = value
+	case "SystemNameEn":
+		common.SystemNameEn = value
 	case "Logo":
 		common.Logo = value
 	case "WeChatServerAddress":

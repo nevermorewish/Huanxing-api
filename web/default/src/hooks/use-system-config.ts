@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 huanxing
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -14,9 +14,10 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-For commercial licensing, please contact support@quantumnous.com
+For commercial licensing, please contact support@huanxing.com
 */
 import { useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   useSystemConfigStore,
   type CurrencyConfig,
@@ -24,8 +25,13 @@ import {
   type SystemConfig,
   DEFAULT_CURRENCY_CONFIG,
 } from '@/stores/system-config-store'
-import { DEFAULT_SYSTEM_NAME, DEFAULT_LOGO } from '@/lib/constants'
+import {
+  DEFAULT_SYSTEM_NAME,
+  DEFAULT_SYSTEM_NAME_EN,
+  DEFAULT_LOGO,
+} from '@/lib/constants'
 import { applyFaviconToDom } from '@/lib/dom-utils'
+import { isEnglishLanguage } from '@/lib/system-branding'
 
 interface UseSystemConfigOptions {
   /** Automatically fetch config from backend (use only in root component) */
@@ -36,6 +42,7 @@ interface StatusApiResponse {
   success: boolean
   data: {
     system_name?: string
+    system_name_en?: string
     logo?: string
     footer_html?: string
     demo_site_enabled?: boolean
@@ -93,6 +100,7 @@ export function mapStatusDataToConfig(
 
   return {
     systemName: data.system_name || DEFAULT_SYSTEM_NAME,
+    systemNameEn: data.system_name_en || DEFAULT_SYSTEM_NAME_EN,
     logo: data.logo || DEFAULT_LOGO,
     footerHtml: data.footer_html,
     demoSiteEnabled: data.demo_site_enabled,
@@ -142,6 +150,7 @@ function preloadImage(
  */
 export function useSystemConfig(options: UseSystemConfigOptions = {}) {
   const { autoLoad = false } = options
+  const { i18n } = useTranslation()
   const {
     config,
     loading,
@@ -168,6 +177,19 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
   useEffect(() => {
     if (autoLoad) loadConfig()
   }, [autoLoad, loadConfig])
+
+  const displaySystemName = isEnglishLanguage(i18n.resolvedLanguage)
+    ? config.systemNameEn || DEFAULT_SYSTEM_NAME_EN
+    : config.systemName || DEFAULT_SYSTEM_NAME
+
+  useEffect(() => {
+    if (!autoLoad || typeof document === 'undefined') return
+    document.title = displaySystemName
+    const metaTitle = document.querySelector(
+      'meta[name="title"]'
+    ) as HTMLMetaElement | null
+    if (metaTitle) metaTitle.setAttribute('content', displaySystemName)
+  }, [autoLoad, displaySystemName])
 
   // Preload logo image when URL changes
   useEffect(() => {
@@ -197,6 +219,7 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
 
   return {
     ...config,
+    systemName: displaySystemName,
     loading,
     logoLoaded: config.logo === loadedLogoUrl && !!loadedLogoUrl,
   }
