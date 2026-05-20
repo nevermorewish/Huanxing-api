@@ -23,8 +23,6 @@ RUN go mod download
 
 COPY . .
 COPY --from=builder /build/dist ./web/default/dist
-RUN mkdir -p ./web/classic/dist && \
-    printf '%s\n' '<!doctype html><html><head><meta charset="UTF-8"><title>Huanxing</title></head><body>Classic frontend is not included in this image.</body></html>' > ./web/classic/dist/index.html
 RUN go build -ldflags "-s -w -X 'github.com/huanxing/huanxing-api/common.Version=$(cat VERSION)'" -o huanxing-api
 
 FROM debian:bookworm-slim@sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a
