@@ -36,8 +36,8 @@ const modelCards = [
     featured: true,
     mark: 'C',
     description:
-      '适合企业级知识库、合同财报解析、长文档处理和高可靠客服。可通过多供应商渠道实现稳定接入、弹性并发和成本治理。',
-    tags: ['企业合规', '长上下文', '低幻觉', '高并发', '批量推理'],
+      '具备业界顶尖的逻辑推理与长上下文代码库理解力，完美胜任核心系统全栈生成、庞大老旧系统架构重构、深层复杂 Bug 溯源及自动化工程文档输出，是企业研发团队全栈提效的超级工程师。',
+    tags: ['全栈开发', '架构重构', '深层排障', '系统迁移', '研发提效'],
   },
   {
     name: 'ChatGPT',
@@ -47,8 +47,8 @@ const modelCards = [
     featured: false,
     mark: 'G',
     description:
-      '通用交互体验成熟，工具生态完善，适合日常办公、内容创作、代码开发、智能问答和多模态业务入口。',
-    tags: ['通用全能', '多模态', '工具生态', '代码开发'],
+      '综合指令跟随、外部工具调度与多模态交互能力极度均衡，作为业界标杆级的全能引擎，适合充当平台级智能中枢，驱动复杂业务逻辑自动化执行与跨系统生产力闭环。',
+    tags: ['指令遵循', '工具调用', '多模交互', '业务闭环', '智能中枢'],
   },
   {
     name: 'Gemini',
@@ -58,8 +58,8 @@ const modelCards = [
     featured: false,
     mark: 'M',
     description:
-      '适合复杂推理、长上下文、多模态理解、科研分析和视频图像解析，覆盖高阶数据处理与工程研发场景。',
-    tags: ['推理能力', '多模态', '代码分析', '科研推演'],
+      '依托原生多模态架构与超大容量上下文窗口，彻底打破文本与视音频的边界，极其擅长复杂视频流深度解析、多维商业图表交叉推理以及海量资料的跨文件跨维度检索推演。',
+    tags: ['原生多模', '视听解析', '长窗检索', '图表推理', '跨维协同'],
   },
   {
     name: 'DeepSeek',
@@ -69,8 +69,8 @@ const modelCards = [
     featured: false,
     mark: 'D',
     description:
-      '推理能力突出，中文能力稳定，成本友好。适合复杂问答、代码生成、数据分析、知识库和批量调用。',
-    tags: ['推理突出', '中文稳定', '成本友好', '代码生成'],
+      '兼具硬核数理逻辑与极致的算力消耗性价比，在处理大规模并发任务时表现极佳，是支撑企业级 RAG 知识库构建、高阶逻辑计算、海量文本批量结构化分类的首选底座。',
+    tags: ['深度推理', '高阶计算', 'RAG 增强', '批量分类', '高性价比'],
   },
   {
     name: '混元',
@@ -80,8 +80,8 @@ const modelCards = [
     featured: false,
     mark: 'H',
     description:
-      '适合社交内容、企业协同、私域运营和隐私敏感场景，可结合企业微信、内容平台和业务系统集成。',
-    tags: ['社交生态', '隐私安全', '企业协同', '内容运营'],
+      '拥有深度定制的中文语境理解力与极高的合规标准，能够以极低成本无缝打通企业微信庞大生态，完美适配高标准业务内容安全审核、私域金牌客服与企业内部智能办公助理场景。',
+    tags: ['中文办公', '私域运营', '合规审核', '生态集成', '营销裂变'],
   },
   {
     name: '豆包',
@@ -91,18 +91,18 @@ const modelCards = [
     featured: false,
     mark: 'D',
     description:
-      '中文网感和内容生成效率突出，适合短视频脚本、直播文案、自媒体选题和轻量化创作工作流。',
-    tags: ['网感出众', '短视频', '内容创作', '低门槛'],
+      '具备极速灵动的响应效率与网感极佳的自然语言交互体验，专为短平快的内容井喷时代设计，极其适合爆款短视频脚本生成、高转化直播话术输出与电商平台的高频种草场景。',
+    tags: ['极速响应', '爆款脚本', '直播话术', '电商种草', '高频创作'],
   },
 ] as const
 
 const compareRows = [
-  ['Claude', '企业合规、长文本、稳定低幻觉、高并发弹性', '金融医疗、合同财报、知识库、企业批量落地', '中高'],
-  ['ChatGPT', '通用能力强、交互自然、工具生态完善', '日常办公、创意内容、代码开发、通用智能问答', '偏高'],
-  ['Gemini', '推理能力强、多模态覆盖广、代码分析能力好', '科研推演、复杂代码、图纸视频解析、数据分析', '中高'],
-  ['DeepSeek', '推理能力突出、中文稳定、成本优势明显', '复杂问答、代码生成、数据分析、知识库、批量调用', '低'],
-  ['混元', '本土生态适配、隐私安全、协同场景友好', '私域运营、企业微信协同、内容审核、内部办公', '中等'],
-  ['豆包', '内容表达自然、短视频适配、上手门槛低', '自媒体、短视频直播、流量文案、轻量创作', '低'],
+  ['Claude', '具备顶尖的复杂工程推理与长篇代码洞察力，全栈攻坚表现优异', '核心业务系统研发、老旧架构无缝重构、底层深层排障与全栈代码生成', '偏高'],
+  ['ChatGPT', '综合能力底座，指令遵循与外部工具调度高度均衡，稳居业界标杆', '驱动复杂业务自动化流转、高难度数据洞察中枢与全能型智能助理', '中高'],
+  ['Gemini', '依托强大原生多模态引擎，音视频解析与超大视窗跨维处理能力出众', '复杂音视频流深度解析、商业图表交叉推理与海量跨文件综合推演', '中高'],
+  ['DeepSeek', '硬核数理与逻辑推演能力，从容应对大规模高并发请求，兼顾极优性价比', '高并发企业级 RAG 知识库搭建、深度逻辑计算与海量数据批量分类', '中等'],
+  ['混元', '极高标准契合企业合规要求，深度理解中文业务语境，原生打通企微链路', '腾讯生态无缝集成、企业级智能办公协同、私域金牌客服与内容审核', '中等'],
+  ['豆包', '极速的内容生成响应效率，自然交互网感极佳，高度契合短平快新媒体', '爆款短视频脚本撰写、高转化电商直播话术、高频矩阵式轻量化种草', '低'],
 ] as const
 
 const ecoCards = [
@@ -149,24 +149,24 @@ function FadeIn(props: {
 
 function HeroSection() {
   return (
-    <section id='hero' className='hx-hero relative flex min-h-[78vh] items-center overflow-hidden bg-[#0a0c10] pt-[88px] text-white'>
+    <section id='hero' className='hx-hero relative flex min-h-[78vh] items-center overflow-hidden bg-[#f7f8fb] pt-[88px] text-[#111318] dark:bg-[#0a0c10] dark:text-white'>
       <div className='relative z-10 mx-auto w-full max-w-[1240px] px-5 py-16 text-center md:px-12'>
         <FadeIn>
           <div className='mb-7 inline-flex items-center gap-2 rounded-full border border-[#ff9900]/25 bg-[#ff9900]/10 px-4 py-1.5 text-xs font-bold tracking-[0.12em] text-[#ff9900]'>
             <span className='text-[10px]'>◆</span>
             寰星云科 AI 聚合平台
           </div>
-          <h1 className='mx-auto max-w-5xl text-4xl leading-[1.14] font-black tracking-normal text-white md:text-6xl'>
+          <h1 className='mx-auto max-w-5xl text-4xl leading-[1.14] font-black tracking-normal text-[#111318] md:text-6xl dark:text-white'>
             一站式全品类
             <span className='hx-orange-gradient'> AI 大模型聚合服务</span>
           </h1>
-          <p className='mx-auto mt-5 max-w-3xl text-base leading-8 text-[#9ba3af] md:text-lg'>
+          <p className='mx-auto mt-5 max-w-3xl text-base leading-8 text-[#4b5563] md:text-lg dark:text-[#9ba3af]'>
             聚合 Claude、ChatGPT、Gemini、DeepSeek、混元、豆包等主流模型，统一接口、统一计费、统一路由，
             为企业 AI 应用提供稳定、可控、可运营的接入底座。
           </p>
           <div className='mt-9 flex flex-wrap justify-center gap-3'>
-            <a href='#models' className='hx-btn-primary'>
-              浏览六大模型 <ArrowRight className='size-4' />
+            <a href='/dashboard/overview' className='hx-btn-primary'>
+              进入控制台 <ArrowRight className='size-4' />
             </a>
             <a href='#compare' className='hx-btn-ghost'>
               快速选型对比
@@ -180,7 +180,7 @@ function HeroSection() {
                   'rounded-full border px-4 py-2 text-sm font-semibold transition',
                   index === 0
                     ? 'border-[#ff9900]/25 bg-[#ff9900]/10 text-[#ff9900]'
-                    : 'border-white/[0.06] bg-white/[0.035] text-[#9ba3af] hover:border-[#ff9900]/30 hover:text-white'
+                    : 'border-slate-200 bg-white text-[#4b5563] hover:border-[#ff9900]/30 hover:text-[#111318] dark:border-white/[0.06] dark:bg-white/[0.035] dark:text-[#9ba3af] dark:hover:text-white'
                 )}
               >
                 {name}
@@ -204,12 +204,12 @@ function SectionHeader(props: {
       <div className={cn('hx-section-label', props.centered && 'justify-center')}>
         {props.label}
       </div>
-      <h2 className='text-3xl leading-tight font-black tracking-normal text-white md:text-[42px]'>
+      <h2 className='text-3xl leading-tight font-black tracking-normal text-[#111318] dark:text-white md:text-[42px]'>
         {props.title}
       </h2>
       <p
         className={cn(
-          'mt-4 max-w-3xl text-base leading-8 text-[#9ba3af]',
+          'mt-4 max-w-3xl text-base leading-8 text-[#4b5563] dark:text-[#9ba3af]',
           props.centered && 'mx-auto'
         )}
       >
@@ -221,7 +221,7 @@ function SectionHeader(props: {
 
 function ModelsSection() {
   return (
-    <section id='models' className='bg-[#0d1017] px-5 py-24 md:px-12'>
+    <section id='models' className='bg-[#ffffff] px-5 py-24 dark:bg-[#0d1017] md:px-12'>
       <div className='mx-auto max-w-[1240px]'>
         <SectionHeader
           centered
@@ -235,10 +235,10 @@ function ModelsSection() {
               key={model.name}
               delay={index % 3 === 0 ? 'd1' : index % 3 === 1 ? 'd2' : 'd3'}
               className={cn(
-                'relative flex min-h-[310px] flex-col overflow-hidden rounded-2xl border bg-[#111318] p-7 transition duration-300 hover:-translate-y-1 hover:border-[#ff9900]/25 hover:shadow-2xl hover:shadow-black/35',
+                'relative flex min-h-[310px] flex-col overflow-hidden rounded-2xl border bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#ff9900]/25 hover:shadow-2xl hover:shadow-slate-200/70 dark:bg-[#111318] dark:shadow-none dark:hover:shadow-black/35',
                 model.featured
-                  ? 'border-[#ff9900]/35 bg-[linear-gradient(180deg,rgba(255,153,0,0.06),#111318_42%)] before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-[linear-gradient(90deg,#cc7a00,#ffb84d)]'
-                  : 'border-white/[0.06]'
+                  ? 'border-[#ff9900]/35 bg-[linear-gradient(180deg,rgba(255,153,0,0.08),#fff_42%)] before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-[linear-gradient(90deg,#cc7a00,#ffb84d)] dark:bg-[linear-gradient(180deg,rgba(255,153,0,0.06),#111318_42%)]'
+                  : 'border-slate-200 dark:border-white/[0.06]'
               )}
             >
               {model.badge && (
@@ -247,19 +247,19 @@ function ModelsSection() {
                 </span>
               )}
               <div className='mb-5 flex items-center gap-4'>
-                <div className='flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.05] text-lg font-black text-[#ff9900]'>
+                <div className='flex size-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-[#fff7ed] text-lg font-black text-[#ff9900] dark:border-white/[0.06] dark:bg-white/[0.05]'>
                   {model.mark}
                 </div>
                 <div>
-                  <h3 className='text-lg font-extrabold text-white'>{model.name}</h3>
-                  <p className='mt-0.5 text-xs tracking-wide text-[#6b7280]'>{model.vendor}</p>
+                  <h3 className='text-lg font-extrabold text-[#111318] dark:text-white'>{model.name}</h3>
+                  <p className='mt-0.5 text-xs tracking-wide text-[#6b7280] dark:text-[#6b7280]'>{model.vendor}</p>
                 </div>
               </div>
               <div className='mb-3 inline-flex w-fit items-center gap-1.5 rounded border border-emerald-400/15 bg-emerald-400/10 px-2 py-1 text-xs font-bold text-emerald-400'>
                 <span className='text-[7px]'>●</span>
                 {model.version}
               </div>
-              <p className='mb-5 flex-1 text-sm leading-7 text-[#9ba3af]'>
+              <p className='mb-5 flex-1 text-sm leading-7 text-[#4b5563] dark:text-[#9ba3af]'>
                 {model.description}
               </p>
               <div className='flex flex-wrap gap-1.5'>
@@ -270,7 +270,7 @@ function ModelsSection() {
                       'rounded border px-2 py-1 text-xs font-semibold',
                       tagIndex < 2
                         ? 'border-[#ff9900]/15 bg-[#ff9900]/10 text-[#ff9900]'
-                        : 'border-white/[0.06] bg-white/[0.04] text-[#9ba3af]'
+                        : 'border-slate-200 bg-slate-50 text-[#4b5563] dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-[#9ba3af]'
                     )}
                   >
                     {tag}
@@ -287,7 +287,7 @@ function ModelsSection() {
 
 function CompareSection() {
   return (
-    <section id='compare' className='bg-[#0a0c10] px-5 py-20 md:px-12'>
+    <section id='compare' className='bg-[#f7f8fb] px-5 py-20 dark:bg-[#0a0c10] md:px-12'>
       <div className='mx-auto max-w-[1240px]'>
         <SectionHeader
           centered
@@ -295,7 +295,7 @@ function CompareSection() {
           title={<>六大模型 <span className='text-[#ff9900]'>快速选型对比</span></>}
           description='一张表看懂各模型核心优势与最佳适用场景，精准匹配您的业务需求。'
         />
-        <FadeIn delay='d1' className='mt-12 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111318]'>
+        <FadeIn delay='d1' className='mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/[0.06] dark:bg-[#111318] dark:shadow-none'>
           <div className='overflow-x-auto'>
             <table className='min-w-[900px] w-full border-collapse text-left text-sm'>
               <thead>
@@ -310,10 +310,10 @@ function CompareSection() {
                 {compareRows.map(([name, strength, scenario, cost], index) => (
                   <tr
                     key={name}
-                    className='border-b border-white/[0.06] transition last:border-0 hover:bg-[#ff9900]/[0.03]'
+                    className='border-b border-slate-200 transition last:border-0 hover:bg-[#ff9900]/[0.03] dark:border-white/[0.06]'
                   >
-                    <td className='px-5 py-4 font-semibold text-white'>
-                      <span className='mr-2 inline-flex size-5 items-center justify-center rounded bg-white/[0.06] text-[10px] text-[#ff9900]'>
+                    <td className='px-5 py-4 font-semibold text-[#111318] dark:text-white'>
+                      <span className='mr-2 inline-flex size-5 items-center justify-center rounded bg-slate-100 text-[10px] text-[#ff9900] dark:bg-white/[0.06]'>
                         {name[0]}
                       </span>
                       {name}
@@ -323,8 +323,8 @@ function CompareSection() {
                         </span>
                       )}
                     </td>
-                    <td className='px-5 py-4 leading-7 text-[#9ba3af]'>{strength}</td>
-                    <td className='px-5 py-4 leading-7 text-[#9ba3af]'>{scenario}</td>
+                    <td className='px-5 py-4 leading-7 text-[#4b5563] dark:text-[#9ba3af]'>{strength}</td>
+                    <td className='px-5 py-4 leading-7 text-[#4b5563] dark:text-[#9ba3af]'>{scenario}</td>
                     <td className='px-5 py-4'>
                       <span
                         className={cn(
@@ -352,7 +352,7 @@ function CompareSection() {
 
 function EcosystemSection() {
   return (
-    <section id='ecosystem' className='bg-[#0d1017] px-5 py-20 md:px-12'>
+    <section id='ecosystem' className='bg-[#ffffff] px-5 py-20 dark:bg-[#0d1017] md:px-12'>
       <div className='mx-auto max-w-[1240px]'>
         <SectionHeader
           centered
@@ -366,15 +366,15 @@ function EcosystemSection() {
               key={card.title}
               delay={index === 0 ? 'd1' : index === 1 ? 'd2' : 'd3'}
               className={cn(
-                'rounded-2xl border border-white/[0.06] bg-[#111318] p-7 transition hover:-translate-y-1 hover:border-[#ff9900]/25',
+                'rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-[#ff9900]/25 dark:border-white/[0.06] dark:bg-[#111318] dark:shadow-none',
                 card.wide && 'lg:col-span-2'
               )}
             >
-              <h3 className='mb-3 flex items-center gap-3 text-lg font-extrabold text-white'>
+              <h3 className='mb-3 flex items-center gap-3 text-lg font-extrabold text-[#111318] dark:text-white'>
                 <span className='text-[#ff9900]'>◆</span>
                 {card.title}
               </h3>
-              <p className='text-sm leading-8 text-[#9ba3af]'>{card.description}</p>
+              <p className='text-sm leading-8 text-[#4b5563] dark:text-[#9ba3af]'>{card.description}</p>
             </FadeIn>
           ))}
         </div>
@@ -385,7 +385,7 @@ function EcosystemSection() {
 
 function AdvantagesSection() {
   return (
-    <section id='advantages' className='bg-[#0a0c10] px-5 py-20 md:px-12'>
+    <section id='advantages' className='bg-[#f7f8fb] px-5 py-20 dark:bg-[#0a0c10] md:px-12'>
       <div className='mx-auto max-w-[1240px]'>
         <SectionHeader
           centered
@@ -398,13 +398,13 @@ function AdvantagesSection() {
             <FadeIn
               key={num}
               delay={index % 3 === 0 ? 'd1' : index % 3 === 1 ? 'd2' : 'd3'}
-              className='group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111318] p-7 transition hover:-translate-y-1 hover:border-[#ff9900]/25 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-[linear-gradient(90deg,#cc7a00,#ffb84d)] before:opacity-0 before:transition group-hover:before:opacity-100'
+              className='group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-[#ff9900]/25 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-[linear-gradient(90deg,#cc7a00,#ffb84d)] before:opacity-0 before:transition group-hover:before:opacity-100 dark:border-white/[0.06] dark:bg-[#111318] dark:shadow-none'
             >
               <div className='mb-2 text-4xl leading-none font-black text-[#ff9900]/20'>
                 {num}
               </div>
-              <h3 className='mb-3 text-lg font-extrabold text-white'>{title}</h3>
-              <p className='text-sm leading-7 text-[#9ba3af]'>{description}</p>
+              <h3 className='mb-3 text-lg font-extrabold text-[#111318] dark:text-white'>{title}</h3>
+              <p className='text-sm leading-7 text-[#4b5563] dark:text-[#9ba3af]'>{description}</p>
             </FadeIn>
           ))}
         </div>
@@ -415,49 +415,26 @@ function AdvantagesSection() {
 
 function HomeFooter() {
   return (
-    <footer className='border-t border-white/[0.06] bg-[#0a0c10] px-5 py-12 text-[#9ba3af] md:px-12'>
-      <div className='mx-auto grid max-w-[1240px] gap-8 md:grid-cols-[2fr_1fr_1fr_1fr]'>
+    <footer className='border-t border-slate-200 bg-white px-5 py-12 text-[#4b5563] dark:border-white/[0.06] dark:bg-[#0a0c10] dark:text-[#9ba3af] md:px-12'>
+      <div className='mx-auto max-w-[1240px] text-center'>
         <div>
-          <div className='mb-3 text-xl font-black text-white'>
+          <div className='mb-3 text-xl font-black text-[#111318] dark:text-white'>
             寰星<span className='text-[#ff9900]'>云科</span>
           </div>
-          <p className='max-w-sm text-sm leading-7 text-[#6b7280]'>
+          <p className='mx-auto max-w-sm text-sm leading-7 text-[#4b5563] dark:text-[#6b7280]'>
             面向企业和开发者的 AI 模型聚合网关，提供统一接入、计费、路由、安全和运营能力。
           </p>
           <div className='mt-3 text-xs font-bold tracking-[0.12em] text-[#ff9900]'>
             AI MODEL GATEWAY
           </div>
         </div>
-        <div>
-          <h4 className='mb-3 text-sm font-bold text-white'>产品专区</h4>
-          <div className='grid gap-2 text-sm text-[#6b7280]'>
-            <a href='#models' className='hover:text-[#ff9900]'>Claude</a>
-            <a href='#models' className='hover:text-[#ff9900]'>ChatGPT</a>
-            <a href='#models' className='hover:text-[#ff9900]'>Gemini</a>
-            <a href='#models' className='hover:text-[#ff9900]'>DeepSeek</a>
-          </div>
-        </div>
-        <div>
-          <h4 className='mb-3 text-sm font-bold text-white'>解决方案</h4>
-          <div className='grid gap-2 text-sm text-[#6b7280]'>
-            <a href='#compare' className='hover:text-[#ff9900]'>模型选型</a>
-            <a href='#ecosystem' className='hover:text-[#ff9900]'>企业接入</a>
-            <a href='#advantages' className='hover:text-[#ff9900]'>成本治理</a>
-          </div>
-        </div>
-        <div>
-          <h4 className='mb-3 text-sm font-bold text-white'>联系方式</h4>
-          <a className='text-sm text-[#6b7280] hover:text-[#ff9900]' href='mailto:support@huanxing.com'>
-            support@huanxing.com
-          </a>
-        </div>
       </div>
-      <div className='mx-auto mt-9 flex max-w-[1240px] flex-col justify-between gap-3 border-t border-white/[0.06] pt-5 text-xs text-[#6b7280] md:flex-row'>
+      <div className='mx-auto mt-9 flex max-w-[1240px] flex-col justify-between gap-3 border-t border-slate-200 pt-5 text-xs text-[#6b7280] dark:border-white/[0.06] md:flex-row'>
         <span>© 2026 huanxing · All Rights Reserved · 以 AI 驱动的模型网关服务平台</span>
         <span className='flex gap-2'>
-          <span className='rounded border border-white/[0.06] px-2 py-1'>统一网关 ✓</span>
-          <span className='rounded border border-white/[0.06] px-2 py-1'>多模型聚合 ✓</span>
-          <span className='rounded border border-white/[0.06] px-2 py-1'>7×24 监控 ✓</span>
+          <span className='rounded border border-slate-200 px-2 py-1 dark:border-white/[0.06]'>统一网关 ✓</span>
+          <span className='rounded border border-slate-200 px-2 py-1 dark:border-white/[0.06]'>多模型聚合 ✓</span>
+          <span className='rounded border border-slate-200 px-2 py-1 dark:border-white/[0.06]'>7×24 监控 ✓</span>
         </span>
       </div>
     </footer>
@@ -545,14 +522,28 @@ function LandingStyles() {
         align-items: center;
         gap: 8px;
         border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.06);
-        color: #f0f2f5;
+        border: 1px solid rgba(17,19,24,0.16);
+        background: rgba(255,255,255,0.72);
+        color: #111318;
         padding: 14px 32px;
         font-size: 16px;
         font-weight: 700;
+        box-shadow: 0 8px 28px rgba(15,23,42,0.08);
         transition: all 0.25s ease;
       }
-      .hx-btn-ghost:hover { border-color: rgba(255,153,0,0.4); color: #ff9900; }
+      .dark .hx-btn-ghost {
+        border-color: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.035);
+        color: #f0f2f5;
+        box-shadow: none;
+      }
+      .hx-btn-ghost:hover {
+        border-color: rgba(255,153,0,0.45);
+        background: rgba(255,153,0,0.08);
+        color: #cc7a00;
+        transform: translateY(-2px);
+      }
+      .dark .hx-btn-ghost:hover { color: #ff9900; }
       .hx-section-label {
         display: inline-flex;
         align-items: center;
@@ -604,7 +595,7 @@ function LandingStyles() {
 
 function DefaultLanding() {
   return (
-    <div className='hx-page min-h-screen overflow-x-hidden bg-[#0a0c10] text-[#f0f2f5]'>
+    <div className='hx-page min-h-screen overflow-x-hidden bg-[#f7f8fb] text-[#111318] dark:bg-[#0a0c10] dark:text-[#f0f2f5]'>
       <LandingStyles />
       <main>
         <HeroSection />
@@ -660,12 +651,8 @@ export function Home() {
     <PublicLayout
       showMainContainer={false}
       showAuthButtons={false}
-      showThemeSwitch={false}
+      showThemeSwitch
       showNotifications={false}
-      headerProps={{
-        className:
-          'border-white/[0.06] bg-[#0a0c10]/90 text-white backdrop-blur-xl [&_.text-muted-foreground]:text-[#9ba3af]',
-      }}
     >
       <DefaultLanding />
     </PublicLayout>

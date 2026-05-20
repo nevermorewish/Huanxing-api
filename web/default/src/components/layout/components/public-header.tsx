@@ -186,23 +186,30 @@ export function PublicHeader(props: PublicHeaderProps) {
           className={cn(
             'pointer-events-auto mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
             props.className,
-            scrolled ? 'max-w-[52rem] px-3 pt-3' : 'max-w-7xl px-4 pt-0 md:px-6'
+            scrolled
+              ? 'max-w-[1180px] px-4 pt-3'
+              : 'max-w-[1280px] px-4 pt-4 md:px-6'
           )}
         >
           <nav
             className={cn(
               'flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
               scrolled
-                ? 'bg-background/60 ring-border/50 h-12 rounded-2xl pr-1.5 pl-4 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-2xl dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'
-                : 'h-16 px-2'
+                ? 'bg-background/82 ring-border/70 h-16 rounded-2xl border px-4 shadow-[0_12px_36px_-18px_rgba(15,23,42,0.45)] ring-1 backdrop-blur-2xl dark:bg-background/70 dark:shadow-[0_14px_44px_-18px_rgba(0,0,0,0.65)]'
+                : 'bg-background/72 ring-border/50 h-20 rounded-2xl border px-5 shadow-[0_18px_52px_-28px_rgba(15,23,42,0.35)] ring-1 backdrop-blur-2xl dark:bg-background/58 dark:shadow-[0_18px_56px_-28px_rgba(0,0,0,0.7)]'
             )}
           >
             {/* Logo */}
             <Link
               to={homeUrl}
-              className='group flex shrink-0 items-center gap-2.5'
+              className='group flex shrink-0 items-center gap-3.5'
             >
-              <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>
+              <div
+                className={cn(
+                  'bg-background flex shrink-0 items-center justify-center rounded-2xl border border-[#ff9900]/20 shadow-sm transition-all duration-300 group-hover:scale-105',
+                  scrolled ? 'size-10' : 'size-12'
+                )}
+              >
                 {loading ? (
                   <Skeleton className='size-full rounded-lg' />
                 ) : customLogo ? (
@@ -212,17 +219,22 @@ export function PublicHeader(props: PublicHeaderProps) {
                     src={systemLogo}
                     loading={loading}
                     logoLoaded={logoLoaded}
-                    className='size-full rounded-lg object-contain'
+                    className='size-[78%] rounded-xl object-contain'
                   />
                 )}
               </div>
-              <span className='text-sm font-semibold tracking-tight'>
-                {loading ? <Skeleton className='h-4 w-16' /> : displaySiteName}
+              <span
+                className={cn(
+                  'text-foreground whitespace-nowrap font-black tracking-normal transition-all duration-300',
+                  scrolled ? 'text-xl' : 'text-2xl xl:text-[28px]'
+                )}
+              >
+                {loading ? <Skeleton className='h-7 w-28' /> : displaySiteName}
               </span>
             </Link>
 
             {/* Desktop nav */}
-            <div className='hidden items-center gap-0.5 sm:flex'>
+            <div className='hidden items-center gap-2 sm:flex'>
               {links.map((link, i) => {
                 const isActive = pathname === link.href
                 if (link.external) {
@@ -236,7 +248,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                       tabIndex={link.disabled ? -1 : undefined}
                       onClick={(event) => handleNavLinkClick(event, link)}
                       className={cn(
-                        'text-muted-foreground hover:text-foreground rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
+                        'text-muted-foreground hover:bg-accent/70 hover:text-foreground rounded-xl px-4 py-2.5 text-lg font-extrabold tracking-normal transition-all duration-200 xl:text-xl',
                         link.disabled && 'pointer-events-none opacity-50'
                       )}
                     >
@@ -251,10 +263,10 @@ export function PublicHeader(props: PublicHeaderProps) {
                     disabled={link.disabled}
                     onClick={(event) => handleNavLinkClick(event, link)}
                     className={cn(
-                      'rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
+                      'rounded-xl px-4 py-2.5 text-lg font-extrabold tracking-normal transition-all duration-200 xl:text-xl',
                       isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
+                        ? 'bg-[#ff9900]/12 text-[#ff9900] shadow-[inset_0_0_0_1px_rgba(255,153,0,0.16)]'
+                        : 'text-muted-foreground hover:bg-accent/70 hover:text-foreground',
                       link.disabled && 'pointer-events-none opacity-50'
                     )}
                   >
@@ -266,7 +278,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               {(showLanguageSwitcher ||
                 showThemeSwitch ||
                 showNotifications) && (
-                <div className='bg-border/40 mx-2 h-4 w-px' />
+                <div className='bg-border/70 mx-2 h-8 w-px' />
               )}
 
               {showLanguageSwitcher && <LanguageSwitcher />}
@@ -280,15 +292,15 @@ export function PublicHeader(props: PublicHeaderProps) {
 
               {showAuthButtons && (
                 <>
-                  <div className='bg-border/40 mx-1 h-4 w-px' />
+                  <div className='bg-border/70 mx-1 h-8 w-px' />
                   {loading ? (
-                    <Skeleton className='h-8 w-20 rounded-lg' />
+                    <Skeleton className='h-10 w-24 rounded-xl' />
                   ) : isAuthenticated ? (
                     <ProfileDropdown />
                   ) : (
                     <Button
                       size='sm'
-                      className='h-8 rounded-lg px-3.5 text-xs font-medium'
+                      className='h-10 rounded-xl px-5 text-sm font-bold'
                       render={<Link to='/sign-in' />}
                     >
                       {t('Sign in')}
