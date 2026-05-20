@@ -13,6 +13,10 @@ jobs:
     env:
       ACR_REGISTRY: crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com
       ACR_NAMESPACE: frogclaw
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
 
     steps:
       - name: Install skopeo
@@ -21,16 +25,15 @@ jobs:
           sudo apt-get install -y skopeo
 
       - name: Log in to Docker Hub
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | skopeo login docker.io \
-            --username "${{ secrets.DOCKERHUB_USERNAME }}" \
+          echo "${DOCKERHUB_TOKEN}" | skopeo login docker.io \
+            --username "${DOCKERHUB_USERNAME}" \
             --password-stdin
 
       - name: Log in to Aliyun ACR
         run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | skopeo login "${ACR_REGISTRY}" \
-            --username "${{ secrets.ACR_USERNAME }}" \
+          echo "${ACR_PASSWORD}" | skopeo login "${ACR_REGISTRY}" \
+            --username "${ACR_USERNAME}" \
             --password-stdin
 
       - name: Sync oven/bun
@@ -50,4 +53,3 @@ jobs:
           skopeo copy --all \
             docker://docker.io/library/debian:bookworm-slim \
             docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-debian:bookworm-slim
-
