@@ -1780,7 +1780,7 @@
     "footer.columns.related.links.oneApi": "One API",
     "footer.columns.related.title": "Projets liés",
     "footer.defaultCopyright": "Tous droits réservés.",
-    "footer.new\u0061pi.projectAttributionSuffix": "Tous droits réservés. Conçu et développé par les contributeurs du projet.",
+    "footer.newapi.projectAttributionSuffix": "Tous droits réservés. Conçu et développé par les contributeurs du projet.",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "Pour les canaux ajoutés après le 10 mai 2025, pas besoin de supprimer \".\" des noms de modèles lors du déploiement",
     "For private deployments, format: https://fastgpt.run/api/openapi": "Pour les déploiements privés, format : https://fastgpt.run/api/openapi",
     "Force a syntactically valid JSON response": "Imposer une réponse JSON syntaxiquement valide",
@@ -4565,6 +4565,16 @@
     "Make model access stable, measurable, and ready for scale": "Make model access stable, measurable, and ready for scale",
     "Start with your current providers and gradually add routing, quota, billing, and observability without rewriting every application.": "Start with your current providers and gradually add routing, quota, billing, and observability without rewriting every application.",
     "Open console": "Ouvrir la console",
-    "Contact us": "Nous contacter"
+    "Contact us": "Nous contacter",
+    "Export Channels": "Exporter les canaux",
+    "Import Channels": "Importer les canaux",
+    "Channels exported successfully": "Canaux exportes avec succes",
+    "Failed to export channels": "Echec de l'exportation des canaux",
+    "Invalid channel import file": "Fichier d'importation de canaux invalide",
+    "Import file does not contain channel data": "Le fichier d'importation ne contient aucune donnee de canal",
+    "Imported {{count}} channel(s) successfully": "{{count}} canal(aux) importe(s) avec succes",
+    "Failed to import channels": "Echec de l'importation des canaux",
+    "Import Channels?": "Importer les canaux ?",
+    "This will import {{count}} channel(s). Continue?": "Cela importera {{count}} canal(aux). Continuer ?"
   }
 }

@@ -170,6 +170,21 @@ export interface CopyChannelResponse {
   }
 }
 
+export interface ChannelExportData {
+  version?: number
+  export_time?: string
+  count?: number
+  channels: Channel[]
+}
+
+export interface ImportChannelsResponse {
+  success: boolean
+  message?: string
+  data?: {
+    count: number
+  }
+}
+
 // ============================================================================
 // Multi-Key Management Types
 // ============================================================================

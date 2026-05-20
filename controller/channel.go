@@ -854,6 +854,89 @@ func DeleteChannelBatch(c *gin.Context) {
 	return
 }
 
+// ExportChannels exports all channels as a JSON backup file.
+func ExportChannels(c *gin.Context) {
+	channels, err := model.GetAllChannels(0, 0, true, false)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	for _, ch := range channels {
+		ch.Id = 0
+		ch.CreatedTime = 0
+		ch.TestTime = 0
+		ch.ResponseTime = 0
+		ch.Balance = 0
+		ch.BalanceUpdatedTime = 0
+		ch.UsedQuota = 0
+	}
+
+	exportData := gin.H{
+		"version":     1,
+		"export_time": time.Now().Format(time.RFC3339),
+		"count":       len(channels),
+		"channels":    channels,
+	}
+
+	jsonBytes, err := common.Marshal(exportData)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename=channels-export.json")
+	c.Data(http.StatusOK, "application/json", jsonBytes)
+}
+
+// ImportChannels imports channels from a JSON backup file.
+func ImportChannels(c *gin.Context) {
+	var req struct {
+		Channels []model.Channel `json:"channels"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	if len(req.Channels) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "没有渠道数据",
+		})
+		return
+	}
+
+	now := common.GetTimestamp()
+	for i := range req.Channels {
+		req.Channels[i].Id = 0
+		req.Channels[i].CreatedTime = now
+		req.Channels[i].TestTime = 0
+		req.Channels[i].ResponseTime = 0
+		req.Channels[i].Balance = 0
+		req.Channels[i].BalanceUpdatedTime = 0
+		req.Channels[i].UsedQuota = 0
+
+		if err := validateChannel(&req.Channels[i], true); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": fmt.Sprintf("渠道 #%d 校验失败: %s", i+1, err.Error()),
+			})
+			return
+		}
+	}
+
+	if err := model.BatchInsertChannels(req.Channels); err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	model.InitChannelCache()
+	common.ApiSuccess(c, gin.H{
+		"count": len(req.Channels),
+	})
+}
+
 type PatchChannel struct {
 	model.Channel
 	MultiKeyMode *string `json:"multi_key_mode"`

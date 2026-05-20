@@ -19,18 +19,21 @@ For commercial licensing, please contact support@huanxing.com
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
-  Plus,
+  ArrowUpFromLine,
+  DollarSign,
+  Download,
   MoreHorizontal,
+  Plus,
+  RefreshCw,
   Settings2,
-  Trash2,
+  SortAsc,
   Tags,
   TestTube,
-  DollarSign,
-  SortAsc,
-  RefreshCw,
-  ArrowUpFromLine,
+  Trash2,
+  Upload,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -46,10 +49,13 @@ import { Switch } from '@/components/ui/switch'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import {
   handleDeleteAllDisabled,
+  handleExportChannels,
   handleFixAbilities,
+  handleImportChannels,
   handleTestAllChannels,
   handleUpdateAllBalances,
 } from '../lib'
+import type { ChannelExportData } from '../types'
 import { useChannels } from './channels-provider'
 
 export function ChannelsPrimaryButtons() {
@@ -64,6 +70,7 @@ export function ChannelsPrimaryButtons() {
   } = useChannels()
   const queryClient = useQueryClient()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [importData, setImportData] = useState<ChannelExportData | null>(null)
 
   const handleTagModeToggle = (checked: boolean) => {
     localStorage.setItem('enable-tag-mode', String(checked))
@@ -73,6 +80,26 @@ export function ChannelsPrimaryButtons() {
   const handleIdSortToggle = (checked: boolean) => {
     localStorage.setItem('channels-id-sort', String(checked))
     setIdSort(checked)
+  }
+
+  const handleImportFile = (file: File | undefined) => {
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(String(event.target?.result || ''))
+        if (!Array.isArray(parsed?.channels)) {
+          setImportData(null)
+          toast.error(t('Invalid channel import file'))
+          return
+        }
+        setImportData(parsed as ChannelExportData)
+      } catch {
+        setImportData(null)
+        toast.error(t('Invalid channel import file'))
+      }
+    }
+    reader.readAsText(file)
   }
 
   return (
@@ -161,6 +188,34 @@ export function ChannelsPrimaryButtons() {
 
             <DropdownMenuSeparator />
 
+            <DropdownMenuItem onClick={() => handleExportChannels()}>
+              {t('Export Channels')}
+              <DropdownMenuShortcut>
+                <Download className='h-4 w-4' />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault()
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'application/json,.json'
+                input.onchange = () => {
+                  handleImportFile(input.files?.[0])
+                  input.value = ''
+                }
+                input.click()
+              }}
+            >
+              {t('Import Channels')}
+              <DropdownMenuShortcut>
+                <Upload className='h-4 w-4' />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
             <DropdownMenuItem
               onClick={() => upstream.detectAllUpdates()}
               disabled={upstream.detectAllLoading}
@@ -227,6 +282,23 @@ export function ChannelsPrimaryButtons() {
             console.log(`Deleted ${_count} channels`)
           })
           setShowDeleteDialog(false)
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!importData}
+        onOpenChange={(open) => {
+          if (!open) setImportData(null)
+        }}
+        title={t('Import Channels?')}
+        desc={t('This will import {{count}} channel(s). Continue?', {
+          count: importData?.channels?.length || 0,
+        })}
+        confirmText={t('Import')}
+        handleConfirm={() => {
+          if (!importData) return
+          handleImportChannels(importData, queryClient)
+          setImportData(null)
         }}
       />
     </>

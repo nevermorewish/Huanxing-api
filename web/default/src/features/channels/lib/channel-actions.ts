@@ -30,14 +30,16 @@ import {
   enableTagChannels,
   disableTagChannels,
   deleteDisabledChannels,
+  exportChannels,
   fixChannelAbilities,
   editTagChannels,
+  importChannels,
   testAllChannels,
   updateAllChannelsBalance,
   updateChannelBalance,
 } from '../api'
 import { CHANNEL_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants'
-import type { CopyChannelParams } from '../types'
+import type { ChannelExportData, CopyChannelParams } from '../types'
 
 // ============================================================================
 // Query Keys
@@ -513,6 +515,62 @@ export async function handleDeleteAllDisabled(
     }
   } catch (_error) {
     toast.error(i18next.t('Failed to delete disabled channels'))
+  }
+}
+
+/**
+ * Export channels to a JSON file.
+ */
+export async function handleExportChannels(): Promise<void> {
+  try {
+    const blob = await exportChannels()
+    const url = URL.createObjectURL(
+      blob instanceof Blob ? blob : new Blob([blob], { type: 'application/json' })
+    )
+    const link = document.createElement('a')
+    const date = new Date().toISOString().slice(0, 10)
+    link.href = url
+    link.download = `channels-export-${date}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success(i18next.t('Channels exported successfully'))
+  } catch (_error) {
+    toast.error(i18next.t('Failed to export channels'))
+  }
+}
+
+/**
+ * Import channels from a parsed JSON backup.
+ */
+export async function handleImportChannels(
+  data: ChannelExportData,
+  queryClient?: QueryClient
+): Promise<void> {
+  if (!Array.isArray(data.channels)) {
+    toast.error(i18next.t('Invalid channel import file'))
+    return
+  }
+
+  if (data.channels.length === 0) {
+    toast.error(i18next.t('Import file does not contain channel data'))
+    return
+  }
+
+  try {
+    const response = await importChannels(data.channels)
+    if (response.success) {
+      const count = response.data?.count || data.channels.length
+      toast.success(
+        i18next.t('Imported {{count}} channel(s) successfully', { count })
+      )
+      queryClient?.invalidateQueries({ queryKey: channelsQueryKeys.all })
+    } else {
+      toast.error(response.message || i18next.t('Failed to import channels'))
+    }
+  } catch (_error) {
+    toast.error(i18next.t('Failed to import channels'))
   }
 }
 
