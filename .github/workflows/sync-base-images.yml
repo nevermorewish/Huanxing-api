@@ -1,0 +1,53 @@
+name: Sync base images to ACR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync Docker Hub base images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      ACR_REGISTRY: crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com
+      ACR_NAMESPACE: frogclaw
+
+    steps:
+      - name: Install skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Log in to Docker Hub
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | skopeo login docker.io \
+            --username "${{ secrets.DOCKERHUB_USERNAME }}" \
+            --password-stdin
+
+      - name: Log in to Aliyun ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | skopeo login "${ACR_REGISTRY}" \
+            --username "${{ secrets.ACR_USERNAME }}" \
+            --password-stdin
+
+      - name: Sync oven/bun
+        run: |
+          skopeo copy --all \
+            docker://docker.io/oven/bun:1 \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-bun:1
+
+      - name: Sync golang
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/golang:1.26.1-alpine \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-golang:1.26.1-alpine
+
+      - name: Sync debian
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/debian:bookworm-slim \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-debian:bookworm-slim
+
