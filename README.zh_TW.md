@@ -126,14 +126,14 @@ docker-compose up -d
 
 ```bash
 # 拉取最新鏡像
-docker pull huanxing/huanxing-api:latest
+docker pull crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # 使用 SQLite（預設）
 docker run --name huanxing-api -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # 使用 MySQL
 docker run --name huanxing-api -d --restart always \
@@ -141,7 +141,7 @@ docker run --name huanxing-api -d --restart always \
   -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 > **💡 提示：** `-v ./data:/data` 會將數據保存在當前目錄的 `data` 資料夾中，你也可以改為絕對路徑如 `-v /your/custom/path:/data`
@@ -295,7 +295,7 @@ docker run --name huanxing-api -d --restart always \
 ## 🚢 部署
 
 > [!TIP]
-> **最新版 Docker 鏡像：** `huanxing/huanxing-api:latest`
+> **最新版 Docker 鏡像：** `crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest`
 
 ### 📋 部署要求
 
@@ -361,7 +361,7 @@ docker run --name huanxing-api -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 **使用 MySQL：**
@@ -371,7 +371,7 @@ docker run --name huanxing-api -d --restart always \
   -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 > **💡 路徑說明：**

@@ -57,7 +57,7 @@
 version: '3'
 services:
   huanxing-api:
-    image: huanxing/huanxing-api:latest
+    image: crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
     container_name: huanxing-api
     restart: always
     ports:
@@ -126,7 +126,7 @@ volumes:
 
 ```bash
 # 拉取最新镜像
-docker pull huanxing/huanxing-api:latest
+docker pull crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # 重启容器
 docker-compose down && docker-compose up -d

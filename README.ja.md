@@ -126,14 +126,14 @@ docker-compose up -d
 
 ```bash
 # 最新のイメージをプル
-docker pull huanxing/huanxing-api:latest
+docker pull crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # SQLiteを使用（デフォルト）
 docker run --name huanxing-api -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # MySQLを使用
 docker run --name huanxing-api -d --restart always \
@@ -141,7 +141,7 @@ docker run --name huanxing-api -d --restart always \
   -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 > **💡 ヒント:** `-v ./data:/data` は現在のディレクトリの `data` フォルダにデータを保存します。絶対パスに変更することもできます：`-v /your/custom/path:/data`
@@ -297,7 +297,7 @@ docker run --name huanxing-api -d --restart always \
 ## 🚢 デプロイ
 
 > [!TIP]
-> **最新のDockerイメージ:** `huanxing/huanxing-api:latest`
+> **最新のDockerイメージ:** `crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest`
 
 ### 📋 デプロイ要件
 
@@ -363,7 +363,7 @@ docker run --name huanxing-api -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 **MySQLを使用:**
@@ -373,7 +373,7 @@ docker run --name huanxing-api -d --restart always \
   -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 > **💡 パス説明:**

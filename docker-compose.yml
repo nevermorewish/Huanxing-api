@@ -16,7 +16,7 @@ version: '3.4' # For compatibility with older Docker versions
 
 services:
   huanxing-api:
-    image: huanxing/huanxing-api:latest
+    image: crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
     container_name: huanxing-api
     restart: always
     command: --log-dir /app/logs

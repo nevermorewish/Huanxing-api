@@ -126,14 +126,14 @@ docker-compose up -d
 
 ```bash
 # Pull the latest image
-docker pull huanxing/huanxing-api:latest
+docker pull crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # Using SQLite (default)
 docker run --name huanxing-api -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 
 # Using MySQL
 docker run --name huanxing-api -d --restart always \
@@ -141,7 +141,7 @@ docker run --name huanxing-api -d --restart always \
   -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 > **💡 Tip:** `-v ./data:/data` will save data in the `data` folder of the current directory, you can also change it to an absolute path like `-v /your/custom/path:/data`
@@ -295,7 +295,7 @@ docker run --name huanxing-api -d --restart always \
 ## 🚢 Deployment
 
 > [!TIP]
-> **Latest Docker image:** `huanxing/huanxing-api:latest`
+> **Latest Docker image:** `crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest`
 
 ### 📋 Deployment Requirements
 
@@ -361,7 +361,7 @@ docker run --name huanxing-api -d --restart always \
   -p 3000:3000 \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 **Using MySQL:**
@@ -371,7 +371,7 @@ docker run --name huanxing-api -d --restart always \
   -e SQL_DSN="root:123456@tcp(localhost:3306)/oneapi" \
   -e TZ=Asia/Shanghai \
   -v ./data:/data \
-  huanxing/huanxing-api:latest
+  crpi-dzjyl2rfnlfugj1m.cn-shanghai.personal.cr.aliyuncs.com/frogclaw/huanxingapi:latest
 ```
 
 > **💡 Path explanation:**
