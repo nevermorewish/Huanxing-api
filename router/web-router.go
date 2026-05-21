@@ -2,7 +2,10 @@ package router
 
 import (
 	"embed"
+	"io/fs"
+	"mime"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/gin-contrib/gzip"
@@ -17,14 +20,23 @@ import (
 type ThemeAssets struct {
 	DefaultBuildFS   embed.FS
 	DefaultIndexPage []byte
+	DocsFS           embed.FS
 }
 
 func SetWebRouter(router *gin.Engine, assets ThemeAssets) {
 	defaultFS := common.EmbedFolder(assets.DefaultBuildFS, "web/default/dist")
+	docsFS, err := fs.Sub(assets.DocsFS, "doc")
+	if err != nil {
+		panic(err)
+	}
 
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.Use(middleware.GlobalWebRateLimit())
 	router.Use(middleware.Cache())
+	router.GET("/docs", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/docs/")
+	})
+	router.GET("/docs/*filepath", serveDocs(docsFS))
 	router.Use(static.Serve("/", defaultFS))
 	router.NoRoute(func(c *gin.Context) {
 		c.Set(middleware.RouteTagKey, "web")
@@ -35,4 +47,46 @@ func SetWebRouter(router *gin.Engine, assets ThemeAssets) {
 		c.Header("Cache-Control", "no-cache")
 		c.Data(http.StatusOK, "text/html; charset=utf-8", assets.DefaultIndexPage)
 	})
+}
+
+func serveDocs(docsFS fs.FS) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requestPath := strings.TrimPrefix(c.Param("filepath"), "/")
+		if requestPath == "" {
+			requestPath = "index.html"
+		}
+		requestPath = path.Clean("/" + requestPath)
+		requestPath = strings.TrimPrefix(requestPath, "/")
+		if strings.HasSuffix(c.Param("filepath"), "/") {
+			requestPath = path.Join(requestPath, "index.html")
+		}
+
+		if !docsFileExists(docsFS, requestPath) {
+			requestPath = "index.html"
+		}
+
+		if strings.HasSuffix(requestPath, ".html") {
+			c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+			c.Header("Pragma", "no-cache")
+			c.Header("Expires", "0")
+		} else {
+			c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+		}
+
+		content, err := fs.ReadFile(docsFS, requestPath)
+		if err != nil {
+			controller.RelayNotFound(c)
+			return
+		}
+		contentType := mime.TypeByExtension(path.Ext(requestPath))
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+		c.Data(http.StatusOK, contentType, content)
+	}
+}
+
+func docsFileExists(docsFS fs.FS, name string) bool {
+	info, err := fs.Stat(docsFS, name)
+	return err == nil && !info.IsDir()
 }

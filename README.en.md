@@ -1,6 +1,6 @@
 <div align="center">
 
-![huanxing-api](/web/default/public/logo.png)
+![huanxing-api](/web/default/public/logo.jpg)
 
 # huanxing-api
 

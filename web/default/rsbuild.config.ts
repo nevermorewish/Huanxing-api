@@ -1,3 +1,4 @@
+import { createReadStream, existsSync, statSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { defineConfig, loadEnv } from '@rsbuild/core'
@@ -5,6 +6,16 @@ import { pluginReact } from '@rsbuild/plugin-react'
 import { tanstackRouter } from '@tanstack/router-plugin/rspack'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const docsRoot = path.resolve(__dirname, '../../doc')
+const docsContentTypes: Record<string, string> = {
+  '.css': 'text/css; charset=utf-8',
+  '.html': 'text/html; charset=utf-8',
+  '.jpg': 'image/jpeg',
+  '.js': 'text/javascript; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+}
 
 export default defineConfig(({ envMode }) => {
   const env = loadEnv({ mode: envMode, prefixes: ['VITE_'] })
@@ -67,6 +78,34 @@ export default defineConfig(({ envMode }) => {
       host: '0.0.0.0',
       port: 5173,
       proxy: devProxy,
+      setup({ server }) {
+        server.middlewares.use('/docs', (req, res) => {
+          const reqUrl = req.url || '/'
+          const pathname = decodeURIComponent(reqUrl.split('?')[0] || '/')
+          const relativePath =
+            pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '')
+          const normalizedPath = path.normalize(relativePath)
+          let filePath = path.join(docsRoot, normalizedPath)
+
+          if (!filePath.startsWith(docsRoot) || !existsSync(filePath)) {
+            filePath = path.join(docsRoot, 'index.html')
+          }
+          if (statSync(filePath).isDirectory()) {
+            filePath = path.join(filePath, 'index.html')
+          }
+
+          const ext = path.extname(filePath)
+          res.setHeader(
+            'Cache-Control',
+            'no-cache, no-store, must-revalidate',
+          )
+          res.setHeader(
+            'Content-Type',
+            docsContentTypes[ext] || 'application/octet-stream',
+          )
+          createReadStream(filePath).pipe(res)
+        })
+      },
     },
     output: {
       // Production optimizations

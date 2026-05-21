@@ -1,0 +1,78 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPT-Image-2 | 寰星云科 API 使用文档</title>
+    <meta name="description" content="使用 OpenAI 系列的 GPT-Image-2 在寰星云科 API 生成与编辑图像。" />
+    <link rel="icon" href="/docs/logo.png" />
+    <link rel="stylesheet" href="/docs/styles.css" />
+  </head>
+  <body>
+    <div data-mount="topbar"></div>
+    <div class="shell">
+      <aside class="sidebar" data-mount="sidebar"></aside>
+      <main class="content">
+        <nav class="breadcrumb" data-mount="breadcrumb"></nav>
+        <article class="page">
+          <header class="page-heading">
+            <p class="eyebrow">绘图模型</p>
+            <h1>GPT-Image-2</h1>
+          </header>
+
+          <p>GPT-Image-2 是 OpenAI 风格的图像模型，长项在文字遵循度、版式构图、文字排版与多步编辑。寰星云科把它挂在 OpenAI 兼容接口下，用标准的 <code>/v1/images/generations</code> 端点调用。</p>
+
+          <h2>调用示例</h2>
+          <pre><code>curl https://api.huanxing.ai/v1/images/generations \
+  -H "Authorization: Bearer sk-你的令牌" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A vintage poster of a sci-fi convention, with bold title \"NEON FUTURE\" at top, retro 80s palette",
+    "size": "1024x1024",
+    "quality": "high",
+    "n": 1
+  }'</code></pre>
+
+          <h2>支持的尺寸与画幅</h2>
+          <table class="table">
+            <thead><tr><th>size</th><th>用途</th></tr></thead>
+            <tbody>
+              <tr><td><code>1024x1024</code></td><td>正方形，社交媒体头图</td></tr>
+              <tr><td><code>1024x1792</code></td><td>竖版海报 / 手机封面</td></tr>
+              <tr><td><code>1792x1024</code></td><td>横版头图 / 网页 Banner</td></tr>
+            </tbody>
+          </table>
+
+          <h2>遮罩编辑</h2>
+          <p>把一张图叠加 PNG 透明遮罩，告诉模型「这块区域可以重新画」：</p>
+          <pre><code>curl https://api.huanxing.ai/v1/images/edits \
+  -H "Authorization: Bearer sk-你的令牌" \
+  -F image=@source.png \
+  -F mask=@mask.png \
+  -F prompt="把树替换为一棵樱花树" \
+  -F model=gpt-image-2 \
+  -F size=1024x1024</code></pre>
+          <p>遮罩中透明部分代表「允许重画」。</p>
+
+          <h2>写文字 / 字体</h2>
+          <p>GPT-Image-2 对英文短语处理较好，中文较长字符串建议拆短句、明确字体风格描述（例如「黑体加粗」「书法毛笔」「等宽科技感」）。</p>
+
+          <h2>避免常见误解</h2>
+          <ul class="list">
+            <li>它不是 GPT-4 / GPT-5 文本模型，写代码或回答问题请用对话模型。</li>
+            <li>不支持流式输出，必须等图全部生成完成再返回。</li>
+            <li>同一份 prompt 多次请求结果会不同，要稳定结果请固定 <code>seed</code>（如果当前渠道支持）。</li>
+          </ul>
+
+          <div class="callout">
+            <p>如果你需要批量出图，建议先用最便宜的尺寸 + <code>quality=standard</code> 做大量草图筛选，确定方向后再用 <code>high</code> 出最终成品。</p>
+          </div>
+        </article>
+        <nav class="page-nav" data-mount="prevnext"></nav>
+      </main>
+    </div>
+    <div data-mount="footer"></div>
+    <script src="/docs/app.js"></script>
+  </body>
+</html>

@@ -28,6 +28,11 @@ export type TopNavLink = {
   disabled?: boolean
   requiresAuth?: boolean
   external?: boolean
+  reloadDocument?: boolean
+}
+
+function isExternalUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url)
 }
 
 /**
@@ -88,9 +93,14 @@ export function useTopNavLinks(): TopNavLink[] {
   // Docs (supports external links)
   if (modules?.docs !== false) {
     if (docsLink) {
-      links.push({ title: t('Docs'), href: docsLink, external: true })
+      links.push({
+        title: t('Docs'),
+        href: docsLink,
+        external: isExternalUrl(docsLink),
+        reloadDocument: !isExternalUrl(docsLink),
+      })
     } else {
-      links.push({ title: t('Docs'), href: '/docs' })
+      links.push({ title: t('Docs'), href: '/docs/', reloadDocument: true })
     }
   }
 

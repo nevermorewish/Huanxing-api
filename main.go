@@ -41,6 +41,9 @@ var buildFS embed.FS
 //go:embed web/default/dist/index.html
 var indexPage []byte
 
+//go:embed doc
+var docsFS embed.FS
+
 func main() {
 	startTime := time.Now()
 
@@ -187,6 +190,7 @@ func main() {
 	router.SetRouter(server, router.ThemeAssets{
 		DefaultBuildFS:   buildFS,
 		DefaultIndexPage: indexPage,
+		DocsFS:           docsFS,
 	})
 	var port = os.Getenv("PORT")
 	if port == "" {

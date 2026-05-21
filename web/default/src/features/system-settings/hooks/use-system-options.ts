@@ -105,6 +105,7 @@ export function getOptionValue<
 
   const result = { ...defaults }
   const errors: Array<{ key: string; error: string }> = []
+  const optionMap = new Map(options.map((option) => [option.key, option.value]))
 
   options.forEach((option) => {
     if (option.key in defaults) {
@@ -119,6 +120,54 @@ export function getOptionValue<
         result[option.key as keyof T] = parseResult.fallback as T[keyof T]
         errors.push({ key: option.key, error: parseResult.error })
       }
+    }
+  })
+
+  Object.keys(defaults).forEach((key) => {
+    if (!key.includes('.') || optionMap.has(key)) {
+      return
+    }
+
+    const [parentKey, ...path] = key.split('.')
+    const parentValue = optionMap.get(parentKey)
+    if (!parentValue || path.length === 0) {
+      return
+    }
+
+    try {
+      let nestedValue: unknown = JSON.parse(parentValue)
+      for (const segment of path) {
+        if (
+          !nestedValue ||
+          typeof nestedValue !== 'object' ||
+          !(segment in nestedValue)
+        ) {
+          return
+        }
+        nestedValue = (nestedValue as Record<string, unknown>)[segment]
+      }
+
+      const defaultValue = defaults[key as keyof T]
+      const parseResult = parseOptionValueSafe(
+        typeof nestedValue === 'string'
+          ? nestedValue
+          : String(nestedValue ?? ''),
+        defaultValue
+      )
+
+      if (parseResult.success) {
+        result[key as keyof T] = parseResult.value as T[keyof T]
+      } else {
+        result[key as keyof T] = parseResult.fallback as T[keyof T]
+        errors.push({ key, error: parseResult.error })
+      }
+    } catch (error) {
+      errors.push({
+        key,
+        error: `Parent option JSON parse failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      })
     }
   })
 
