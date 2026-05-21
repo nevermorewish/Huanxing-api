@@ -38,6 +38,49 @@ import {
   type ResolutionsMap,
 } from './upstream-ratio-sync-helpers'
 
+function getSelectedSyncValue(
+  row: ModelRow,
+  ratioType: RatioType,
+  upstreamName: string,
+  resolutions: ResolutionsMap
+): number | string | undefined {
+  const preferredField = getPreferredSyncField(
+    row.ratioTypes,
+    ratioType,
+    upstreamName
+  )
+  const selectedType = preferredField === ratioType ? ratioType : preferredField
+  return resolutions[row.model]?.[selectedType]
+}
+
+function getSelectableSyncValue(
+  row: ModelRow,
+  ratioType: RatioType,
+  upstreamName: string
+): number | string | undefined {
+  const preferredField = getPreferredSyncField(
+    row.ratioTypes,
+    ratioType,
+    upstreamName
+  )
+  const upstreamVal =
+    preferredField === ratioType
+      ? row.ratioTypes[ratioType]?.upstreams?.[upstreamName]
+      : row.ratioTypes[preferredField]?.upstreams?.[upstreamName]
+
+  return isSelectableUpstreamValue(upstreamVal)
+    ? (upstreamVal as number | string)
+    : undefined
+}
+
+function getSelectableSyncField(
+  row: ModelRow,
+  ratioType: RatioType,
+  upstreamName: string
+): RatioType {
+  return getPreferredSyncField(row.ratioTypes, ratioType, upstreamName)
+}
+
 export function useUpstreamRatioSyncColumns(
   upstreamNames: string[],
   resolutions: ResolutionsMap,
@@ -157,19 +200,21 @@ export function useUpstreamRatioSyncColumns(
           rows.forEach((row) => {
             getOrderedRatioTypes(row.ratioTypes, ratioTypeFilter).forEach(
               (ratioType) => {
-                const upstreamVal =
-                  row.ratioTypes[ratioType]?.upstreams?.[upstreamName]
-                const preferredField = getPreferredSyncField(
-                  row.ratioTypes,
+                const selectableVal = getSelectableSyncValue(
+                  row,
                   ratioType,
                   upstreamName
                 )
-                if (
-                  preferredField === ratioType &&
-                  isSelectableUpstreamValue(upstreamVal)
-                ) {
+                if (selectableVal !== undefined) {
                   selectableCount++
-                  if (resolutions[row.model]?.[ratioType] === upstreamVal) {
+                  if (
+                    getSelectedSyncValue(
+                      row,
+                      ratioType,
+                      upstreamName,
+                      resolutions
+                    ) === selectableVal
+                  ) {
                     selectedCount++
                   }
                 }
@@ -205,13 +250,6 @@ export function useUpstreamRatioSyncColumns(
           const fields = getOrderedRatioTypes(
             row.original.ratioTypes,
             ratioTypeFilter
-          ).filter(
-            (ratioType) =>
-              getPreferredSyncField(
-                row.original.ratioTypes,
-                ratioType,
-                upstreamName
-              ) === ratioType
           )
 
           return (
@@ -220,6 +258,11 @@ export function useUpstreamRatioSyncColumns(
                 const diff = row.original.ratioTypes[ratioType]
                 const upstreamVal = diff?.upstreams?.[upstreamName]
                 const isConfident = diff?.confidence?.[upstreamName] !== false
+                const selectableVal = getSelectableSyncValue(
+                  row.original,
+                  ratioType,
+                  upstreamName
+                )
 
                 return (
                   <div
@@ -238,19 +281,34 @@ export function useUpstreamRatioSyncColumns(
                         upstreamVal,
                         isConfident,
                         isSelected:
-                          resolutions[row.original.model]?.[ratioType] ===
-                          upstreamVal,
+                          selectableVal !== undefined &&
+                          getSelectedSyncValue(
+                            row.original,
+                            ratioType,
+                            upstreamName,
+                            resolutions
+                          ) === selectableVal,
                         isDisabled,
                         t,
-                        onSelect: () =>
-                          onSelectValue(
-                            row.original.model,
-                            ratioType,
-                            upstreamVal as number | string,
-                            upstreamName
-                          ),
+                        onSelect:
+                          selectableVal === undefined
+                            ? undefined
+                            : () =>
+                                onSelectValue(
+                                  row.original.model,
+                                  ratioType,
+                                  upstreamVal as number | string,
+                                  upstreamName
+                                ),
                         onUnselect: () =>
-                          onUnselectValue(row.original.model, ratioType),
+                          onUnselectValue(
+                            row.original.model,
+                            getSelectableSyncField(
+                              row.original,
+                              ratioType,
+                              upstreamName
+                            )
+                          ),
                       })}
                     </div>
                   </div>
@@ -282,7 +340,7 @@ type RenderUpstreamValueArgs = {
   isSelected: boolean
   isDisabled: boolean
   t: (key: string) => string
-  onSelect: () => void
+  onSelect?: () => void
   onUnselect: () => void
 }
 
@@ -312,20 +370,23 @@ function renderUpstreamValue(args: RenderUpstreamValueArgs) {
   }
 
   const text = String(upstreamVal)
+  const isSelectable = args.onSelect !== undefined
 
   return (
     <div className='flex min-w-0 items-center gap-2'>
-      <Checkbox
-        checked={isSelected}
-        disabled={isDisabled}
-        onCheckedChange={(checked) => {
-          if (checked) {
-            args.onSelect()
-          } else {
-            args.onUnselect()
-          }
-        }}
-      />
+      {isSelectable && (
+        <Checkbox
+          checked={isSelected}
+          disabled={isDisabled}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              args.onSelect?.()
+            } else {
+              args.onUnselect()
+            }
+          }}
+        />
+      )}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger

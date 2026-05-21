@@ -134,10 +134,12 @@ export function UpstreamRatioSyncTable({
               ratioType,
               upstream
             )
-            if (
-              preferredField === ratioType &&
-              isSelectableUpstreamValue(upstreamVal)
-            ) {
+            const selectableVal =
+              preferredField === ratioType
+                ? upstreamVal
+                : row.ratioTypes[preferredField]?.upstreams?.[upstream]
+
+            if (isSelectableUpstreamValue(selectableVal)) {
               onSelectValue(
                 row.model,
                 ratioType,
@@ -157,10 +159,18 @@ export function UpstreamRatioSyncTable({
       rows.forEach((row) => {
         getOrderedRatioTypes(row.ratioTypes, ratioTypeFilter).forEach(
           (ratioType) => {
-            if (
-              row.ratioTypes[ratioType]?.upstreams?.[upstream] !== undefined
-            ) {
-              onUnselectValue(row.model, ratioType)
+            const preferredField = getPreferredSyncField(
+              row.ratioTypes,
+              ratioType,
+              upstream
+            )
+            const selectableVal =
+              preferredField === ratioType
+                ? row.ratioTypes[ratioType]?.upstreams?.[upstream]
+                : row.ratioTypes[preferredField]?.upstreams?.[upstream]
+
+            if (isSelectableUpstreamValue(selectableVal)) {
+              onUnselectValue(row.model, preferredField)
             }
           }
         )
