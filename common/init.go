@@ -22,9 +22,8 @@ var (
 )
 
 func printHelp() {
-	fmt.Println("huanxing(Based OneAPI) " + Version + " - The next-generation LLM gateway and AI asset management system supports multiple languages.")
-	fmt.Println("Original Project: OneAPI by JustSong - https://github.com/songquanpeng/one-api")
-	fmt.Println("Maintainer: huanxing - https://github.com/huanxing/huanxing-api")
+	fmt.Println("huanxing " + Version + " - The next-generation LLM gateway and AI asset management system supports multiple languages.")
+	fmt.Println("Maintainer: Huanxing Yunke Technology Co., Ltd - https://github.com/huanxing/huanxing-api")
 	fmt.Println("Usage: huanxing-api [--port <port>] [--log-dir <log directory>] [--version] [--help]")
 }
 
