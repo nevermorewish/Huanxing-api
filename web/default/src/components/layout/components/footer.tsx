@@ -104,8 +104,9 @@ export function Footer(props: FooterProps) {
     demoSiteEnabled,
   } = useSystemConfig()
 
-  const displayLogo = systemLogo || props.logo || '/logo.png'
-  const displayName = systemName || props.name || 'huanxing'
+  const displayLogo = systemLogo || props.logo || '/logo.jpg'
+  const displayName =
+    systemName || props.name || '寰星云科科技有限公司'
   const isDemoSiteMode = Boolean(demoSiteEnabled)
   const currentYear = new Date().getFullYear()
 

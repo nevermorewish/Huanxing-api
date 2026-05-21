@@ -21,9 +21,9 @@ For commercial licensing, please contact support@huanxing.com
  */
 
 // System Configuration Defaults
-export const DEFAULT_SYSTEM_NAME = '寰星云科'
-export const DEFAULT_SYSTEM_NAME_EN = 'huanxing'
-export const DEFAULT_LOGO = '/logo.png'
+export const DEFAULT_SYSTEM_NAME = '寰星云科科技有限公司'
+export const DEFAULT_SYSTEM_NAME_EN = 'Huanxing Yunke Technology Co., Ltd'
+export const DEFAULT_LOGO = '/logo.jpg'
 
 // LocalStorage Keys
 export const STORAGE_KEYS = {

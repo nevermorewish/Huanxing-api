@@ -26,9 +26,9 @@ import {
 const defaultSiteSettings: SiteSettings = {
   'theme.frontend': 'default',
   Notice: '',
-  SystemName: '寰星云科',
-  SystemNameEn: 'huanxing',
-  Logo: '',
+  SystemName: '寰星云科科技有限公司',
+  SystemNameEn: 'Huanxing Yunke Technology Co., Ltd',
+  Logo: '/logo.jpg',
   Footer: '',
   About: '',
   HomePageContent: '',

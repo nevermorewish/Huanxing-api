@@ -50,7 +50,8 @@ export function SystemBrand(props: SystemBrandProps) {
   const { logo } = useSystemConfig()
 
   const variant = props.variant ?? 'sidebar'
-  const name = status?.system_name || props.defaultName || 'huanxing'
+  const name =
+    status?.system_name || props.defaultName || '寰星云科科技有限公司'
   const version =
     status?.version || props.defaultVersion || t('Unknown version')
 
