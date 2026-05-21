@@ -279,6 +279,7 @@ export function useUpstreamRatioSyncColumns(
                     <div className='min-w-0 flex-1'>
                       {renderUpstreamValue({
                         upstreamVal,
+                        selectableVal,
                         isConfident,
                         isSelected:
                           selectableVal !== undefined &&
@@ -336,6 +337,7 @@ export function useUpstreamRatioSyncColumns(
 
 type RenderUpstreamValueArgs = {
   upstreamVal: number | string | 'same' | null | undefined
+  selectableVal: number | string | undefined
   isConfident: boolean
   isSelected: boolean
   isDisabled: boolean
@@ -345,7 +347,55 @@ type RenderUpstreamValueArgs = {
 }
 
 function renderUpstreamValue(args: RenderUpstreamValueArgs) {
-  const { upstreamVal, isConfident, isSelected, isDisabled, t } = args
+  const { upstreamVal, selectableVal, isConfident, isSelected, isDisabled, t } =
+    args
+  const isSelectable = selectableVal !== undefined && args.onSelect !== undefined
+
+  if (isSelectable) {
+    const text = String(selectableVal)
+
+    return (
+      <div className='flex min-w-0 items-center gap-2'>
+        <Checkbox
+          checked={isSelected}
+          disabled={isDisabled}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              args.onSelect?.()
+            } else {
+              args.onUnselect()
+            }
+          }}
+        />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <span className='inline-block max-w-[240px] cursor-default truncate font-mono text-sm' />
+              }
+            >
+              {text}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className='max-w-xs text-xs break-all'>{text}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        {!isConfident && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <AlertTriangle className='h-3.5 w-3.5 shrink-0 text-amber-500' />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('This data may be unreliable, use with caution')}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
+    )
+  }
 
   if (upstreamVal === null || upstreamVal === undefined) {
     return (
@@ -370,23 +420,9 @@ function renderUpstreamValue(args: RenderUpstreamValueArgs) {
   }
 
   const text = String(upstreamVal)
-  const isSelectable = args.onSelect !== undefined
 
   return (
     <div className='flex min-w-0 items-center gap-2'>
-      {isSelectable && (
-        <Checkbox
-          checked={isSelected}
-          disabled={isDisabled}
-          onCheckedChange={(checked) => {
-            if (checked) {
-              args.onSelect?.()
-            } else {
-              args.onUnselect()
-            }
-          }}
-        />
-      )}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger
