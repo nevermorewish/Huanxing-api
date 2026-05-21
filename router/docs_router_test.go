@@ -55,6 +55,20 @@ func TestServeDocs(t *testing.T) {
 			wantNoStore:  true,
 			wantMimeHint: "text/html",
 		},
+		{
+			name:         "serves image asset",
+			path:         "/docs/pixel.png",
+			wantStatus:   http.StatusOK,
+			wantNoStore:  true,
+			wantMimeHint: "image/png",
+		},
+		{
+			name:         "does not fallback missing image to html",
+			path:         "/docs/missing.png",
+			wantStatus:   http.StatusNotFound,
+			wantNoStore:  false,
+			wantMimeHint: "application/json",
+		},
 	}
 
 	for _, tt := range tests {
@@ -66,7 +80,7 @@ func TestServeDocs(t *testing.T) {
 			if w.Code != tt.wantStatus {
 				t.Fatalf("status = %d, want %d", w.Code, tt.wantStatus)
 			}
-			if !strings.Contains(w.Body.String(), tt.wantBody) {
+			if tt.wantBody != "" && !strings.Contains(w.Body.String(), tt.wantBody) {
 				t.Fatalf("body = %q, want substring %q", w.Body.String(), tt.wantBody)
 			}
 			if tt.wantNoStore && !strings.Contains(w.Header().Get("Cache-Control"), "no-store") {

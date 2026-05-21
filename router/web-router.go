@@ -16,6 +16,18 @@ import (
 	"github.com/huanxing/huanxing-api/middleware"
 )
 
+var docsContentTypes = map[string]string{
+	".css":  "text/css; charset=utf-8",
+	".gif":  "image/gif",
+	".html": "text/html; charset=utf-8",
+	".jpeg": "image/jpeg",
+	".jpg":  "image/jpeg",
+	".js":   "text/javascript; charset=utf-8",
+	".png":  "image/png",
+	".svg":  "image/svg+xml",
+	".webp": "image/webp",
+}
+
 // ThemeAssets holds the embedded default frontend assets.
 type ThemeAssets struct {
 	DefaultBuildFS   embed.FS
@@ -62,6 +74,10 @@ func serveDocs(docsFS fs.FS) gin.HandlerFunc {
 		}
 
 		if !docsFileExists(docsFS, requestPath) {
+			if isDocsStaticAsset(requestPath) {
+				controller.RelayNotFound(c)
+				return
+			}
 			requestPath = "index.html"
 		}
 
@@ -78,10 +94,7 @@ func serveDocs(docsFS fs.FS) gin.HandlerFunc {
 			controller.RelayNotFound(c)
 			return
 		}
-		contentType := mime.TypeByExtension(path.Ext(requestPath))
-		if contentType == "" {
-			contentType = "application/octet-stream"
-		}
+		contentType := docsContentType(requestPath)
 		c.Data(http.StatusOK, contentType, content)
 	}
 }
@@ -89,4 +102,24 @@ func serveDocs(docsFS fs.FS) gin.HandlerFunc {
 func docsFileExists(docsFS fs.FS, name string) bool {
 	info, err := fs.Stat(docsFS, name)
 	return err == nil && !info.IsDir()
+}
+
+func docsContentType(name string) string {
+	ext := strings.ToLower(path.Ext(name))
+	if contentType, ok := docsContentTypes[ext]; ok {
+		return contentType
+	}
+	contentType := mime.TypeByExtension(ext)
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+	return contentType
+}
+
+func isDocsStaticAsset(name string) bool {
+	ext := strings.ToLower(path.Ext(name))
+	if ext == "" || ext == ".html" {
+		return false
+	}
+	return true
 }
