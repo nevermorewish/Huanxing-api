@@ -54,6 +54,11 @@ const OPERATIONS_SECTIONS = [
           AutomaticDisableChannelEnabled:
             settings.AutomaticDisableChannelEnabled,
           AutomaticEnableChannelEnabled: settings.AutomaticEnableChannelEnabled,
+          FeishuChannelErrorAlertEnabled:
+            settings.FeishuChannelErrorAlertEnabled,
+          FeishuAppId: settings.FeishuAppId,
+          FeishuAppSecret: settings.FeishuAppSecret,
+          FeishuChatIds: settings.FeishuChatIds,
           AutomaticDisableKeywords: settings.AutomaticDisableKeywords,
           AutomaticDisableStatusCodes: settings.AutomaticDisableStatusCodes,
           AutomaticRetryStatusCodes: settings.AutomaticRetryStatusCodes,

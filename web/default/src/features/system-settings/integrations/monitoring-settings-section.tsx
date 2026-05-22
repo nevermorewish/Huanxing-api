@@ -52,6 +52,10 @@ const monitoringSchema = z
     QuotaRemindThreshold: numericString,
     AutomaticDisableChannelEnabled: z.boolean(),
     AutomaticEnableChannelEnabled: z.boolean(),
+    FeishuChannelErrorAlertEnabled: z.boolean(),
+    FeishuAppId: z.string(),
+    FeishuAppSecret: z.string(),
+    FeishuChatIds: z.string(),
     AutomaticDisableKeywords: z.string(),
     AutomaticDisableStatusCodes: z.string(),
     AutomaticRetryStatusCodes: z.string(),
@@ -100,6 +104,10 @@ type MonitoringSettingsSectionProps = {
     QuotaRemindThreshold: string
     AutomaticDisableChannelEnabled: boolean
     AutomaticEnableChannelEnabled: boolean
+    FeishuChannelErrorAlertEnabled: boolean
+    FeishuAppId: string
+    FeishuAppSecret: string
+    FeishuChatIds: string
     AutomaticDisableKeywords: string
     AutomaticDisableStatusCodes: string
     AutomaticRetryStatusCodes: string
@@ -117,6 +125,10 @@ type NormalizedMonitoringValues = {
   QuotaRemindThreshold: string
   AutomaticDisableChannelEnabled: boolean
   AutomaticEnableChannelEnabled: boolean
+  FeishuChannelErrorAlertEnabled: boolean
+  FeishuAppId: string
+  FeishuAppSecret: string
+  FeishuChatIds: string
   AutomaticDisableKeywords: string
   AutomaticDisableStatusCodes: string
   AutomaticRetryStatusCodes: string
@@ -131,6 +143,10 @@ const buildFormDefaults = (
   QuotaRemindThreshold: defaults.QuotaRemindThreshold ?? '',
   AutomaticDisableChannelEnabled: defaults.AutomaticDisableChannelEnabled,
   AutomaticEnableChannelEnabled: defaults.AutomaticEnableChannelEnabled,
+  FeishuChannelErrorAlertEnabled: defaults.FeishuChannelErrorAlertEnabled,
+  FeishuAppId: defaults.FeishuAppId ?? '',
+  FeishuAppSecret: '',
+  FeishuChatIds: normalizeLineEndings(defaults.FeishuChatIds ?? ''),
   AutomaticDisableKeywords: normalizeLineEndings(
     defaults.AutomaticDisableKeywords ?? ''
   ),
@@ -151,6 +167,10 @@ const normalizeDefaults = (
   QuotaRemindThreshold: (defaults.QuotaRemindThreshold ?? '').trim(),
   AutomaticDisableChannelEnabled: defaults.AutomaticDisableChannelEnabled,
   AutomaticEnableChannelEnabled: defaults.AutomaticEnableChannelEnabled,
+  FeishuChannelErrorAlertEnabled: defaults.FeishuChannelErrorAlertEnabled,
+  FeishuAppId: (defaults.FeishuAppId ?? '').trim(),
+  FeishuAppSecret: '',
+  FeishuChatIds: normalizeLineEndings(defaults.FeishuChatIds ?? ''),
   AutomaticDisableKeywords: normalizeLineEndings(
     defaults.AutomaticDisableKeywords ?? ''
   ),
@@ -173,6 +193,10 @@ const normalizeFormValues = (
   QuotaRemindThreshold: values.QuotaRemindThreshold.trim(),
   AutomaticDisableChannelEnabled: values.AutomaticDisableChannelEnabled,
   AutomaticEnableChannelEnabled: values.AutomaticEnableChannelEnabled,
+  FeishuChannelErrorAlertEnabled: values.FeishuChannelErrorAlertEnabled,
+  FeishuAppId: values.FeishuAppId.trim(),
+  FeishuAppSecret: values.FeishuAppSecret.trim(),
+  FeishuChatIds: normalizeLineEndings(values.FeishuChatIds),
   AutomaticDisableKeywords: normalizeLineEndings(
     values.AutomaticDisableKeywords
   ),
@@ -224,7 +248,12 @@ export function MonitoringSettingsSection({
     const normalized = normalizeFormValues(values)
     const updates = (
       Object.keys(normalized) as Array<keyof NormalizedMonitoringValues>
-    ).filter((key) => normalized[key] !== baselineRef.current[key])
+    ).filter((key) => {
+      if (key === 'FeishuAppSecret' && normalized.FeishuAppSecret === '') {
+        return false
+      }
+      return normalized[key] !== baselineRef.current[key]
+    })
 
     if (updates.length === 0) {
       toast.info(t('No changes to save'))
@@ -239,7 +268,8 @@ export function MonitoringSettingsSection({
       })
     }
 
-    baselineRef.current = normalized
+    baselineRef.current = { ...normalized, FeishuAppSecret: '' }
+    form.setValue('FeishuAppSecret', '')
   }
 
   return (
@@ -402,6 +432,106 @@ export function MonitoringSettingsSection({
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className='space-y-4'>
+            <FormField
+              control={form.control}
+              name='FeishuChannelErrorAlertEnabled'
+              render={({ field }) => (
+                <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                  <div className='space-y-0.5'>
+                    <FormLabel className='text-base'>
+                      {t('Feishu channel error alerts')}
+                    </FormLabel>
+                    <FormDescription>
+                      {t('Send Feishu bot notifications when a channel fails')}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <div className='grid gap-6 md:grid-cols-2'>
+              <FormField
+                control={form.control}
+                name='FeishuAppId'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('Feishu App ID')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        autoComplete='off'
+                        placeholder={t('cli_xxxxxxxxxxxxxxxx')}
+                        value={field.value}
+                        onChange={(event) =>
+                          field.onChange(event.target.value)
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t('App ID for the Feishu bot application')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='FeishuAppSecret'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('Feishu App Secret')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='password'
+                        autoComplete='new-password'
+                        placeholder={t('Leave blank to keep existing secret')}
+                        value={field.value}
+                        onChange={(event) =>
+                          field.onChange(event.target.value)
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t('Only enter a value when creating or rotating it')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name='FeishuChatIds'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Feishu chat IDs')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      rows={3}
+                      placeholder={t('One chat ID per line or comma-separated')}
+                      {...field}
+                      onChange={(event) => field.onChange(event.target.value)}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t(
+                      'Channel error notifications are sent to each configured Feishu chat.'
+                    )}
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />

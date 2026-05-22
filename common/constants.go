@@ -143,6 +143,10 @@ var QuotaForInvitee = 0
 var ChannelDisableThreshold = 5.0
 var AutomaticDisableChannelEnabled = false
 var AutomaticEnableChannelEnabled = false
+var FeishuChannelErrorAlertEnabled = false
+var FeishuAppId = ""
+var FeishuAppSecret = ""
+var FeishuChatIds = ""
 var QuotaRemindThreshold = 1000
 var PreConsumedQuota = 500
 

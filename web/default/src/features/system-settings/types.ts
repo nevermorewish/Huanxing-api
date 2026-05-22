@@ -284,6 +284,10 @@ export type OperationsSettings = {
   QuotaRemindThreshold: string
   AutomaticDisableChannelEnabled: boolean
   AutomaticEnableChannelEnabled: boolean
+  FeishuChannelErrorAlertEnabled: boolean
+  FeishuAppId: string
+  FeishuAppSecret: string
+  FeishuChatIds: string
   AutomaticDisableKeywords: string
   AutomaticDisableStatusCodes: string
   AutomaticRetryStatusCodes: string

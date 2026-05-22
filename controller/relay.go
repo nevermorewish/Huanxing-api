@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -355,6 +356,16 @@ func shouldRetry(c *gin.Context, openaiErr *types.NewAPIError, retryTimes int) b
 
 func processChannelError(c *gin.Context, channelError types.ChannelError, err *types.NewAPIError) {
 	logger.LogError(c, fmt.Sprintf("channel error (channel #%d, status code: %d): %s", channelError.ChannelId, err.StatusCode, err.Error()))
+	if common.FeishuChannelErrorAlertEnabled {
+		alert := buildFeishuChannelErrorAlert(c, channelError, err)
+		gopool.Go(func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+			defer cancel()
+			if notifyErr := service.SendFeishuChannelErrorAlert(ctx, alert); notifyErr != nil {
+				common.SysLog("failed to send feishu channel error alert: " + notifyErr.Error())
+			}
+		})
+	}
 	// 不要使用context获取渠道信息，异步处理时可能会出现渠道信息不一致的情况
 	// do not use context to get channel info, there may be inconsistent channel info when processing asynchronously
 	if service.ShouldDisableChannel(err) && channelError.AutoBan {
@@ -398,6 +409,32 @@ func processChannelError(c *gin.Context, channelError types.ChannelError, err *t
 		model.RecordErrorLog(c, userId, channelId, modelName, tokenName, err.MaskSensitiveErrorWithStatusCode(), tokenId, useTimeSeconds, common.GetContextKeyBool(c, constant.ContextKeyIsStream), userGroup, other)
 	}
 
+}
+
+func buildFeishuChannelErrorAlert(c *gin.Context, channelError types.ChannelError, err *types.NewAPIError) service.FeishuChannelErrorAlert {
+	alert := service.FeishuChannelErrorAlert{
+		ChannelID:   channelError.ChannelId,
+		ChannelName: channelError.ChannelName,
+		ChannelType: channelError.ChannelType,
+		StatusCode:  err.StatusCode,
+		ErrorType:   err.GetErrorType(),
+		ErrorCode:   err.GetErrorCode(),
+		Message:     err.MaskSensitiveErrorWithStatusCode(),
+		RequestID:   c.GetString(common.RequestIdKey),
+		UpstreamID:  c.GetString(common.UpstreamRequestIdKey),
+		ModelName:   c.GetString("original_model"),
+		UserGroup:   c.GetString("group"),
+		TokenName:   c.GetString("token_name"),
+		UseChannels: append([]string(nil), c.GetStringSlice("use_channel")...),
+	}
+	if c.Request != nil && c.Request.URL != nil {
+		alert.RequestPath = c.Request.URL.Path
+	}
+	if common.GetContextKeyBool(c, constant.ContextKeyChannelIsMultiKey) {
+		alert.IsMultiKey = true
+		alert.MultiKeyIndex = common.GetContextKeyInt(c, constant.ContextKeyChannelMultiKeyIndex)
+	}
+	return alert
 }
 
 func RelayMidjourney(c *gin.Context) {

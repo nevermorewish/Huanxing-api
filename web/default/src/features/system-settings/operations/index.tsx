@@ -36,6 +36,10 @@ const defaultOperationsSettings: OperationsSettings = {
   QuotaRemindThreshold: '',
   AutomaticDisableChannelEnabled: false,
   AutomaticEnableChannelEnabled: false,
+  FeishuChannelErrorAlertEnabled: false,
+  FeishuAppId: '',
+  FeishuAppSecret: '',
+  FeishuChatIds: '',
   AutomaticDisableKeywords: '',
   AutomaticDisableStatusCodes: '401',
   AutomaticRetryStatusCodes:
