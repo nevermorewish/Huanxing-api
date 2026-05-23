@@ -107,7 +107,7 @@ export function usePricingColumns(
 
   const tokenUnitLabel = tokenUnit === 'K' ? '1K' : '1M'
 
-  return [
+  const columns: ColumnDef<PricingModel>[] = [
     // Model column
     {
       accessorKey: 'model_name',
@@ -185,6 +185,12 @@ export function usePricingColumns(
           }
 
           const primaryEntries = dynamicSummary.primaryEntries.slice(0, 2)
+          const cacheEntries = dynamicSummary.secondaryEntries.filter(
+            (entry) =>
+              entry.field === 'cacheReadPrice' ||
+              entry.field === 'cacheCreatePrice' ||
+              entry.field === 'cacheCreate1hPrice'
+          )
           if (primaryEntries.length === 0) {
             return (
               <span className='text-muted-foreground text-xs'>
@@ -194,7 +200,7 @@ export function usePricingColumns(
           }
 
           return (
-            <div className='min-w-[180px]'>
+            <div className='min-w-[220px]'>
               <span className='font-mono text-sm tabular-nums'>
                 {primaryEntries.map((entry, index) => (
                   <span key={entry.key}>
@@ -212,6 +218,18 @@ export function usePricingColumns(
                     count: dynamicSummary.tierCount,
                   })}`}
               </div>
+              {cacheEntries.length > 0 && (
+                <div className='text-muted-foreground mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px]'>
+                  {cacheEntries.map((entry) => (
+                    <span key={entry.key} className='whitespace-nowrap'>
+                      {t(entry.shortLabel)}{' '}
+                      <span className='font-mono tabular-nums'>
+                        {stripTrailingZeros(entry.formatted)}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )
         }
@@ -239,9 +257,46 @@ export function usePricingColumns(
               usdExchangeRate
             )
           )
+          const cachePrices = [
+            model.cache_ratio != null
+              ? {
+                  key: 'cache',
+                  label: t('Cache Read'),
+                  value: stripTrailingZeros(
+                    formatPrice(
+                      model,
+                      'cache',
+                      tokenUnit,
+                      showRechargePrice,
+                      priceRate,
+                      usdExchangeRate
+                    )
+                  ),
+                }
+              : null,
+            model.create_cache_ratio != null
+              ? {
+                  key: 'create_cache',
+                  label: t('Cache Write'),
+                  value: stripTrailingZeros(
+                    formatPrice(
+                      model,
+                      'create_cache',
+                      tokenUnit,
+                      showRechargePrice,
+                      priceRate,
+                      usdExchangeRate
+                    )
+                  ),
+                }
+              : null,
+          ].filter(
+            (item): item is { key: string; label: string; value: string } =>
+              item !== null
+          )
 
           return (
-            <div className='min-w-[160px]'>
+            <div className='min-w-[220px]'>
               <span className='font-mono text-sm tabular-nums'>
                 {inputPrice}
                 <span className='text-muted-foreground/40 mx-1'>/</span>
@@ -250,6 +305,18 @@ export function usePricingColumns(
               <div className='text-muted-foreground/50 text-[10px]'>
                 / {tokenUnitLabel} tokens
               </div>
+              {cachePrices.length > 0 && (
+                <div className='text-muted-foreground mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px]'>
+                  {cachePrices.map((item) => (
+                    <span key={item.key} className='whitespace-nowrap'>
+                      {item.label}{' '}
+                      <span className='font-mono tabular-nums'>
+                        {item.value}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )
         }
@@ -272,7 +339,7 @@ export function usePricingColumns(
           </div>
         )
       },
-      size: 180,
+      size: 240,
       enableSorting: false,
     },
 
@@ -469,4 +536,6 @@ export function usePricingColumns(
       enableSorting: false,
     },
   ]
+
+  return columns.filter((column) => column.id !== 'cached_price')
 }

@@ -63,7 +63,6 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
   const isDynamicPricing =
     props.model.billing_mode === 'tiered_expr' &&
     Boolean(props.model.billing_expr)
-  const hasCachedPrice = isTokenBased && props.model.cache_ratio != null
   const dynamicSummary = isDynamicPricing
     ? getDynamicPricingSummary(props.model, {
         tokenUnit,
@@ -73,6 +72,48 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
         groupRatioMultiplier: getDynamicDisplayGroupRatio(props.model),
       })
     : null
+  const dynamicCacheEntries =
+    dynamicSummary?.secondaryEntries.filter(
+      (entry) =>
+        entry.field === 'cacheReadPrice' ||
+        entry.field === 'cacheCreatePrice' ||
+        entry.field === 'cacheCreate1hPrice'
+    ) ?? []
+  const cachePriceItems = isTokenBased
+    ? [
+        props.model.cache_ratio != null
+          ? {
+              key: 'cache',
+              label: t('Cache Read'),
+              value: formatPrice(
+                props.model,
+                'cache',
+                tokenUnit,
+                showRechargePrice,
+                priceRate,
+                usdExchangeRate
+              ),
+            }
+          : null,
+        props.model.create_cache_ratio != null
+          ? {
+              key: 'create_cache',
+              label: t('Cache Write'),
+              value: formatPrice(
+                props.model,
+                'create_cache',
+                tokenUnit,
+                showRechargePrice,
+                priceRate,
+                usdExchangeRate
+              ),
+            }
+          : null,
+      ].filter(
+        (item): item is { key: string; label: string; value: string } =>
+          item !== null
+      )
+    : []
 
   const primaryGroup = groups[0]
   const bottomTags = [...endpoints.slice(0, 2), ...tags.slice(0, 2)]
@@ -107,7 +148,7 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
             <h3 className='text-foreground truncate font-mono text-[15px] leading-tight font-bold'>
               {props.model.model_name}
             </h3>
-            <div className='mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs sm:mt-1 sm:gap-x-3'>
+            <div className='mt-0.5 space-y-0.5 text-xs sm:mt-1'>
               {dynamicSummary ? (
                 dynamicSummary.isSpecialExpression ? (
                   <span className='min-w-0'>
@@ -120,18 +161,31 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
                   </span>
                 ) : dynamicSummary.primaryEntries.length > 0 ? (
                   <>
-                    {dynamicSummary.primaryEntries.map((entry) => (
-                      <span
-                        key={entry.key}
-                        className='text-muted-foreground whitespace-nowrap'
-                      >
-                        {t(entry.shortLabel)}{' '}
-                        <span className='text-foreground font-mono font-semibold'>
-                          {entry.formatted}
+                    <div className='flex flex-wrap items-baseline gap-x-3 gap-y-0.5'>
+                      {dynamicSummary.primaryEntries.map((entry) => (
+                        <span
+                          key={entry.key}
+                          className='text-muted-foreground whitespace-nowrap'
+                        >
+                          {t(entry.shortLabel)}{' '}
+                          <span className='text-foreground font-mono font-semibold'>
+                            {entry.formatted}
+                          </span>
+                          /{tokenUnitLabel}
                         </span>
-                        /{tokenUnitLabel}
-                      </span>
-                    ))}
+                      ))}
+                    </div>
+                    {dynamicCacheEntries.length > 0 && (
+                      <div className='text-muted-foreground/70 flex flex-wrap items-baseline gap-x-3 gap-y-0.5'>
+                        {dynamicCacheEntries.map((entry) => (
+                          <span key={entry.key} className='whitespace-nowrap'>
+                            {t(entry.shortLabel)}{' '}
+                            <span className='font-mono'>{entry.formatted}</span>
+                            /{tokenUnitLabel}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </>
                 ) : (
                   <span className='text-muted-foreground text-xs'>
@@ -140,62 +194,62 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
                 )
               ) : isTokenBased ? (
                 <>
-                  <span className='text-muted-foreground whitespace-nowrap'>
-                    {t('Input')}{' '}
-                    <span className='text-foreground font-mono font-semibold'>
-                      {formatPrice(
-                        props.model,
-                        'input',
-                        tokenUnit,
-                        showRechargePrice,
-                        priceRate,
-                        usdExchangeRate
-                      )}
-                    </span>
-                    /{tokenUnitLabel}
-                  </span>
-                  <span className='text-muted-foreground whitespace-nowrap'>
-                    {t('Output')}{' '}
-                    <span className='text-foreground font-mono font-semibold'>
-                      {formatPrice(
-                        props.model,
-                        'output',
-                        tokenUnit,
-                        showRechargePrice,
-                        priceRate,
-                        usdExchangeRate
-                      )}
-                    </span>
-                    /{tokenUnitLabel}
-                  </span>
-                  {hasCachedPrice && (
-                    <span className='text-muted-foreground/60 whitespace-nowrap'>
-                      {t('Cached')}{' '}
-                      <span className='font-mono'>
+                  <div className='flex flex-wrap items-baseline gap-x-3 gap-y-0.5'>
+                    <span className='text-muted-foreground whitespace-nowrap'>
+                      {t('Input')}{' '}
+                      <span className='text-foreground font-mono font-semibold'>
                         {formatPrice(
                           props.model,
-                          'cache',
+                          'input',
                           tokenUnit,
                           showRechargePrice,
                           priceRate,
                           usdExchangeRate
                         )}
                       </span>
+                      /{tokenUnitLabel}
                     </span>
+                    <span className='text-muted-foreground whitespace-nowrap'>
+                      {t('Output')}{' '}
+                      <span className='text-foreground font-mono font-semibold'>
+                        {formatPrice(
+                          props.model,
+                          'output',
+                          tokenUnit,
+                          showRechargePrice,
+                          priceRate,
+                          usdExchangeRate
+                        )}
+                      </span>
+                      /{tokenUnitLabel}
+                    </span>
+                  </div>
+                  {cachePriceItems.length > 0 && (
+                    <div className='text-muted-foreground/70 flex flex-wrap items-baseline gap-x-3 gap-y-0.5'>
+                      {cachePriceItems.map((item) => (
+                        <span key={item.key} className='whitespace-nowrap'>
+                          {item.label}{' '}
+                          <span className='font-mono'>{item.value}</span>/
+                          {tokenUnitLabel}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </>
               ) : (
-                <span className='text-muted-foreground whitespace-nowrap'>
-                  <span className='text-foreground font-mono font-semibold'>
-                    {formatRequestPrice(
-                      props.model,
-                      showRechargePrice,
-                      priceRate,
-                      usdExchangeRate
-                    )}
-                  </span>{' '}
-                  / {t('request')}
-                </span>
+                <div className='flex flex-wrap items-baseline gap-x-3 gap-y-0.5'>
+                  <span className='text-muted-foreground whitespace-nowrap'>
+                    <span className='text-foreground font-mono font-semibold'>
+                      {formatRequestPrice(
+                        props.model,
+                        showRechargePrice,
+                        priceRate,
+                        usdExchangeRate
+                      )}
+                    </span>{' '}
+                    / {t('request')}
+                  </span>
+                </div>
               )}
             </div>
           </div>
