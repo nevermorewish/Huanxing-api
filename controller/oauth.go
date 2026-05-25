@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
 	"github.com/huanxing/huanxing-api/i18n"
 	"github.com/huanxing/huanxing-api/model"
 	"github.com/huanxing/huanxing-api/oauth"
@@ -325,6 +326,12 @@ func findOrCreateOAuthUser(c *gin.Context, provider oauth.Provider, oauthUser *o
 
 		// Perform post-transaction tasks
 		user.FinalizeOAuthUserCreation(inviterId)
+	}
+
+	if constant.GenerateDefaultToken {
+		if err := GenerateDefaultTokenForUser(user.Id, user.Username); err != nil {
+			common.SysLog("failed to generate default token for OAuth user: " + err.Error())
+		}
 	}
 
 	return user, nil

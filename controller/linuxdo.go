@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/constant"
 	"github.com/huanxing/huanxing-api/model"
 
 	"github.com/gin-contrib/sessions"
@@ -239,6 +240,11 @@ func LinuxdoOAuth(c *gin.Context) {
 						"message": err.Error(),
 					})
 					return
+				}
+				if constant.GenerateDefaultToken {
+					if err := GenerateDefaultTokenForUser(user.Id, user.Username); err != nil {
+						common.SysLog("failed to generate default token for LinuxDO user: " + err.Error())
+					}
 				}
 			} else {
 				c.JSON(http.StatusOK, gin.H{

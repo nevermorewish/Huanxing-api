@@ -191,38 +191,10 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 获取插入后的用户ID
-	var insertedUser model.User
-	if err := model.DB.Where("username = ?", cleanUser.Username).First(&insertedUser).Error; err != nil {
-		common.ApiErrorI18n(c, i18n.MsgUserRegisterFailed)
-		return
-	}
 	// 生成默认令牌
 	if constant.GenerateDefaultToken {
-		key, err := common.GenerateKey()
-		if err != nil {
-			common.ApiErrorI18n(c, i18n.MsgUserDefaultTokenFailed)
-			common.SysLog("failed to generate token key: " + err.Error())
-			return
-		}
-		// 生成默认令牌
-		token := model.Token{
-			UserId:             insertedUser.Id, // 使用插入后的用户ID
-			Name:               cleanUser.Username + "的初始令牌",
-			Key:                key,
-			CreatedTime:        common.GetTimestamp(),
-			AccessedTime:       common.GetTimestamp(),
-			ExpiredTime:        -1,     // 永不过期
-			RemainQuota:        500000, // 示例额度
-			UnlimitedQuota:     true,
-			ModelLimitsEnabled: false,
-		}
-		if setting.DefaultUseAutoGroup {
-			token.Group = "auto"
-		}
-		if err := token.Insert(); err != nil {
-			common.ApiErrorI18n(c, i18n.MsgCreateDefaultTokenErr)
-			return
+		if err := GenerateDefaultTokenForUser(cleanUser.Id, cleanUser.Username); err != nil {
+			common.SysLog("failed to generate default token for user: " + err.Error())
 		}
 	}
 
@@ -231,6 +203,35 @@ func Register(c *gin.Context) {
 		"message": "",
 	})
 	return
+}
+
+// GenerateDefaultTokenForUser 为新用户生成默认令牌。
+func GenerateDefaultTokenForUser(userId int, username string) error {
+	key, err := common.GenerateKey()
+	if err != nil {
+		return fmt.Errorf("generate token key: %w", err)
+	}
+
+	token := model.Token{
+		UserId:             userId,
+		Name:               username + "的初始令牌",
+		Key:                key,
+		CreatedTime:        common.GetTimestamp(),
+		AccessedTime:       common.GetTimestamp(),
+		ExpiredTime:        -1,
+		RemainQuota:        500000,
+		UnlimitedQuota:     true,
+		ModelLimitsEnabled: false,
+	}
+	if setting.DefaultUseAutoGroup {
+		token.Group = "auto"
+	} else {
+		token.Group = "default"
+	}
+	if err := token.Insert(); err != nil {
+		return fmt.Errorf("insert token: %w", err)
+	}
+	return nil
 }
 
 func GetAllUsers(c *gin.Context) {
