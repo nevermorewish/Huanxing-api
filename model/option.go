@@ -51,6 +51,7 @@ func InitOptionMap() {
 	common.OptionMap["FeishuAppSecret"] = common.FeishuAppSecret
 	common.OptionMap["FeishuChatIds"] = common.FeishuChatIds
 	common.OptionMap["LogConsumeEnabled"] = strconv.FormatBool(common.LogConsumeEnabled)
+	common.OptionMap["LogDetailEnabled"] = strconv.FormatBool(common.LogDetailEnabled)
 	common.OptionMap["DisplayInCurrencyEnabled"] = strconv.FormatBool(common.DisplayInCurrencyEnabled)
 	common.OptionMap["DisplayTokenStatEnabled"] = strconv.FormatBool(common.DisplayTokenStatEnabled)
 	common.OptionMap["DrawingEnabled"] = strconv.FormatBool(common.DrawingEnabled)
@@ -284,6 +285,8 @@ func updateOptionMap(key string, value string) (err error) {
 			common.FeishuChannelErrorAlertEnabled = boolValue
 		case "LogConsumeEnabled":
 			common.LogConsumeEnabled = boolValue
+		case "LogDetailEnabled":
+			common.LogDetailEnabled = boolValue
 		case "DisplayInCurrencyEnabled":
 			// 兼容旧字段：同步到新配置 general_setting.quota_display_type（运行时生效）
 			// true -> USD, false -> TOKENS

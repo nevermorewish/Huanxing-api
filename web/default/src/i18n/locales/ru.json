@@ -4619,6 +4619,20 @@
     "Zero retention": "Без хранения данных",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Detailed Logs": "Подробные журналы",
+    "Detailed Log": "Подробный журнал",
+    "Detailed request logging": "Подробное журналирование запросов",
+    "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.": "Сохраняет тела запросов и ответы upstream для диагностики администраторами. Отключите, чтобы не записывать данные запросов.",
+    "View stored request payloads and upstream responses.": "Просмотр сохраненных тел запросов и ответов upstream.",
+    "Log #{{id}} ? {{user}} ? {{model}}": "?????? #{{id}} ? {{user}} ? {{model}}",
+    "Failed to load detailed logs": "Не удалось загрузить подробные журналы",
+    "Loading detailed logs...": "Загрузка подробных журналов...",
+    "No detailed logs found": "Подробные журналы не найдены",
+    "{{total}} records": "{{total}} записей",
+    "Page {{page}} of {{totalPages}}": "Страница {{page}} из {{totalPages}}",
+    "Token name": "Имя токена",
+    "Log ID": "ID журнала",
+    "Log #{{id}} · {{user}} · {{model}}": "Журнал #{{id}} · {{user}} · {{model}}"
   }
 }

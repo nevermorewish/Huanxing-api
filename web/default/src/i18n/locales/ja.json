@@ -4619,6 +4619,20 @@
     "Zero retention": "データ保持なし",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V 4",
-    "Zoom": "ズーム"
+    "Zoom": "ズーム",
+    "Detailed Logs": "詳細ログ",
+    "Detailed Log": "詳細ログ",
+    "Detailed request logging": "詳細リクエストログ",
+    "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.": "管理者のトラブルシューティング用にリクエスト本文と上流レスポンスを保存します。リクエストデータを記録しない場合は無効にしてください。",
+    "View stored request payloads and upstream responses.": "保存されたリクエスト本文と上流レスポンスを表示します。",
+    "Log #{{id}} ? {{user}} ? {{model}}": "?? #{{id}} ? {{user}} ? {{model}}",
+    "Failed to load detailed logs": "詳細ログの読み込みに失敗しました",
+    "Loading detailed logs...": "詳細ログを読み込み中...",
+    "No detailed logs found": "詳細ログが見つかりません",
+    "{{total}} records": "{{total}} 件",
+    "Page {{page}} of {{totalPages}}": "{{page}} / {{totalPages}} ページ",
+    "Token name": "トークン名",
+    "Log ID": "ログID",
+    "Log #{{id}} · {{user}} · {{model}}": "ログ #{{id}} · {{user}} · {{model}}"
   }
 }

@@ -188,13 +188,15 @@ func GeminiHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *typ
 		}
 	}
 
+	chatCacheBuilder := beginDetailLogCapture(c, httpResp)
 	usage, openaiErr := adaptor.DoResponse(c, resp.(*http.Response), info)
 	if openaiErr != nil {
 		service.ResetStatusCode(openaiErr, statusCodeMappingStr)
 		return openaiErr
 	}
 
-	service.PostTextConsumeQuota(c, info, usage.(*dto.Usage), nil)
+	logID := service.PostTextConsumeQuota(c, info, usage.(*dto.Usage), nil)
+	persistDetailLog(c, logID, chatCacheBuilder)
 	return nil
 }
 
@@ -282,12 +284,14 @@ func GeminiEmbeddingHandler(c *gin.Context, info *relaycommon.RelayInfo) (newAPI
 		}
 	}
 
+	chatCacheBuilder := beginDetailLogCapture(c, httpResp)
 	usage, openaiErr := adaptor.DoResponse(c, resp.(*http.Response), info)
 	if openaiErr != nil {
 		service.ResetStatusCode(openaiErr, statusCodeMappingStr)
 		return openaiErr
 	}
 
-	service.PostTextConsumeQuota(c, info, usage.(*dto.Usage), nil)
+	logID := service.PostTextConsumeQuota(c, info, usage.(*dto.Usage), nil)
+	persistDetailLog(c, logID, chatCacheBuilder)
 	return nil
 }

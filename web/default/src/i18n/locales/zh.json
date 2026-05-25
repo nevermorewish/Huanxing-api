@@ -4619,6 +4619,20 @@
     "Zero retention": "零数据保留",
     "Zhipu": "智谱",
     "Zhipu V4": "智谱 V4",
-    "Zoom": "缩放"
+    "Zoom": "缩放",
+    "Detailed Logs": "详细日志",
+    "Detailed Log": "详细日志",
+    "Detailed request logging": "启动详细日志开关",
+    "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.": "保存请求数据和上游响应，供管理员排查问题使用。关闭后不会记录任何请求数据。",
+    "View stored request payloads and upstream responses.": "查看已保存的请求数据和上游响应。",
+    "Log #{{id}} ? {{user}} ? {{model}}": "?? #{{id}} ? {{user}} ? {{model}}",
+    "Failed to load detailed logs": "加载详细日志失败",
+    "Loading detailed logs...": "正在加载详细日志...",
+    "No detailed logs found": "未找到详细日志",
+    "{{total}} records": "{{total}} 条记录",
+    "Page {{page}} of {{totalPages}}": "第 {{page}} 页，共 {{totalPages}} 页",
+    "Token name": "令牌名称",
+    "Log ID": "日志 ID",
+    "Log #{{id}} · {{user}} · {{model}}": "日志 #{{id}} · {{user}} · {{model}}"
   }
 }

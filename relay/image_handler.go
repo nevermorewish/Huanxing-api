@@ -104,6 +104,7 @@ func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *type
 		}
 	}
 
+	chatCacheBuilder := beginDetailLogCapture(c, httpResp)
 	usage, newAPIError := adaptor.DoResponse(c, httpResp, info)
 	if newAPIError != nil {
 		// reset status code 重置状态码
@@ -150,6 +151,7 @@ func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *type
 		logContent = append(logContent, fmt.Sprintf("生成数量 %d", imageN))
 	}
 
-	service.PostTextConsumeQuota(c, info, usage.(*dto.Usage), logContent)
+	logID := service.PostTextConsumeQuota(c, info, usage.(*dto.Usage), logContent)
+	persistDetailLog(c, logID, chatCacheBuilder)
 	return nil
 }

@@ -4619,6 +4619,20 @@
     "Zero retention": "Zero retention",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Detailed Logs": "Detailed Logs",
+    "Detailed Log": "Detailed Log",
+    "Detailed request logging": "Detailed request logging",
+    "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.": "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.",
+    "View stored request payloads and upstream responses.": "View stored request payloads and upstream responses.",
+    "Log #{{id}} ? {{user}} ? {{model}}": "Journal n? {{id}} ? {{user}} ? {{model}}",
+    "Failed to load detailed logs": "Failed to load detailed logs",
+    "Loading detailed logs...": "Loading detailed logs...",
+    "No detailed logs found": "No detailed logs found",
+    "{{total}} records": "{{total}} records",
+    "Page {{page}} of {{totalPages}}": "Page {{page}} of {{totalPages}}",
+    "Token name": "Token name",
+    "Log ID": "Log ID",
+    "Log #{{id}} · {{user}} · {{model}}": "Log #{{id}} · {{user}} · {{model}}"
   }
 }

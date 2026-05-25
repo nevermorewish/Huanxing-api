@@ -126,6 +126,7 @@ func ResponsesHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *
 		}
 	}
 
+	chatCacheBuilder := beginDetailLogCapture(c, httpResp)
 	usage, newAPIError := adaptor.DoResponse(c, httpResp, info)
 	if newAPIError != nil {
 		// reset status code 重置状态码
@@ -144,7 +145,8 @@ func ResponsesHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *
 			info.PriceData = originPriceData
 			return types.NewError(err, types.ErrorCodeModelPriceError, types.ErrOptionWithSkipRetry(), types.ErrOptionWithStatusCode(http.StatusBadRequest))
 		}
-		service.PostTextConsumeQuota(c, info, usageDto, nil)
+		logID := service.PostTextConsumeQuota(c, info, usageDto, nil)
+		persistDetailLog(c, logID, chatCacheBuilder)
 
 		info.OriginModelName = originModelName
 		info.PriceData = originPriceData
@@ -152,9 +154,11 @@ func ResponsesHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *
 	}
 
 	if strings.HasPrefix(info.OriginModelName, "gpt-4o-audio") {
-		service.PostAudioConsumeQuota(c, info, usageDto, "")
+		logID := service.PostAudioConsumeQuota(c, info, usageDto, "")
+		persistDetailLog(c, logID, chatCacheBuilder)
 	} else {
-		service.PostTextConsumeQuota(c, info, usageDto, nil)
+		logID := service.PostTextConsumeQuota(c, info, usageDto, nil)
+		persistDetailLog(c, logID, chatCacheBuilder)
 	}
 	return nil
 }

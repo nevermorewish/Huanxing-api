@@ -4619,6 +4619,20 @@
     "Zero retention": "Aucune rétention",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Detailed Logs": "Journaux détaillés",
+    "Detailed Log": "Journal détaillé",
+    "Detailed request logging": "Journalisation détaillée des requêtes",
+    "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.": "Stocke les charges utiles des requêtes et les réponses amont pour le dépannage administrateur. Désactivez cette option pour éviter d’enregistrer les données de requête.",
+    "View stored request payloads and upstream responses.": "Consultez les charges utiles de requête et les réponses amont enregistrées.",
+    "Log #{{id}} ? {{user}} ? {{model}}": "Journal n? {{id}} ? {{user}} ? {{model}}",
+    "Failed to load detailed logs": "Échec du chargement des journaux détaillés",
+    "Loading detailed logs...": "Chargement des journaux détaillés...",
+    "No detailed logs found": "Aucun journal détaillé trouvé",
+    "{{total}} records": "{{total}} enregistrements",
+    "Page {{page}} of {{totalPages}}": "Page {{page}} sur {{totalPages}}",
+    "Token name": "Nom du jeton",
+    "Log ID": "ID du journal",
+    "Log #{{id}} · {{user}} · {{model}}": "Journal n° {{id}} · {{user}} · {{model}}"
   }
 }

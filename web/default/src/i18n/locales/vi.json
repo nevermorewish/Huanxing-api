@@ -4619,6 +4619,20 @@
     "Zero retention": "Không lưu dữ liệu",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Detailed Logs": "Nhật ký chi tiết",
+    "Detailed Log": "Nhật ký chi tiết",
+    "Detailed request logging": "Ghi nhật ký yêu cầu chi tiết",
+    "Store request payloads and upstream responses for administrator troubleshooting. Disable this to avoid recording request data.": "Lưu payload yêu cầu và phản hồi upstream để quản trị viên xử lý sự cố. Tắt tùy chọn này để tránh ghi dữ liệu yêu cầu.",
+    "View stored request payloads and upstream responses.": "Xem payload yêu cầu và phản hồi upstream đã lưu.",
+    "Log #{{id}} ? {{user}} ? {{model}}": "Nh?t k? #{{id}} ? {{user}} ? {{model}}",
+    "Failed to load detailed logs": "Không tải được nhật ký chi tiết",
+    "Loading detailed logs...": "Đang tải nhật ký chi tiết...",
+    "No detailed logs found": "Không tìm thấy nhật ký chi tiết",
+    "{{total}} records": "{{total}} bản ghi",
+    "Page {{page}} of {{totalPages}}": "Trang {{page}} / {{totalPages}}",
+    "Token name": "Tên mã thông báo",
+    "Log ID": "ID nhật ký",
+    "Log #{{id}} · {{user}} · {{model}}": "Nhật ký #{{id}} · {{user}} · {{model}}"
   }
 }
