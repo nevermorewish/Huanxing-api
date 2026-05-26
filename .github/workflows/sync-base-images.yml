@@ -48,11 +48,35 @@ jobs:
             docker://docker.io/library/golang:1.26.1-alpine \
             docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-golang:1.26.1-alpine
 
+      - name: Sync golang 1.26.3
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/golang:1.26.3-alpine \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-golang:1.26.3-alpine
+
       - name: Sync node
         run: |
           skopeo copy --all \
             docker://docker.io/library/node:24-alpine \
             docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-node:24-alpine
+
+      - name: Sync alpine 3.20
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/alpine:3.20 \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-alpine:3.20
+
+      - name: Sync alpine 3.21
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/alpine:3.21 \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-alpine:3.21
+
+      - name: Sync postgres 18
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/postgres:18-alpine \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-postgres:18-alpine
 
       - name: Sync debian
         run: |
