@@ -87,6 +87,9 @@ func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *rel
 		anthropicVersion = "2023-06-01"
 	}
 	req.Set("anthropic-version", anthropicVersion)
+	if channel.ShouldPassThroughRequestHeaders(info) {
+		return nil
+	}
 	CommonClaudeHeadersOperation(c, req, info)
 	return nil
 }

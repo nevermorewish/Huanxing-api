@@ -2,10 +2,14 @@ package claude
 
 import (
 	"encoding/base64"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/huanxing/huanxing-api/dto"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
 	"github.com/stretchr/testify/require"
 )
 
@@ -46,6 +50,43 @@ func TestFormatClaudeResponseInfo_MessageStart(t *testing.T) {
 	if claudeInfo.Model != "claude-3-5-sonnet" {
 		t.Errorf("Model = %s, want claude-3-5-sonnet", claudeInfo.Model)
 	}
+}
+
+func TestSetupRequestHeader_PassThroughBodyKeepsClientClaudeCodeHeaders(t *testing.T) {
+	t.Parallel()
+
+	gin.SetMode(gin.TestMode)
+	recorder := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(recorder)
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/messages?beta=true", nil)
+	ctx.Request.Header.Set("Content-Type", "application/json")
+	ctx.Request.Header.Set("Accept", "application/json")
+	ctx.Request.Header.Set("User-Agent", "claude-cli/2.1.156 (external, cli)")
+	ctx.Request.Header.Set("X-Stainless-Package-Version", "0.94.0")
+	ctx.Request.Header.Set("anthropic-beta", "claude-code-20250219,context-1m-2025-08-07")
+	ctx.Request.Header.Set("anthropic-dangerous-direct-browser-access", "true")
+	ctx.Request.Header.Set("anthropic-version", "2023-06-01")
+	ctx.Request.Header.Set("x-api-key", "client-key")
+	ctx.Request.Header.Set("x-app", "cli")
+
+	headers := http.Header{}
+	err := (&Adaptor{}).SetupRequestHeader(ctx, &headers, &relaycommon.RelayInfo{
+		ChannelMeta: &relaycommon.ChannelMeta{
+			ApiKey:         "upstream-key",
+			ChannelSetting: dto.ChannelSettings{PassThroughBodyEnabled: true},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, "application/json", headers.Get("Content-Type"))
+	require.Equal(t, "application/json", headers.Get("Accept"))
+	require.Equal(t, "claude-cli/2.1.156 (external, cli)", headers.Get("User-Agent"))
+	require.Equal(t, "0.94.0", headers.Get("X-Stainless-Package-Version"))
+	require.Equal(t, "claude-code-20250219,context-1m-2025-08-07", headers.Get("anthropic-beta"))
+	require.Equal(t, "true", headers.Get("anthropic-dangerous-direct-browser-access"))
+	require.Equal(t, "2023-06-01", headers.Get("anthropic-version"))
+	require.Equal(t, "upstream-key", headers.Get("x-api-key"))
+	require.Equal(t, "cli", headers.Get("x-app"))
 }
 
 func TestFormatClaudeResponseInfo_MessageDelta_FullUsage(t *testing.T) {

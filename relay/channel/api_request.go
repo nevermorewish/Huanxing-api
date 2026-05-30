@@ -17,6 +17,7 @@ import (
 	"github.com/huanxing/huanxing-api/relay/constant"
 	"github.com/huanxing/huanxing-api/relay/helper"
 	"github.com/huanxing/huanxing-api/service"
+	"github.com/huanxing/huanxing-api/setting/model_setting"
 	"github.com/huanxing/huanxing-api/setting/operation_setting"
 	"github.com/huanxing/huanxing-api/types"
 
@@ -26,16 +27,90 @@ import (
 )
 
 func SetupApiRequestHeader(info *common.RelayInfo, c *gin.Context, req *http.Header) {
-	if info.RelayMode == constant.RelayModeAudioTranscription || info.RelayMode == constant.RelayModeAudioTranslation {
+	relayMode := 0
+	if info != nil {
+		relayMode = info.RelayMode
+	}
+	if relayMode == constant.RelayModeAudioTranscription || relayMode == constant.RelayModeAudioTranslation {
 		// multipart/form-data
-	} else if info.RelayMode == constant.RelayModeRealtime {
+	} else if relayMode == constant.RelayModeRealtime {
 		// websocket
+	} else if shouldPassThroughRequestHeaders(info) {
+		copyPassThroughRequestHeaders(c, req)
 	} else {
 		req.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 		req.Set("Accept", c.Request.Header.Get("Accept"))
-		if info.IsStream && c.Request.Header.Get("Accept") == "" {
+		if userAgent := c.Request.Header.Get("User-Agent"); userAgent != "" {
+			req.Set("User-Agent", userAgent)
+		}
+		if info != nil && info.IsStream && c.Request.Header.Get("Accept") == "" {
 			req.Set("Accept", "text/event-stream")
 		}
+	}
+}
+
+func shouldPassThroughRequestHeaders(info *common.RelayInfo) bool {
+	return ShouldPassThroughRequestHeaders(info)
+}
+
+func ShouldPassThroughRequestHeaders(info *common.RelayInfo) bool {
+	if info == nil {
+		return false
+	}
+	if model_setting.GetGlobalSettings().PassThroughRequestEnabled {
+		return true
+	}
+	if info.ChannelMeta == nil {
+		return false
+	}
+	if info.ChannelSetting.PassThroughBodyEnabled {
+		return true
+	}
+	return false
+}
+
+func copyPassThroughRequestHeaders(c *gin.Context, target *http.Header) {
+	if c == nil || c.Request == nil || target == nil {
+		return
+	}
+	for name, values := range c.Request.Header {
+		if shouldSkipRawPassThroughHeader(name) {
+			continue
+		}
+		for _, value := range values {
+			value = strings.TrimSpace(value)
+			if value == "" {
+				continue
+			}
+			target.Add(name, value)
+		}
+	}
+}
+
+func shouldSkipRawPassThroughHeader(name string) bool {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return true
+	}
+	lower := strings.ToLower(name)
+	switch lower {
+	case "connection",
+		"keep-alive",
+		"proxy-authenticate",
+		"proxy-authorization",
+		"te",
+		"trailer",
+		"transfer-encoding",
+		"upgrade",
+		"host",
+		"content-length",
+		"accept-encoding",
+		"authorization",
+		"x-api-key",
+		"x-goog-api-key":
+		return true
+	default:
+		return false
 	}
 }
 
