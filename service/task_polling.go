@@ -341,6 +341,65 @@ func updateVideoTasks(ctx context.Context, platform constant.TaskPlatform, chann
 	return nil
 }
 
+// RefreshVideoTask fetches the latest upstream video task state for a single task.
+// It reuses the polling update path so status transitions and billing settlement
+// stay guarded by the same CAS logic as the background task poller.
+func RefreshVideoTask(ctx context.Context, task *model.Task) (*model.Task, error) {
+	if task == nil {
+		return nil, fmt.Errorf("task is nil")
+	}
+	if task.Status == model.TaskStatusSuccess || task.Status == model.TaskStatusFailure {
+		return task, nil
+	}
+
+	upstreamTaskID := task.GetUpstreamTaskID()
+	if upstreamTaskID == "" {
+		return task, fmt.Errorf("task %s has empty upstream task id", task.TaskID)
+	}
+	if GetTaskAdaptorFunc == nil {
+		return task, fmt.Errorf("task adaptor factory not initialized")
+	}
+
+	ch, err := model.CacheGetChannel(task.ChannelId)
+	if err != nil {
+		return task, fmt.Errorf("CacheGetChannel failed: %w", err)
+	}
+
+	adaptor := GetTaskAdaptorFunc(task.Platform)
+	if adaptor == nil {
+		return task, fmt.Errorf("video adaptor not found for platform %s", task.Platform)
+	}
+
+	info := &relaycommon.RelayInfo{}
+	info.ChannelMeta = &relaycommon.ChannelMeta{
+		ChannelType:    ch.Type,
+		ChannelId:      ch.Id,
+		ChannelBaseUrl: ch.GetBaseURL(),
+		ApiKey:         ch.Key,
+	}
+	info.ChannelType = ch.Type
+	info.ChannelId = ch.Id
+	info.ChannelBaseUrl = ch.GetBaseURL()
+	info.ApiKey = ch.Key
+	adaptor.Init(info)
+
+	taskM := map[string]*model.Task{
+		upstreamTaskID: task,
+	}
+	if err := updateVideoSingleTask(ctx, adaptor, ch, upstreamTaskID, taskM); err != nil {
+		return task, err
+	}
+
+	refreshed, exist, err := model.GetByTaskId(task.UserId, task.TaskID)
+	if err != nil {
+		return task, fmt.Errorf("reload refreshed task failed: %w", err)
+	}
+	if !exist {
+		return task, fmt.Errorf("task %s not found after refresh", task.TaskID)
+	}
+	return refreshed, nil
+}
+
 func updateVideoSingleTask(ctx context.Context, adaptor TaskPollingAdaptor, ch *model.Channel, taskId string, taskM map[string]*model.Task) error {
 	baseURL := constant.ChannelBaseURLs[ch.Type]
 	if ch.GetBaseURL() != "" {

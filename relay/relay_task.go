@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/huanxing/huanxing-api/common"
 	"github.com/huanxing/huanxing-api/constant"
 	"github.com/huanxing/huanxing-api/dto"
+	"github.com/huanxing/huanxing-api/logger"
 	"github.com/huanxing/huanxing-api/model"
 	"github.com/huanxing/huanxing-api/relay/channel"
 	"github.com/huanxing/huanxing-api/relay/channel/task/taskcommon"
@@ -383,6 +385,7 @@ func videoFetchByIDRespBodyBuilder(c *gin.Context) (respBody []byte, taskResp *d
 		respBody = realtimeResp
 		return
 	}
+	originTask = refreshVideoTaskOnFetch(c, originTask)
 
 	// OpenAI Video API 格式: 走各 adaptor 的 ConvertToOpenAIVideo
 	if isOpenAIVideoAPI {
@@ -413,6 +416,31 @@ func videoFetchByIDRespBodyBuilder(c *gin.Context) (respBody []byte, taskResp *d
 		taskResp = service.TaskErrorWrapper(err, "marshal_response_failed", http.StatusInternalServerError)
 	}
 	return
+}
+
+const videoFetchRefreshCooldownSeconds int64 = 5
+
+func refreshVideoTaskOnFetch(c *gin.Context, task *model.Task) *model.Task {
+	if task == nil {
+		return task
+	}
+	if task.Status == model.TaskStatusSuccess || task.Status == model.TaskStatusFailure {
+		return task
+	}
+	channelModel, err := model.GetChannelById(task.ChannelId, true)
+	if err == nil && (channelModel.Type == constant.ChannelTypeVertexAi || channelModel.Type == constant.ChannelTypeGemini) {
+		return task
+	}
+	if task.UpdatedAt > 0 && time.Now().Unix()-task.UpdatedAt < videoFetchRefreshCooldownSeconds {
+		return task
+	}
+
+	refreshed, err := service.RefreshVideoTask(c.Request.Context(), task)
+	if err != nil {
+		logger.LogWarn(c.Request.Context(), fmt.Sprintf("refresh video task on fetch failed, task=%s: %s", task.TaskID, err.Error()))
+		return task
+	}
+	return refreshed
 }
 
 // tryRealtimeFetch 尝试从上游实时拉取 Gemini/Vertex 任务状态。
