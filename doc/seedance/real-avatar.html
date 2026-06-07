@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>真人人像素材 | 寰星云科 API 使用文档</title>
+    <meta name="description" content="为 doubao-seedance-2.0 完成真人 H5 认证并提交真人人像素材进行审核。" />
+    <link rel="icon" href="/docs/logo.png" />
+    <link rel="stylesheet" href="/docs/styles.css" />
+  </head>
+  <body>
+    <div data-mount="topbar"></div>
+    <div class="shell">
+      <aside class="sidebar" data-mount="sidebar"></aside>
+      <main class="content">
+        <nav class="breadcrumb" data-mount="breadcrumb"></nav>
+        <article class="page">
+          <header class="page-heading">
+            <p class="eyebrow">视频模型</p>
+            <h1>真人人像素材</h1>
+          </header>
+
+          <p>真人人像素材接口通过同一入口完成三种操作：创建真人认证 H5 会话、查询认证结果、批量提交真人素材进行审核。审核通过的素材会得到 <code>asset://...</code> 形式的 Asset URL，建议配合 <code>doubao-seedance-2.0-face</code> 或 <code>doubao-seedance-2.0-fast-face</code> 模型使用。</p>
+
+          <ul class="list">
+            <li>步骤一：创建真人认证 H5 会话，获取 <code>h5_link</code> 和 <code>byted_token</code>。</li>
+            <li>步骤二：用户完成 H5 认证后，查询认证结果获取素材组 <code>group_id</code>。</li>
+            <li>步骤三：向 <code>group_id</code> 批量提交真人素材进行审核。</li>
+          </ul>
+
+          <h2>接口地址</h2>
+          <p><code>POST /v1/seedance2/real-avatar</code></p>
+
+          <h2>认证</h2>
+          <p>所有接口均需使用 Bearer Token 认证。在请求头中加入：</p>
+          <pre><code>Authorization: Bearer sk-你的令牌</code></pre>
+
+          <h2>步骤一：创建真人认证会话</h2>
+          <h3>请求参数</h3>
+          <table class="table">
+            <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>callback_url</code></td><td>string，必填</td><td>认证完成后的回调 URL。用户完成 H5 认证后，系统会向该地址发送回调通知。</td></tr>
+              <tr><td><code>project_name</code></td><td>string</td><td>项目名称，默认 <code>default</code>。</td></tr>
+            </tbody>
+          </table>
+
+          <h3>调用示例</h3>
+          <div class="api-playground" data-playground data-method="POST" data-path="/v1/seedance2/real-avatar">
+            <div class="api-endpoint">
+              <span class="api-method post">POST</span>
+              <code class="api-path">/v1/seedance2/real-avatar</code>
+              <button type="button" class="api-try-btn">试一试</button>
+            </div>
+            <div class="tabs" data-tabs>
+              <div class="tabs-nav">
+                <button type="button" class="active">cURL</button>
+                <button type="button">Python</button>
+                <button type="button">JavaScript</button>
+                <button type="button">Go</button>
+              </div>
+              <div class="tab-panel active"><pre><code>curl https://api.huanxing.ai/v1/seedance2/real-avatar \
+  -H "Authorization: Bearer sk-你的令牌" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "callback_url": "https://example.com/callback",
+    "project_name": "default"
+  }'</code></pre></div>
+              <div class="tab-panel"><pre><code>import requests
+
+resp = requests.post(
+    "https://api.huanxing.ai/v1/seedance2/real-avatar",
+    headers={
+        "Authorization": "Bearer sk-你的令牌",
+        "Content-Type": "application/json",
+    },
+    json={
+        "callback_url": "https://example.com/callback",
+        "project_name": "default",
+    },
+)
+print(resp.json())</code></pre></div>
+              <div class="tab-panel"><pre><code>const resp = await fetch("https://api.huanxing.ai/v1/seedance2/real-avatar", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-你的令牌",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    callback_url: "https://example.com/callback",
+    project_name: "default",
+  }),
+});
+console.log(await resp.json());</code></pre></div>
+              <div class="tab-panel"><pre><code>package main
+
+import (
+	"bytes"
+	"net/http"
+)
+
+func main() {
+	body := []byte(`{
+  "callback_url": "https://example.com/callback",
+  "project_name": "default"
+}`)
+	req, _ := http.NewRequest("POST",
+		"https://api.huanxing.ai/v1/seedance2/real-avatar",
+		bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer sk-你的令牌")
+	req.Header.Set("Content-Type", "application/json")
+	resp, _ := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+}</code></pre></div>
+            </div>
+            <div class="api-try-panel" hidden>
+              <label class="api-try-field">
+                <span>API 令牌</span>
+                <input type="password" data-field="token" placeholder="sk-你的令牌" autocomplete="off" />
+              </label>
+              <label class="api-try-field">
+                <span>请求体（JSON）</span>
+                <textarea data-field="body">{
+  "callback_url": "https://example.com/callback",
+  "project_name": "default"
+}</textarea>
+              </label>
+              <div class="api-try-actions">
+                <button type="button" class="api-send">发送请求</button>
+                <span class="api-try-hint">请求将直接发送到 https://api.huanxing.ai，令牌仅用于本次浏览器请求，不会上传或保存。</span>
+              </div>
+              <pre class="api-response"><code></code></pre>
+            </div>
+          </div>
+
+          <p>成功响应返回会话任务 ID：</p>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "status": "completed"
+  }
+}</code></pre>
+
+          <p>查询该任务可获得 H5 认证链接与认证令牌：</p>
+          <pre><code>GET /v1/tasks/task_01K...</code></pre>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "status": "completed",
+    "result": {
+      "byted_token": "token_xxx",
+      "h5_link": "https://...",
+      "raw_response": {}
+    }
+  }
+}</code></pre>
+
+          <h2>步骤二：查询真人认证结果</h2>
+          <p>用户完成 H5 认证后，通过 <code>GET /v1/tasks/{id}</code> 查询步骤一任务获取 <code>byted_token</code>，再用此字段查询认证结果，拿到真人素材组 <code>GroupId</code>。</p>
+          <table class="table">
+            <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>byted_token</code></td><td>string，必填</td><td>从步骤一任务结果中获取的认证令牌。</td></tr>
+              <tr><td><code>project_name</code></td><td>string</td><td>项目名称，默认 <code>default</code>。</td></tr>
+            </tbody>
+          </table>
+
+          <h2>步骤三：批量提交真人素材</h2>
+          <table class="table">
+            <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>group_id</code></td><td>string，必填</td><td>真人素材组 ID，从步骤二认证结果中获取的 <code>GroupId</code>。</td></tr>
+              <tr><td><code>project_name</code></td><td>string</td><td>项目名称，默认 <code>default</code>。</td></tr>
+              <tr><td><code>asset_type</code></td><td>string</td><td>素材类型，默认 <code>Video</code>。可选 <code>Video</code>（视频，默认，推荐用于真人人像）/ <code>Image</code>（图片）。</td></tr>
+              <tr><td><code>assets</code></td><td>array，必填</td><td>素材列表，支持一次提交多个素材。元素含 <code>url</code>（公网可访问素材 URL，必填）与 <code>name</code>（素材名称，必填）。</td></tr>
+            </tbody>
+          </table>
+
+          <h3>调用示例</h3>
+          <pre><code>curl https://api.huanxing.ai/v1/seedance2/real-avatar \
+  -H "Authorization: Bearer sk-你的令牌" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "group_id": "group_xxx",
+    "project_name": "default",
+    "asset_type": "Video",
+    "assets": [
+      { "url": "https://example.com/avatar-a.mp4", "name": "avatar-a" },
+      { "url": "https://example.com/avatar-b.mp4", "name": "avatar-b" }
+    ]
+  }'</code></pre>
+
+          <h3>响应</h3>
+          <table class="table">
+            <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>code</code></td><td>integer</td><td>响应状态码，成功时为 200。</td></tr>
+              <tr><td><code>data.id</code></td><td>string</td><td>本地任务 ID，用于后续查询素材审核状态。</td></tr>
+              <tr><td><code>data.object</code></td><td>string</td><td>任务对象类型，固定为 <code>seedance.avatar.asset.task</code>。</td></tr>
+              <tr><td><code>data.status</code></td><td>string</td><td>任务初始状态，提交后为 <code>processing</code>。</td></tr>
+              <tr><td><code>data.progress</code></td><td>integer</td><td>任务进度（0 ~ 100）。</td></tr>
+              <tr><td><code>data.model</code></td><td>string</td><td>当前使用的模型名称。</td></tr>
+            </tbody>
+          </table>
+
+          <h2>查询审核结果</h2>
+          <p>素材提交后为异步审核任务，使用获取任务状态接口查询：<code>GET /v1/tasks/{id}</code>。</p>
+
+          <h3>全部通过</h3>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "status": "completed",
+    "progress": 100,
+    "result": {
+      "assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" },
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Active" }
+      ],
+      "usable_assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" },
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Active" }
+      ],
+      "failed_assets": []
+    }
+  }
+}</code></pre>
+
+          <h3>部分失败</h3>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "status": "failed",
+    "progress": 100,
+    "result": {
+      "assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" },
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Failed" }
+      ],
+      "usable_assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" }
+      ],
+      "failed_assets": [
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Failed" }
+      ]
+    },
+    "error": {
+      "code": "task_failed",
+      "message": "部分素材审核失败"
+    }
+  }
+}</code></pre>
+
+          <ul class="list">
+            <li><code>result.usable_assets[].asset_url</code> 可直接用于 Seedance 2.0 视频生成。</li>
+            <li><code>result.failed_assets</code> 中的素材需更换源文件或重新提交。</li>
+          </ul>
+
+          <h2>审核后使用素材</h2>
+          <p>审核通过后，将 <code>asset://...</code> URL 直接传入 Seedance 2.0 视频生成接口：</p>
+          <pre><code>{
+  "model": "doubao-seedance-2.0-face",
+  "prompt": "使用参考人像生成视频",
+  "image_with_roles": [
+    { "url": "asset://asset_a", "role": "reference_image" }
+  ]
+}</code></pre>
+
+          <div class="callout">
+            <p>真人人像素材建议配合 <code>doubao-seedance-2.0-face</code> 或 <code>doubao-seedance-2.0-fast-face</code> 模型使用。服务端识别到 <code>asset://</code> 前缀后，会直接提交官方生成任务，不会再次触发素材审核。</p>
+          </div>
+        </article>
+        <nav class="page-nav" data-mount="prevnext"></nav>
+      </main>
+    </div>
+    <div data-mount="footer"></div>
+    <script src="/docs/app.js"></script>
+  </body>
+</html>

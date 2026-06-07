@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>视频模型教程 | 寰星云科 API 使用文档</title>
+    <meta name="description" content="寰星云科支持的视频模型介绍：doubao-seedance-2.0 视频生成、虚拟人像素材、真人人像素材。" />
+    <link rel="icon" href="/docs/logo.png" />
+    <link rel="stylesheet" href="/docs/styles.css" />
+  </head>
+  <body>
+    <div data-mount="topbar"></div>
+    <div class="shell">
+      <aside class="sidebar" data-mount="sidebar"></aside>
+      <main class="content">
+        <nav class="breadcrumb" data-mount="breadcrumb"></nav>
+        <article class="page">
+          <header class="page-heading">
+            <p class="eyebrow">Video Models</p>
+            <h1>视频模型教程</h1>
+          </header>
+          <p>视频模型采用异步任务模式：提交请求后返回 <code>task_id</code>，再通过任务状态接口轮询生成进度与结果。doubao-seedance-2.0 支持文生视频、图生视频（首帧 / 尾帧）、参考视频、参考音频与有声视频，并可使用人像素材作为参考。</p>
+          <div class="grid two">
+            <a class="card" href="/docs/seedance/generation.html"><h3>doubao-seedance-2.0 视频生成</h3><p>文生视频、图生视频、首尾帧、参考视频与有声视频。</p></a>
+            <a class="card" href="/docs/seedance/private-avatar.html"><h3>虚拟人像素材</h3><p>批量提交虚拟人像素材并审核，通过后用于视频生成。</p></a>
+            <a class="card" href="/docs/seedance/real-avatar.html"><h3>真人人像素材</h3><p>H5 真人认证 + 真人素材提交审核流程。</p></a>
+          </div>
+        </article>
+        <nav class="page-nav" data-mount="prevnext"></nav>
+      </main>
+    </div>
+    <div data-mount="footer"></div>
+    <script src="/docs/app.js"></script>
+  </body>
+</html>

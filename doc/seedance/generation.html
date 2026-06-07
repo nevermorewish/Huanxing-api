@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>doubao-seedance-2.0 视频生成 | 寰星云科 API 使用文档</title>
+    <meta name="description" content="使用 doubao-seedance-2.0 在寰星云科 API 进行文生视频、图生视频、首尾帧、参考视频与有声视频生成。" />
+    <link rel="icon" href="/docs/logo.png" />
+    <link rel="stylesheet" href="/docs/styles.css" />
+  </head>
+  <body>
+    <div data-mount="topbar"></div>
+    <div class="shell">
+      <aside class="sidebar" data-mount="sidebar"></aside>
+      <main class="content">
+        <nav class="breadcrumb" data-mount="breadcrumb"></nav>
+        <article class="page">
+          <header class="page-heading">
+            <p class="eyebrow">视频模型</p>
+            <h1>doubao-seedance-2.0 视频生成</h1>
+          </header>
+
+          <p>doubao-seedance-2.0 是异步视频生成模型，提交请求后返回任务 ID，再通过任务状态接口查询进度与结果。它支持文生视频、图生视频（首帧 / 尾帧）、参考视频、参考音频与有声视频，并可输出横屏、竖屏、方形、超宽屏等多种比例。</p>
+
+          <ul class="list">
+            <li>异步处理模式，返回任务 ID 用于后续查询。</li>
+            <li>支持文生视频、图生视频（首帧 / 尾帧）。</li>
+            <li>支持参考视频、参考音频、有声视频。</li>
+            <li>支持横屏、竖屏、方形、超宽屏、自适应等多种比例。</li>
+          </ul>
+
+          <h2>接口地址</h2>
+          <div class="api-playground" data-playground data-method="POST" data-path="/v1/videos/generations">
+            <div class="api-endpoint">
+              <span class="api-method post">POST</span>
+              <code class="api-path">/v1/videos/generations</code>
+              <button type="button" class="api-try-btn">试一试</button>
+            </div>
+            <div class="tabs" data-tabs>
+              <div class="tabs-nav">
+                <button type="button" class="active">cURL</button>
+                <button type="button">Python</button>
+                <button type="button">JavaScript</button>
+                <button type="button">Go</button>
+              </div>
+              <div class="tab-panel active"><pre><code>curl https://api.huanxing.ai/v1/videos/generations \
+  -H "Authorization: Bearer sk-你的令牌" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2.0",
+    "prompt": "小猫对着镜头打哈欠",
+    "resolution": "720p",
+    "size": "16:9",
+    "duration": 5,
+    "generate_audio": true
+  }'</code></pre></div>
+              <div class="tab-panel"><pre><code>import requests
+
+resp = requests.post(
+    "https://api.huanxing.ai/v1/videos/generations",
+    headers={
+        "Authorization": "Bearer sk-你的令牌",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "doubao-seedance-2.0",
+        "prompt": "小猫对着镜头打哈欠",
+        "resolution": "720p",
+        "size": "16:9",
+        "duration": 5,
+        "generate_audio": True,
+    },
+)
+print(resp.json())</code></pre></div>
+              <div class="tab-panel"><pre><code>const resp = await fetch("https://api.huanxing.ai/v1/videos/generations", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-你的令牌",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "doubao-seedance-2.0",
+    prompt: "小猫对着镜头打哈欠",
+    resolution: "720p",
+    size: "16:9",
+    duration: 5,
+    generate_audio: true,
+  }),
+});
+console.log(await resp.json());</code></pre></div>
+              <div class="tab-panel"><pre><code>package main
+
+import (
+	"bytes"
+	"net/http"
+)
+
+func main() {
+	body := []byte(`{
+  "model": "doubao-seedance-2.0",
+  "prompt": "小猫对着镜头打哈欠",
+  "resolution": "720p",
+  "size": "16:9",
+  "duration": 5,
+  "generate_audio": true
+}`)
+	req, _ := http.NewRequest("POST",
+		"https://api.huanxing.ai/v1/videos/generations",
+		bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer sk-你的令牌")
+	req.Header.Set("Content-Type", "application/json")
+	resp, _ := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+}</code></pre></div>
+            </div>
+            <div class="api-try-panel" hidden>
+              <label class="api-try-field">
+                <span>API 令牌</span>
+                <input type="password" data-field="token" placeholder="sk-你的令牌" autocomplete="off" />
+              </label>
+              <label class="api-try-field">
+                <span>请求体（JSON）</span>
+                <textarea data-field="body">{
+  "model": "doubao-seedance-2.0",
+  "prompt": "小猫对着镜头打哈欠",
+  "resolution": "720p",
+  "size": "16:9",
+  "duration": 5,
+  "generate_audio": true
+}</textarea>
+              </label>
+              <div class="api-try-actions">
+                <button type="button" class="api-send">发送请求</button>
+                <span class="api-try-hint">请求将直接发送到 https://api.huanxing.ai，令牌仅用于本次浏览器请求，不会上传或保存。</span>
+              </div>
+              <pre class="api-response"><code></code></pre>
+            </div>
+          </div>
+
+          <p>成功响应返回任务 ID：</p>
+          <pre><code>{
+  "code": 200,
+  "data": [
+    {
+      "status": "submitted",
+      "task_id": "task_01KMCGF6BQGN3X28H3KSR50X5T"
+    }
+  ]
+}</code></pre>
+
+          <h2>认证</h2>
+          <p>所有接口均需使用 Bearer Token 认证。在请求头中加入：</p>
+          <pre><code>Authorization: Bearer sk-你的令牌</code></pre>
+
+          <h2>请求参数</h2>
+          <table class="table">
+            <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>model</code></td><td>string，必填</td><td>视频生成模型名称，见下方「支持的模型」。</td></tr>
+              <tr><td><code>prompt</code></td><td>string</td><td>视频内容描述。文生视频时必填，图生视频 / 视频参考生视频时可选。建议明确主体、动作、镜头和风格。限制 4000 字符，建议 500 字符以内。</td></tr>
+              <tr><td><code>duration</code></td><td>integer</td><td>视频时长（秒），范围 4 ~ 15，默认 5。</td></tr>
+              <tr><td><code>size</code></td><td>string</td><td>视频宽高比，默认 <code>16:9</code>。见下方「比例」。</td></tr>
+              <tr><td><code>resolution</code></td><td>string</td><td>视频分辨率，默认 <code>480p</code>。可选 <code>480p</code> / <code>720p</code> / <code>1080p</code>（1080p 仅 <code>doubao-seedance-2.0-face</code> 与 <code>doubao-seedance-2.0</code> 支持）。</td></tr>
+              <tr><td><code>seed</code></td><td>integer</td><td>随机种子。相同请求下相同 seed 生成类似结果（不保证完全一致），不同 seed 生成不同结果。</td></tr>
+              <tr><td><code>generate_audio</code></td><td>boolean</td><td>是否生成有声视频，默认 <code>false</code>。为 <code>true</code> 时视频包含 AI 生成的配套音频。</td></tr>
+              <tr><td><code>return_last_frame</code></td><td>boolean</td><td>是否返回尾帧图片，默认 <code>false</code>。为 <code>true</code> 时结果额外返回最后一帧图片 URL，可用于连续视频生成。</td></tr>
+              <tr><td><code>tools</code></td><td>array&lt;object&gt;</td><td>工具列表，用于联网搜索等增强能力。元素含 <code>type</code> 字段，可选 <code>web_search</code>（生成时参考网络信息）。示例 <code>[{"type": "web_search"}]</code>。</td></tr>
+              <tr><td><code>image_urls</code></td><td>array&lt;string&gt;</td><td>图片 URL 数组，用于图生视频。最多 9 张。与 <code>image_with_roles</code> 不能同时使用。</td></tr>
+              <tr><td><code>image_with_roles</code></td><td>array</td><td>带角色的图片数组，支持指定首帧 / 尾帧 / 参考人像。与 <code>image_urls</code> 不能同时使用。</td></tr>
+              <tr><td><code>video_urls</code></td><td>array&lt;string&gt;</td><td>参考视频 URL 数组。最多 3 个，1.8s &lt; 总时长 &lt; 15.2s，分辨率 480P ~ 720P，不可出现真人。使用首 / 尾帧图片时不可用。</td></tr>
+              <tr><td><code>audio_urls</code></td><td>array&lt;string&gt;</td><td>参考音频 URL 数组。最多 3 个，总时长 ≤ 15s，需与参考图片或参考视频配合使用。使用首 / 尾帧图片时不可用。</td></tr>
+            </tbody>
+          </table>
+
+          <h3>支持的模型</h3>
+          <table class="table">
+            <thead><tr><th>model</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>doubao-seedance-2.0</code></td><td>标准版，支持文生视频、图生视频、首尾帧视频、参考视频、参考音频、有声视频。</td></tr>
+              <tr><td><code>doubao-seedance-2.0-fast</code></td><td>快速版，功能与标准版一致，生成速度更快。</td></tr>
+              <tr><td><code>doubao-seedance-2.0-face</code></td><td>支持上传真人版，功能与标准版一致。</td></tr>
+              <tr><td><code>doubao-seedance-2.0-fast-face</code></td><td>支持上传真人版，功能与快速版一致。</td></tr>
+            </tbody>
+          </table>
+
+          <h3>比例（size）</h3>
+          <table class="table">
+            <thead><tr><th>size</th><th>用途</th></tr></thead>
+            <tbody>
+              <tr><td><code>16:9</code></td><td>横屏</td></tr>
+              <tr><td><code>9:16</code></td><td>竖屏</td></tr>
+              <tr><td><code>1:1</code></td><td>方形</td></tr>
+              <tr><td><code>4:3</code></td><td>传统比例</td></tr>
+              <tr><td><code>3:4</code></td><td>竖向传统比例</td></tr>
+              <tr><td><code>21:9</code></td><td>超宽屏</td></tr>
+              <tr><td><code>adaptive</code></td><td>自适应（根据输入图片 / 视频自动匹配）</td></tr>
+            </tbody>
+          </table>
+
+          <h3>image_with_roles 字段</h3>
+          <p>数组元素包含两个字段：</p>
+          <ul class="list">
+            <li><code>url</code>（string，必填）：图片 URL。支持普通图片 URL，或审核通过的 Asset URL（<code>asset://asset_a</code>，仅 <code>doubao-seedance-2.0</code> 与 <code>doubao-seedance-2.0-fast</code> 支持）。</li>
+            <li><code>role</code>（string，必填）：图片角色，可选 <code>first_frame</code>（首帧）、<code>last_frame</code>（尾帧）、<code>reference_image</code>（参考人像，配合 Asset URL 使用）。</li>
+          </ul>
+          <pre><code>[
+  { "url": "https://example.com/day.jpg", "role": "first_frame" },
+  { "url": "https://example.com/night.jpg", "role": "last_frame" }
+]</code></pre>
+
+          <div class="callout">
+            <p>Asset URL（<code>asset://...</code>）来自审核通过的人像素材，仅 <code>doubao-seedance-2.0</code> 与 <code>doubao-seedance-2.0-fast</code> 模型可用。使用首 / 尾帧图片（<code>image_with_roles</code>）时，参考视频与参考音频不可用。</p>
+          </div>
+
+          <h2>响应</h2>
+          <table class="table">
+            <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>code</code></td><td>integer</td><td>响应状态码，成功时为 200。</td></tr>
+              <tr><td><code>data</code></td><td>array</td><td>返回数据数组。</td></tr>
+              <tr><td><code>data[].status</code></td><td>string</td><td>任务状态，初始提交时为 <code>submitted</code>。</td></tr>
+              <tr><td><code>data[].task_id</code></td><td>string</td><td>任务唯一标识符，用于查询任务状态和结果。</td></tr>
+            </tbody>
+          </table>
+
+          <h2>使用场景</h2>
+
+          <h3>场景 1：文生视频</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "小猫对着镜头打哈欠",
+  "resolution": "720p",
+  "size": "16:9",
+  "duration": 5,
+  "seed": 42,
+  "generate_audio": true
+}</code></pre>
+
+          <h3>场景 2：图生视频（首帧）</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "小猫站起来走向镜头",
+  "image_urls": ["https://example.com/cat.jpg"],
+  "duration": 5
+}</code></pre>
+
+          <h3>场景 3：首尾帧视频</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "从白天过渡到夜晚",
+  "image_with_roles": [
+    { "url": "https://example.com/day.jpg", "role": "first_frame" },
+    { "url": "https://example.com/night.jpg", "role": "last_frame" }
+  ],
+  "duration": 5
+}</code></pre>
+
+          <h3>场景 4：视频参考生视频</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "将视频风格转换为动漫风格",
+  "video_urls": ["https://example.com/reference.mp4"]
+}</code></pre>
+
+          <h3>场景 5：参考视频 + 参考音频</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "人物说话的场景",
+  "video_urls": ["https://example.com/reference.mp4"],
+  "audio_urls": ["https://example.com/speech.wav"],
+  "size": "16:9",
+  "duration": 11
+}</code></pre>
+
+          <h3>场景 6：有声视频</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "男人叫住女人说：\"你记住，以后不可以用手指指月亮。\"",
+  "generate_audio": true
+}</code></pre>
+
+          <h3>场景 7：连续视频生成（返回尾帧）</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "小猫继续走向镜头",
+  "image_urls": ["https://example.com/last_frame_from_prev.png"],
+  "return_last_frame": true
+}</code></pre>
+
+          <h3>场景 8：快速版生成</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0-fast",
+  "prompt": "城市夜景延时摄影",
+  "size": "21:9",
+  "duration": 8
+}</code></pre>
+
+          <h3>场景 9：使用 Asset URL 图生视频</h3>
+          <p>审核通过的虚拟人像素材可直接作为参考图片传入，无需重新上传和审核。</p>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "人物在城市街道自然行走，阳光明媚",
+  "image_urls": ["asset://asset_a"],
+  "duration": 5,
+  "resolution": "720p"
+}</code></pre>
+
+          <h3>场景 10：使用 Asset URL 指定参考人像</h3>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "使用参考人像，人物优雅地走向镜头",
+  "image_with_roles": [
+    { "url": "asset://asset_a", "role": "reference_image" }
+  ],
+  "resolution": "720p",
+  "duration": 5
+}</code></pre>
+
+          <h2>查询任务结果</h2>
+          <p>视频生成为异步任务，提交后返回 <code>task_id</code>。使用获取任务状态接口查询生成进度和结果：</p>
+          <pre><code>GET /v1/tasks/{task_id}</code></pre>
+
+          <h2>与 1.5 Pro 版本的差异</h2>
+          <table class="table">
+            <thead><tr><th>特性</th><th>1.5 Pro</th><th>2.0 / 2.0 fast</th></tr></thead>
+            <tbody>
+              <tr><td>分辨率</td><td>480p / 720p / 1080p</td><td>480p / 720p</td></tr>
+              <tr><td>时长范围</td><td>4-12 秒</td><td>5-15 秒</td></tr>
+              <tr><td>默认时长</td><td>5 秒</td><td>5 秒</td></tr>
+              <tr><td>宽高比参数</td><td><code>aspect_ratio</code></td><td><code>size</code>（新增 <code>adaptive</code> 自适应）</td></tr>
+              <tr><td>音频生成</td><td><code>audio</code> 参数</td><td><code>generate_audio</code> 参数</td></tr>
+              <tr><td>参考视频</td><td>不支持</td><td>支持 <code>video_urls</code></td></tr>
+              <tr><td>参考音频</td><td>不支持</td><td>支持 <code>audio_urls</code></td></tr>
+              <tr><td>有声视频</td><td>不支持</td><td>支持 <code>generate_audio</code></td></tr>
+              <tr><td>连续视频</td><td>不支持</td><td>支持 <code>return_last_frame</code></td></tr>
+              <tr><td>快速版</td><td>不支持</td><td>支持 <code>doubao-seedance-2.0-fast</code></td></tr>
+            </tbody>
+          </table>
+        </article>
+        <nav class="page-nav" data-mount="prevnext"></nav>
+      </main>
+    </div>
+    <div data-mount="footer"></div>
+    <script src="/docs/app.js"></script>
+  </body>
+</html>

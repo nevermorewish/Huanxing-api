@@ -20,6 +20,7 @@ const NAV_TOP = [
   { href: '/docs/ccswitch/1-common.html', label: 'CC-Switch', matchPrefix: '/docs/ccswitch/' },
   { href: '/docs/cli/2-claude.html', label: 'CLI 配置', matchPrefix: '/docs/cli/' },
   { href: '/docs/paint/GPTImage.html', label: '绘图模型', matchPrefix: '/docs/paint/' },
+  { href: '/docs/seedance/generation.html', label: '视频模型', matchPrefix: '/docs/seedance/' },
   { href: '/docs/advanced/DeepSeekClaudeCode.html', label: '进阶玩法', matchPrefix: '/docs/advanced/' },
   { href: '/docs/faq/CC.html', label: '常见问题', matchPrefix: '/docs/faq/' },
 ];
@@ -62,6 +63,19 @@ const NAV_SIDEBAR = [
     title: '绘图模型教程',
     items: [
       { href: '/docs/paint/GPTImage.html', label: 'GPT-Image-2' },
+    ],
+  },
+  {
+    title: '视频模型教程',
+    items: [
+      {
+        href: '/docs/seedance/generation.html',
+        label: 'doubao-seedance-2.0 视频生成',
+        children: [
+          { href: '/docs/seedance/private-avatar.html', label: '虚拟人像素材' },
+          { href: '/docs/seedance/real-avatar.html', label: '真人人像素材' },
+        ],
+      },
     ],
   },
   {
@@ -145,7 +159,14 @@ function renderSidebar() {
   const groups = NAV_SIDEBAR.map((g) => {
     const items = g.items.map((it) => {
       const active = pathsMatch(it.href, path) ? ' active' : '';
-      return `<a class="sidebar-child${active}" href="${it.href}">${escapeHTML(it.label)}</a>`;
+      let html = `<a class="sidebar-child${active}" href="${it.href}">${escapeHTML(it.label)}</a>`;
+      if (it.children && it.children.length) {
+        html += it.children.map((child) => {
+          const childActive = pathsMatch(child.href, path) ? ' active' : '';
+          return `<a class="sidebar-child nested${childActive}" href="${child.href}">${escapeHTML(child.label)}</a>`;
+        }).join('');
+      }
+      return html;
     }).join('');
     return `
       <div class="sidebar-group">
@@ -158,7 +179,15 @@ function renderSidebar() {
 }
 
 function flatPages() {
-  return NAV_SIDEBAR.flatMap((g) => g.items.map((it) => ({ ...it, section: g.title })));
+  return NAV_SIDEBAR.flatMap((g) => g.items.flatMap((it) => {
+    const entries = [{ href: it.href, label: it.label, section: g.title }];
+    if (it.children && it.children.length) {
+      it.children.forEach((child) => {
+        entries.push({ href: child.href, label: child.label, section: g.title, parent: it.label });
+      });
+    }
+    return entries;
+  }));
 }
 
 function renderBreadcrumb() {
@@ -171,6 +200,10 @@ function renderBreadcrumb() {
   if (current) {
     parts.push(`<span class="sep">›</span>`);
     parts.push(`<span>${escapeHTML(current.section)}</span>`);
+    if (current.parent) {
+      parts.push(`<span class="sep">›</span>`);
+      parts.push(`<span>${escapeHTML(current.parent)}</span>`);
+    }
     parts.push(`<span class="sep">›</span>`);
     parts.push(`<span class="current">${escapeHTML(current.label)}</span>`);
   }
@@ -231,11 +264,86 @@ async function mount() {
 
   initTabs();
   initConstants();
+  initApiPlayground();
 }
 
 function initConstants() {
   document.querySelectorAll('[data-api-base]').forEach((node) => {
     node.textContent = API_BASE_URL;
+  });
+}
+
+// 「试一试」交互面板：折叠/展开请求表单，向同源接口发送真实请求并展示响应。
+function initApiPlayground() {
+  document.querySelectorAll('[data-playground]').forEach((root) => {
+    const method = (root.getAttribute('data-method') || 'POST').toUpperCase();
+    const path = root.getAttribute('data-path') || '';
+    const tryBtn = root.querySelector('.api-try-btn');
+    const tryPanel = root.querySelector('.api-try-panel');
+    if (!tryBtn || !tryPanel) return;
+
+    const tokenInput = tryPanel.querySelector('[data-field="token"]');
+    const bodyInput = tryPanel.querySelector('[data-field="body"]');
+    const sendBtn = tryPanel.querySelector('.api-send');
+    const responseBox = tryPanel.querySelector('.api-response');
+
+    tryBtn.addEventListener('click', () => {
+      const willShow = tryPanel.hasAttribute('hidden');
+      if (willShow) tryPanel.removeAttribute('hidden');
+      else tryPanel.setAttribute('hidden', '');
+      tryBtn.textContent = willShow ? '收起' : '试一试';
+    });
+
+    if (sendBtn) {
+      sendBtn.addEventListener('click', async () => {
+        const token = (tokenInput && tokenInput.value || '').trim();
+        if (!token) {
+          if (responseBox) responseBox.textContent = '请先填写 API 令牌（sk-...）。';
+          return;
+        }
+        const url = API_BASE_URL.replace(/\/+$/, '') + path;
+        const init = {
+          method,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        };
+        if (method !== 'GET' && bodyInput) {
+          const raw = bodyInput.value.trim();
+          if (raw) {
+            try {
+              JSON.parse(raw);
+            } catch (e) {
+              if (responseBox) responseBox.textContent = `请求体不是合法 JSON：${e.message}`;
+              return;
+            }
+            init.body = raw;
+          }
+        }
+
+        sendBtn.disabled = true;
+        const original = sendBtn.textContent;
+        sendBtn.textContent = '发送中…';
+        if (responseBox) responseBox.textContent = '';
+        try {
+          const res = await fetch(url, init);
+          const text = await res.text();
+          let pretty = text;
+          try {
+            pretty = JSON.stringify(JSON.parse(text), null, 2);
+          } catch {
+            // 非 JSON 响应直接展示原文
+          }
+          if (responseBox) responseBox.textContent = `HTTP ${res.status} ${res.statusText}\n\n${pretty}`;
+        } catch (err) {
+          if (responseBox) responseBox.textContent = `请求失败：${err.message}`;
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.textContent = original;
+        }
+      });
+    }
   });
 }
 

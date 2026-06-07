@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>虚拟人像素材 | 寰星云科 API 使用文档</title>
+    <meta name="description" content="为 doubao-seedance-2.0 提交虚拟人像素材并审核，审核通过后用于视频生成。" />
+    <link rel="icon" href="/docs/logo.png" />
+    <link rel="stylesheet" href="/docs/styles.css" />
+  </head>
+  <body>
+    <div data-mount="topbar"></div>
+    <div class="shell">
+      <aside class="sidebar" data-mount="sidebar"></aside>
+      <main class="content">
+        <nav class="breadcrumb" data-mount="breadcrumb"></nav>
+        <article class="page">
+          <header class="page-heading">
+            <p class="eyebrow">视频模型</p>
+            <h1>虚拟人像素材</h1>
+          </header>
+
+          <p>私域虚拟人像素材提交接口，用于批量提交人像素材进行审核。审核通过的素材会得到一个 <code>asset://...</code> 形式的 Asset URL，可直接作为参考图片传入 Seedance 2.0 视频生成接口，无需重新上传和审核。</p>
+
+          <ul class="list">
+            <li>支持批量提交，单次最多 20 个素材。</li>
+            <li>自动创建或复用素材组，返回任务 ID 用于状态查询。</li>
+            <li>审核通过的素材可直接用于 Seedance 2.0 视频生成。</li>
+          </ul>
+
+          <h2>接口地址</h2>
+          <div class="api-playground" data-playground data-method="POST" data-path="/v1/seedance2/private-avatar">
+            <div class="api-endpoint">
+              <span class="api-method post">POST</span>
+              <code class="api-path">/v1/seedance2/private-avatar</code>
+              <button type="button" class="api-try-btn">试一试</button>
+            </div>
+            <div class="tabs" data-tabs>
+              <div class="tabs-nav">
+                <button type="button" class="active">cURL</button>
+                <button type="button">Python</button>
+                <button type="button">JavaScript</button>
+                <button type="button">Go</button>
+              </div>
+              <div class="tab-panel active"><pre><code>curl https://api.huanxing.ai/v1/seedance2/private-avatar \
+  -H "Authorization: Bearer sk-你的令牌" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "group": { "name": "virtual-avatar-group", "description": "demo group" },
+    "project_name": "default",
+    "asset_type": "Image",
+    "assets": [
+      { "url": "https://example.com/avatar-a.png", "name": "avatar-a" },
+      { "url": "https://example.com/avatar-b.png", "name": "avatar-b" }
+    ]
+  }'</code></pre></div>
+              <div class="tab-panel"><pre><code>import requests
+
+resp = requests.post(
+    "https://api.huanxing.ai/v1/seedance2/private-avatar",
+    headers={
+        "Authorization": "Bearer sk-你的令牌",
+        "Content-Type": "application/json",
+    },
+    json={
+        "group": {"name": "virtual-avatar-group", "description": "demo group"},
+        "project_name": "default",
+        "asset_type": "Image",
+        "assets": [
+            {"url": "https://example.com/avatar-a.png", "name": "avatar-a"},
+            {"url": "https://example.com/avatar-b.png", "name": "avatar-b"},
+        ],
+    },
+)
+print(resp.json())</code></pre></div>
+              <div class="tab-panel"><pre><code>const resp = await fetch("https://api.huanxing.ai/v1/seedance2/private-avatar", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-你的令牌",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    group: { name: "virtual-avatar-group", description: "demo group" },
+    project_name: "default",
+    asset_type: "Image",
+    assets: [
+      { url: "https://example.com/avatar-a.png", name: "avatar-a" },
+      { url: "https://example.com/avatar-b.png", name: "avatar-b" },
+    ],
+  }),
+});
+console.log(await resp.json());</code></pre></div>
+              <div class="tab-panel"><pre><code>package main
+
+import (
+	"bytes"
+	"net/http"
+)
+
+func main() {
+	body := []byte(`{
+  "group": { "name": "virtual-avatar-group", "description": "demo group" },
+  "project_name": "default",
+  "asset_type": "Image",
+  "assets": [
+    { "url": "https://example.com/avatar-a.png", "name": "avatar-a" },
+    { "url": "https://example.com/avatar-b.png", "name": "avatar-b" }
+  ]
+}`)
+	req, _ := http.NewRequest("POST",
+		"https://api.huanxing.ai/v1/seedance2/private-avatar",
+		bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer sk-你的令牌")
+	req.Header.Set("Content-Type", "application/json")
+	resp, _ := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+}</code></pre></div>
+            </div>
+            <div class="api-try-panel" hidden>
+              <label class="api-try-field">
+                <span>API 令牌</span>
+                <input type="password" data-field="token" placeholder="sk-你的令牌" autocomplete="off" />
+              </label>
+              <label class="api-try-field">
+                <span>请求体（JSON）</span>
+                <textarea data-field="body">{
+  "group": { "name": "virtual-avatar-group", "description": "demo group" },
+  "project_name": "default",
+  "asset_type": "Image",
+  "assets": [
+    { "url": "https://example.com/avatar-a.png", "name": "avatar-a" },
+    { "url": "https://example.com/avatar-b.png", "name": "avatar-b" }
+  ]
+}</textarea>
+              </label>
+              <div class="api-try-actions">
+                <button type="button" class="api-send">发送请求</button>
+                <span class="api-try-hint">请求将直接发送到 https://api.huanxing.ai，令牌仅用于本次浏览器请求，不会上传或保存。</span>
+              </div>
+              <pre class="api-response"><code></code></pre>
+            </div>
+          </div>
+
+          <p>成功响应返回审核任务信息：</p>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "object": "seedance.avatar.asset.task",
+    "status": "processing",
+    "progress": 10,
+    "model": "doubao-seedance-2.0"
+  }
+}</code></pre>
+
+          <h2>认证</h2>
+          <p>所有接口均需使用 Bearer Token 认证。在请求头中加入：</p>
+          <pre><code>Authorization: Bearer sk-你的令牌</code></pre>
+
+          <h2>请求参数</h2>
+          <table class="table">
+            <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>group</code></td><td>object</td><td>素材组信息。不传 <code>group_id</code> 时，服务端会根据此字段自动创建 AIGC 类型素材组。含 <code>name</code>（组名称）与 <code>description</code>（组描述）。与 <code>group_id</code> 二选一，不可同时传入。</td></tr>
+              <tr><td><code>group_id</code></td><td>string</td><td>已有素材组 ID。传入时跳过素材组创建，直接向该素材组提交素材。与 <code>group</code> 二选一，不可同时传入。</td></tr>
+              <tr><td><code>project_name</code></td><td>string</td><td>项目名称，默认 <code>default</code>。</td></tr>
+              <tr><td><code>asset_type</code></td><td>string</td><td>素材类型，默认 <code>Image</code>。可选 <code>Image</code>（图片）/ <code>Video</code>（视频）/ <code>Audio</code>（音频）。</td></tr>
+              <tr><td><code>assets</code></td><td>array</td><td>素材列表，支持一次提交多个素材，单次最多 20 个。元素含 <code>url</code>（公网可访问素材 URL，必填）与 <code>name</code>（素材名称，必填）。</td></tr>
+              <tr><td><code>url</code></td><td>string</td><td>单素材兼容写法：素材 URL。与 <code>assets</code> 数组二选一，适用于只提交一个素材的场景。</td></tr>
+              <tr><td><code>name</code></td><td>string</td><td>单素材兼容写法：素材名称。与 <code>assets</code> 数组二选一。</td></tr>
+            </tbody>
+          </table>
+
+          <h2>响应</h2>
+          <table class="table">
+            <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>code</code></td><td>integer</td><td>响应状态码，成功时为 200。</td></tr>
+              <tr><td><code>data.id</code></td><td>string</td><td>本地任务 ID，用于后续查询素材审核状态。</td></tr>
+              <tr><td><code>data.object</code></td><td>string</td><td>任务对象类型，固定为 <code>seedance.avatar.asset.task</code>。</td></tr>
+              <tr><td><code>data.status</code></td><td>string</td><td>任务初始状态，提交后为 <code>processing</code>。</td></tr>
+              <tr><td><code>data.progress</code></td><td>integer</td><td>任务进度（0 ~ 100）。</td></tr>
+              <tr><td><code>data.model</code></td><td>string</td><td>当前使用的模型名称。</td></tr>
+            </tbody>
+          </table>
+
+          <h2>使用场景</h2>
+
+          <h3>场景 1：批量提交素材（自动创建素材组）</h3>
+          <p>不传 <code>group_id</code>，服务端自动创建 AIGC 类型素材组后提交素材。</p>
+          <pre><code>{
+  "group": {
+    "name": "virtual-avatar-group",
+    "description": "demo group"
+  },
+  "project_name": "default",
+  "asset_type": "Image",
+  "assets": [
+    { "url": "https://example.com/avatar-a.png", "name": "avatar-a" },
+    { "url": "https://example.com/avatar-b.png", "name": "avatar-b" }
+  ]
+}</code></pre>
+
+          <h3>场景 2：向已有素材组追加素材</h3>
+          <p>传入 <code>group_id</code>，跳过素材组创建直接提交。</p>
+          <pre><code>{
+  "group_id": "group_xxx",
+  "project_name": "default",
+  "asset_type": "Image",
+  "assets": [
+    { "url": "https://example.com/avatar-a.png", "name": "avatar-a" }
+  ]
+}</code></pre>
+
+          <h3>场景 3：单素材兼容写法</h3>
+          <p>只提交一个素材时，可直接使用顶层 <code>url</code> 和 <code>name</code> 字段。</p>
+          <pre><code>{
+  "group_id": "group_xxx",
+  "url": "https://example.com/avatar.png",
+  "asset_type": "Image",
+  "name": "avatar-1"
+}</code></pre>
+
+          <h2>查询审核结果</h2>
+          <p>素材提交后为异步审核任务，使用获取任务状态接口查询：</p>
+          <pre><code>GET /v1/tasks/{id}</code></pre>
+
+          <h3>全部通过</h3>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "status": "completed",
+    "progress": 100,
+    "result": {
+      "assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" },
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Active" }
+      ],
+      "usable_assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" },
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Active" }
+      ],
+      "failed_assets": []
+    }
+  }
+}</code></pre>
+
+          <h3>部分失败</h3>
+          <p>批量提交时，只要有一个素材审核失败，任务状态为 <code>failed</code>。已通过的素材仍可用，出现在 <code>result.usable_assets</code> 中。</p>
+          <pre><code>{
+  "code": 200,
+  "data": {
+    "id": "task_01K...",
+    "status": "failed",
+    "progress": 100,
+    "result": {
+      "assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" },
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Failed" }
+      ],
+      "usable_assets": [
+        { "asset_id": "asset_a", "asset_url": "asset://asset_a", "status": "Active" }
+      ],
+      "failed_assets": [
+        { "asset_id": "asset_b", "asset_url": "asset://asset_b", "status": "Failed" }
+      ]
+    },
+    "error": {
+      "code": "task_failed",
+      "message": "部分素材审核失败"
+    }
+  }
+}</code></pre>
+
+          <ul class="list">
+            <li><code>result.usable_assets[].asset_url</code> 可直接用于 Seedance 2.0 视频生成。</li>
+            <li><code>result.failed_assets</code> 中的素材需更换源文件或重新提交。</li>
+            <li>单素材任务也会兼容返回 <code>result.asset_url</code>。</li>
+          </ul>
+
+          <h2>审核后使用素材</h2>
+          <p>审核通过后，将 <code>asset://...</code> URL 直接传入 Seedance 2.0 视频生成接口：</p>
+          <pre><code>{
+  "model": "doubao-seedance-2.0",
+  "prompt": "让人物在城市街道自然行走",
+  "image_urls": ["asset://asset_a"],
+  "duration": 5,
+  "resolution": "720p"
+}</code></pre>
+
+          <div class="callout">
+            <p>服务端识别到 <code>asset://</code> 前缀后，会直接提交官方生成任务，不会再次触发素材审核。</p>
+          </div>
+        </article>
+        <nav class="page-nav" data-mount="prevnext"></nav>
+      </main>
+    </div>
+    <div data-mount="footer"></div>
+    <script src="/docs/app.js"></script>
+  </body>
+</html>
