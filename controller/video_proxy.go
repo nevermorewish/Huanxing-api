@@ -18,6 +18,7 @@ import (
 	"github.com/huanxing/huanxing-api/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tidwall/gjson"
 )
 
 // videoProxyError returns a standardized OpenAI-style error response.
@@ -107,8 +108,19 @@ func VideoProxy(c *gin.Context) {
 			return
 		}
 	case constant.ChannelTypeOpenAI, constant.ChannelTypeSora:
-		videoURL = fmt.Sprintf("%s/v1/videos/%s/content", baseURL, task.GetUpstreamTaskID())
-		req.Header.Set("Authorization", "Bearer "+channel.Key)
+		// 优先使用上游在 task.Data.metadata.url 中返回的真实视频地址：部分 OpenAI 兼容
+		// 网关会直接返回直链 CDN 地址，而其 /v1/videos/{id}/content 端点不可用（返回 403）。
+		// 该直链通常为公开可访问的 CDN，不能携带上游 Key，否则会把渠道密钥泄露给第三方。
+		// isTaskProxyContentURL 防止误用本网关自身的代理地址造成自循环。
+		if metaURL := gjson.GetBytes(task.Data, "metadata.url").String(); metaURL != "" &&
+			(strings.HasPrefix(metaURL, "http://") || strings.HasPrefix(metaURL, "https://")) &&
+			!isTaskProxyContentURL(metaURL, task.TaskID) {
+			videoURL = metaURL
+		} else {
+			// 回退到官方 OpenAI Video API 的 /content 端点（需携带上游鉴权）。
+			videoURL = fmt.Sprintf("%s/v1/videos/%s/content", baseURL, task.GetUpstreamTaskID())
+			req.Header.Set("Authorization", "Bearer "+channel.Key)
+		}
 	default:
 		// Video URL is stored in PrivateData.ResultURL (fallback to FailReason for old data)
 		videoURL = task.GetResultURL()

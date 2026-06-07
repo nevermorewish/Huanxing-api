@@ -21,6 +21,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
 
@@ -326,6 +327,15 @@ func (a *TaskAdaptor) ConvertToOpenAIVideo(task *model.Task) ([]byte, error) {
 	var err error
 	if data, err = sjson.SetBytes(data, "id", task.TaskID); err != nil {
 		return nil, errors.Wrap(err, "set id failed")
+	}
+	// 部分上游（OpenAI 兼容网关）会在 metadata.url 注入直链 CDN 地址，
+	// 直接透传会泄露上游供应商并绕过本网关代理。若存在则改写为网关代理地址，
+	// 真实直链仍保留在 task.Data 中，由 VideoProxy 读取后拉流。
+	if gjson.GetBytes(data, "metadata.url").Exists() {
+		proxyURL := taskcommon.BuildProxyURL(task.TaskID)
+		if data, err = sjson.SetBytes(data, "metadata.url", proxyURL); err != nil {
+			return nil, errors.Wrap(err, "set metadata.url failed")
+		}
 	}
 	return data, nil
 }
