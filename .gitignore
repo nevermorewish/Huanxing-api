@@ -35,3 +35,7 @@ data/
 .test
 token_estimator_test.go
 skills-lock.json
+
+# 本地视频测试脚本（含真实 API Key，请勿提交）
+poll-and-save-video.sh
+test-through-new-api.sh
