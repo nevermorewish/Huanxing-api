@@ -38,6 +38,10 @@ const defaultSiteSettings: SiteSettings = {
   'legal.privacy_policy': '',
   HeaderNavModules: '',
   SidebarModulesAdmin: '',
+  OpenClawBrandName: '快码CLAW',
+  OpenClawWindowsUrl: '',
+  OpenClawMacArmUrl: '',
+  OpenClawMacIntelUrl: '',
 }
 
 export function SiteSettings() {

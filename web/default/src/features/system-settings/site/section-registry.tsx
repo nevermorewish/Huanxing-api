@@ -25,6 +25,7 @@ import {
 } from '../maintenance/config'
 import { HeaderNavigationSection } from '../maintenance/header-navigation-section'
 import { NoticeSection } from '../maintenance/notice-section'
+import { OpenClawSection } from '../maintenance/openclaw-section'
 import { SidebarModulesSection } from '../maintenance/sidebar-modules-section'
 import type { SiteSettings } from '../types'
 import { createSectionRegistry } from '../utils/section-registry'
@@ -97,6 +98,21 @@ const SITE_SECTIONS = [
         />
       )
     },
+  },
+  {
+    id: 'openclaw',
+    titleKey: 'OpenClaw Client',
+    descriptionKey: 'Configure OpenClaw client brand and download links',
+    build: (settings: SiteSettings) => (
+      <OpenClawSection
+        defaultValues={{
+          OpenClawBrandName: settings.OpenClawBrandName,
+          OpenClawWindowsUrl: settings.OpenClawWindowsUrl,
+          OpenClawMacArmUrl: settings.OpenClawMacArmUrl,
+          OpenClawMacIntelUrl: settings.OpenClawMacIntelUrl,
+        }}
+      />
+    ),
   },
 ] as const
 

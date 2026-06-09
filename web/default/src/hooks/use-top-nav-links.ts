@@ -104,6 +104,11 @@ export function useTopNavLinks(): TopNavLink[] {
     }
   }
 
+  // OpenClaw client (disabled by default; enable via Header navigation settings)
+  if (modules?.openclaw === true) {
+    links.push({ title: t('OpenClaw Client'), href: '/openclaw' })
+  }
+
   // About
   if (modules?.about !== false) {
     links.push({ title: t('About'), href: '/about' })

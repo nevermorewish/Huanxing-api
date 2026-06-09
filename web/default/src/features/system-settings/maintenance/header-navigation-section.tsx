@@ -49,6 +49,7 @@ const headerNavSchema = z.object({
   rankingsRequireAuth: z.boolean(),
   docs: z.boolean(),
   about: z.boolean(),
+  openclaw: z.boolean(),
 })
 
 type HeaderNavFormValues = z.infer<typeof headerNavSchema>
@@ -87,6 +88,10 @@ const toFormValues = (config: HeaderNavModulesConfig): HeaderNavFormValues => ({
     config.about === undefined
       ? HEADER_NAV_DEFAULT.about
       : Boolean(config.about),
+  openclaw:
+    config.openclaw === undefined
+      ? HEADER_NAV_DEFAULT.openclaw
+      : Boolean(config.openclaw),
 })
 
 export function HeaderNavigationSection({
@@ -113,6 +118,7 @@ export function HeaderNavigationSection({
       console: values.console,
       docs: values.docs,
       about: values.about,
+      openclaw: values.openclaw,
       pricing: {
         ...(config.pricing ?? HEADER_NAV_DEFAULT.pricing),
         enabled: values.pricingEnabled,
@@ -164,6 +170,11 @@ export function HeaderNavigationSection({
       key: 'about',
       title: t('About'),
       description: t('Static page describing the platform.'),
+    },
+    {
+      key: 'openclaw',
+      title: t('OpenClaw Client'),
+      description: t('OpenClaw desktop client download and intro page.'),
     },
   ]
 

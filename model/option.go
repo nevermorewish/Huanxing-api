@@ -70,6 +70,10 @@ func InitOptionMap() {
 	common.OptionMap["Notice"] = ""
 	common.OptionMap["About"] = ""
 	common.OptionMap["HomePageContent"] = ""
+	common.OptionMap["OpenClawBrandName"] = "快码CLAW"
+	common.OptionMap["OpenClawWindowsUrl"] = ""
+	common.OptionMap["OpenClawMacArmUrl"] = ""
+	common.OptionMap["OpenClawMacIntelUrl"] = ""
 	common.OptionMap["Footer"] = common.Footer
 	common.OptionMap["SystemName"] = common.SystemName
 	common.OptionMap["SystemNameEn"] = common.SystemNameEn

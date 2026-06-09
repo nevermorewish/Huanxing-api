@@ -106,6 +106,12 @@ func GetStatus(c *gin.Context) {
 		"HeaderNavModules":    common.OptionMap["HeaderNavModules"],
 		"SidebarModulesAdmin": common.OptionMap["SidebarModulesAdmin"],
 
+		// OpenClaw 客户端配置
+		"openclaw_brand_name":    common.OptionMap["OpenClawBrandName"],
+		"openclaw_windows_url":   common.OptionMap["OpenClawWindowsUrl"],
+		"openclaw_mac_arm_url":   common.OptionMap["OpenClawMacArmUrl"],
+		"openclaw_mac_intel_url": common.OptionMap["OpenClawMacIntelUrl"],
+
 		"oidc_enabled":                system_setting.GetOIDCSettings().Enabled,
 		"oidc_client_id":              system_setting.GetOIDCSettings().ClientId,
 		"oidc_authorization_endpoint": system_setting.GetOIDCSettings().AuthorizationEndpoint,

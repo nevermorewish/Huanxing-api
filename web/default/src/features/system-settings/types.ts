@@ -71,6 +71,10 @@ export type SiteSettings = {
   'legal.privacy_policy': string
   HeaderNavModules: string
   SidebarModulesAdmin: string
+  OpenClawBrandName: string
+  OpenClawWindowsUrl: string
+  OpenClawMacArmUrl: string
+  OpenClawMacIntelUrl: string
 }
 
 export type AuthSettings = {
