@@ -1,0 +1,24 @@
+Excel: models/xlsx workbook named "large model pricing" in Chinese
+Merged JSON: model-pricing-2026-06-10.json
+
+Counts:
+- ModelPrice: 32 -> 32
+- ModelRatio: 251 -> 270
+- CacheRatio: 77 -> 89
+- CreateCacheRatio: 34 -> 45
+- CompletionRatio: 16 -> 32
+- ImageRatio: 1 -> 1
+- AudioRatio: 5 -> 5
+- AudioCompletionRatio: 7 -> 7
+- BillingMode: 0 -> 0
+- BillingExpr: 0 -> 0
+
+Conversion rules:
+- Overseas text-model sheet: ModelRatio = discounted input CNY per 1M / 2; CompletionRatio = discounted output / discounted input; CacheRatio = discounted cache-read / discounted input, or discounted cache-write / discounted input when cache-read is blank; CreateCacheRatio = discounted cache-write / discounted input when cache-read exists.
+- Domestic text-model sheet: ModelRatio = discounted input RMB per 1M / 1.4; CompletionRatio = discounted output / discounted input; CacheRatio/CreateCacheRatio = cache read/write / official input price.
+- When a model appears in both sheets, the domestic sheet takes precedence.
+
+Issues: 0
+
+Notes:
+- gpt-5.* CompletionRatio is hard-coded in setting/ratio_setting/model_ratio.go, so JSON CompletionRatio may not control runtime billing for those names.
