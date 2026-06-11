@@ -39,6 +39,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { SettingsSection } from '../components/settings-section'
 import { useUpdateOption } from '../hooks/use-update-option'
 import { AmountDiscountVisualEditor } from './amount-discount-visual-editor'
+import {
+  AlipaySettingsSection,
+  type AlipaySettingsValues,
+} from './alipay-settings-section'
 import { AmountOptionsVisualEditor } from './amount-options-visual-editor'
 import { CreemProductsVisualEditor } from './creem-products-visual-editor'
 import { PaymentMethodsVisualEditor } from './payment-methods-visual-editor'
@@ -109,6 +113,7 @@ const paymentSchema = z.object({
   StripeUnitPrice: z.coerce.number().min(0),
   StripeMinTopUp: z.coerce.number().min(0),
   StripePromotionCodesEnabled: z.boolean(),
+  AlipayPaymentSource: z.string(),
   CreemApiKey: z.string(),
   CreemWebhookSecret: z.string(),
   CreemTestMode: z.boolean(),
@@ -127,12 +132,14 @@ type PaymentFormValues = z.infer<typeof paymentSchema>
 
 type PaymentSettingsSectionProps = {
   defaultValues: PaymentFormValues
+  alipayDefaultValues: AlipaySettingsValues
   waffoDefaultValues: WaffoSettingsValues
   waffoPancakeDefaultValues: WaffoPancakeSettingsValues
 }
 
 export function PaymentSettingsSection({
   defaultValues,
+  alipayDefaultValues,
   waffoDefaultValues,
   waffoPancakeDefaultValues,
 }: PaymentSettingsSectionProps) {
@@ -297,6 +304,8 @@ export function PaymentSettingsSection({
       StripeMinTopUp: values.StripeMinTopUp as number,
       StripePromotionCodesEnabled:
         values.StripePromotionCodesEnabled as boolean,
+      AlipayPaymentSource:
+        values.AlipayPaymentSource === 'epay' ? 'epay' : 'official',
     }
 
     const initial = {
@@ -307,6 +316,8 @@ export function PaymentSettingsSection({
       StripeMinTopUp: initialRef.current.StripeMinTopUp,
       StripePromotionCodesEnabled:
         initialRef.current.StripePromotionCodesEnabled,
+      AlipayPaymentSource:
+        initialRef.current.AlipayPaymentSource === 'epay' ? 'epay' : 'official',
     }
 
     const updates: Array<{ key: string; value: string | number | boolean }> = []
@@ -347,6 +358,13 @@ export function PaymentSettingsSection({
       updates.push({
         key: 'StripePromotionCodesEnabled',
         value: sanitized.StripePromotionCodesEnabled,
+      })
+    }
+
+    if (sanitized.AlipayPaymentSource !== initial.AlipayPaymentSource) {
+      updates.push({
+        key: 'AlipayPaymentSource',
+        value: sanitized.AlipayPaymentSource,
       })
     }
 
@@ -431,6 +449,8 @@ export function PaymentSettingsSection({
       StripeUnitPrice: values.StripeUnitPrice,
       StripeMinTopUp: values.StripeMinTopUp,
       StripePromotionCodesEnabled: values.StripePromotionCodesEnabled,
+      AlipayPaymentSource:
+        values.AlipayPaymentSource === 'epay' ? 'epay' : 'official',
     }
 
     const initial = {
@@ -452,6 +472,8 @@ export function PaymentSettingsSection({
       StripeMinTopUp: initialRef.current.StripeMinTopUp,
       StripePromotionCodesEnabled:
         initialRef.current.StripePromotionCodesEnabled,
+      AlipayPaymentSource:
+        initialRef.current.AlipayPaymentSource === 'epay' ? 'epay' : 'official',
     }
 
     const updates: Array<{ key: string; value: string | number | boolean }> = []
@@ -546,6 +568,13 @@ export function PaymentSettingsSection({
       updates.push({
         key: 'StripePromotionCodesEnabled',
         value: sanitized.StripePromotionCodesEnabled,
+      })
+    }
+
+    if (sanitized.AlipayPaymentSource !== initial.AlipayPaymentSource) {
+      updates.push({
+        key: 'AlipayPaymentSource',
+        value: sanitized.AlipayPaymentSource,
       })
     }
 
@@ -1293,11 +1322,44 @@ export function PaymentSettingsSection({
             </Button>
           </div>
 
+          <div className='space-y-4'>
+            <Separator />
+            <FormField
+              control={form.control}
+              name='AlipayPaymentSource'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Alipay payment source')}</FormLabel>
+                  <FormControl>
+                    <select
+                      className='border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none'
+                      value={field.value || 'official'}
+                      onChange={(event) => field.onChange(event.target.value)}
+                    >
+                      <option value='official'>{t('Official Alipay')}</option>
+                      <option value='epay'>{t('Epay Alipay')}</option>
+                    </select>
+                  </FormControl>
+                  <FormDescription>
+                    {t(
+                      'Choose whether the Alipay button uses official Alipay or the Epay gateway'
+                    )}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <Button type='submit' disabled={updateOption.isPending}>
             {updateOption.isPending ? t('Saving...') : t('Save all settings')}
           </Button>
         </form>
       </Form>
+
+      <Separator />
+
+      <AlipaySettingsSection defaultValues={alipayDefaultValues} />
 
       <Separator />
 

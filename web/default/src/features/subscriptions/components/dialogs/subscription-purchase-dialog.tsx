@@ -41,6 +41,7 @@ import { GroupBadge } from '@/components/group-badge'
 import {
   paySubscriptionStripe,
   paySubscriptionCreem,
+  paySubscriptionAlipay,
   paySubscriptionEpay,
 } from '../../api'
 import { formatDuration, formatResetPeriod } from '../../lib'
@@ -58,6 +59,7 @@ interface Props {
   enableStripe?: boolean
   enableCreem?: boolean
   enableOnlineTopUp?: boolean
+  alipayPaymentSource?: string
   epayMethods?: PaymentMethod[]
   purchaseLimit?: number
   purchaseCount?: number
@@ -144,17 +146,25 @@ export function SubscriptionPurchaseDialog(props: Props) {
     /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 
   const handlePayEpay = async () => {
+    const isOfficialAlipay =
+      selectedEpayMethod === 'alipay' && props.alipayPaymentSource !== 'epay'
     if (!selectedEpayMethod) {
       toast.error(t('Please select a payment method'))
       return
     }
     setPaying(true)
     try {
-      const res = await paySubscriptionEpay({
-        plan_id: plan.id,
-        payment_method: selectedEpayMethod,
-      })
-      if (res.message === 'success' && res.url) {
+      const res = isOfficialAlipay
+        ? await paySubscriptionAlipay({ plan_id: plan.id })
+        : await paySubscriptionEpay({
+            plan_id: plan.id,
+            payment_method: selectedEpayMethod,
+          })
+      if (isOfficialAlipay && res.message === 'success' && res.data?.pay_link) {
+        window.open(res.data.pay_link, '_blank')
+        toast.success(t('Payment page opened'))
+        props.onOpenChange(false)
+      } else if (!isOfficialAlipay && res.message === 'success' && res.url) {
         const form = document.createElement('form')
         form.action = res.url
         form.method = 'POST'

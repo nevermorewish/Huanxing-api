@@ -64,10 +64,15 @@ interface SubscriptionPlansCardProps {
   onAvailabilityChange?: (available: boolean) => void
 }
 
-function getEpayMethods(payMethods: PaymentMethod[] = []): PaymentMethod[] {
-  return payMethods.filter(
-    (m) => m?.type && m.type !== 'stripe' && m.type !== 'creem'
-  )
+function getEpayMethods(
+  payMethods: PaymentMethod[] = [],
+  alipayPaymentSource?: string
+): PaymentMethod[] {
+  return payMethods.filter((m) => {
+    if (!m?.type || m.type === 'stripe' || m.type === 'creem') return false
+    if (m.type === 'alipay') return alipayPaymentSource === 'epay'
+    return true
+  })
 }
 
 function getBillingPreferenceLabel(
@@ -111,10 +116,27 @@ export function SubscriptionPlansCard({
 
   const enableStripe = !!topupInfo?.enable_stripe_topup
   const enableCreem = !!topupInfo?.enable_creem_topup
-  const enableOnlineTopUp = !!topupInfo?.enable_online_topup
+  const enableOnlineTopUp =
+    !!topupInfo?.enable_online_topup || !!topupInfo?.enable_alipay_topup
   const epayMethods = useMemo(
-    () => getEpayMethods(topupInfo?.pay_methods),
-    [topupInfo?.pay_methods]
+    () => {
+      const methods = getEpayMethods(
+        topupInfo?.pay_methods,
+        topupInfo?.alipay_payment_source
+      )
+      if (topupInfo?.enable_alipay_topup) {
+        const hasAlipay = methods.some((m) => m.type === 'alipay')
+        if (!hasAlipay) {
+          methods.unshift({ type: 'alipay', name: 'Alipay' })
+        }
+      }
+      return methods
+    },
+    [
+      topupInfo?.pay_methods,
+      topupInfo?.alipay_payment_source,
+      topupInfo?.enable_alipay_topup,
+    ]
   )
 
   const fetchPlans = useCallback(async () => {
@@ -630,6 +652,7 @@ export function SubscriptionPlansCard({
         enableStripe={enableStripe}
         enableCreem={enableCreem}
         enableOnlineTopUp={enableOnlineTopUp}
+        alipayPaymentSource={topupInfo?.alipay_payment_source}
         epayMethods={epayMethods}
         purchaseLimit={
           selectedPlan?.plan?.max_purchase_per_user
