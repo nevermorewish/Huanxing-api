@@ -172,3 +172,48 @@ func TestExpireSubscriptionOrder_RejectsMismatchedPaymentProvider(t *testing.T) 
 	require.NotNil(t, order)
 	assert.Equal(t, common.TopUpStatusPending, order.Status)
 }
+
+func TestRechargeAlipay_RejectsMismatchedPaymentProvider(t *testing.T) {
+	truncateTables(t)
+
+	insertUserForPaymentGuardTest(t, 501, 0)
+	insertTopUpForPaymentGuardTest(t, "alipay-provider-guard", 501, PaymentProviderEpay)
+
+	err := RechargeAlipay("alipay-provider-guard", "buyer", "127.0.0.1")
+	require.Error(t, err)
+
+	topUp := GetTopUpByTradeNo("alipay-provider-guard")
+	require.NotNil(t, topUp)
+	assert.Equal(t, common.TopUpStatusPending, topUp.Status)
+	assert.Equal(t, 0, getUserQuotaForPaymentGuardTest(t, 501))
+}
+
+func TestRechargeAlipay_IsIdempotent(t *testing.T) {
+	truncateTables(t)
+
+	insertUserForPaymentGuardTest(t, 502, 0)
+	insertTopUpForPaymentGuardTest(t, "alipay-idempotent", 502, PaymentProviderAlipay)
+
+	require.NoError(t, RechargeAlipay("alipay-idempotent", "buyer", "127.0.0.1"))
+	quotaAfterFirst := getUserQuotaForPaymentGuardTest(t, 502)
+	require.Greater(t, quotaAfterFirst, 0)
+
+	require.NoError(t, RechargeAlipay("alipay-idempotent", "buyer", "127.0.0.1"))
+	assert.Equal(t, quotaAfterFirst, getUserQuotaForPaymentGuardTest(t, 502))
+}
+
+func TestCompleteSubscriptionOrder_RecordsAlipayPaymentProviderOnTopUp(t *testing.T) {
+	truncateTables(t)
+
+	insertUserForPaymentGuardTest(t, 503, 0)
+	plan := insertSubscriptionPlanForPaymentGuardTest(t, 503)
+	insertSubscriptionOrderForPaymentGuardTest(t, "sub-alipay-topup", 503, plan.Id, PaymentProviderAlipay)
+
+	err := CompleteSubscriptionOrder("sub-alipay-topup", `{"provider":"alipay"}`, PaymentProviderAlipay, PaymentMethodAlipay)
+	require.NoError(t, err)
+
+	topUp := GetTopUpByTradeNo("sub-alipay-topup")
+	require.NotNil(t, topUp)
+	assert.Equal(t, PaymentProviderAlipay, topUp.PaymentProvider)
+	assert.Equal(t, PaymentMethodAlipay, topUp.PaymentMethod)
+}
