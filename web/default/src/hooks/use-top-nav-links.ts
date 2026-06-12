@@ -109,6 +109,46 @@ export function useTopNavLinks(): TopNavLink[] {
     links.push({ title: t('OpenClaw Client'), href: '/openclaw' })
   }
 
+  // Video Generation (custom link; disabled by default)
+  const videoGen = modules?.videoGen
+  if (
+    videoGen &&
+    typeof videoGen === 'object' &&
+    'url' in videoGen &&
+    videoGen.enabled &&
+    typeof videoGen.url === 'string' &&
+    videoGen.url.trim() !== ''
+  ) {
+    const url = videoGen.url.trim()
+    const external = isExternalUrl(url)
+    links.push({
+      title: t('Video Generation'),
+      href: url,
+      external,
+      reloadDocument: !external,
+    })
+  }
+
+  // Image Generation (custom link; disabled by default)
+  const imageGen = modules?.imageGen
+  if (
+    imageGen &&
+    typeof imageGen === 'object' &&
+    'url' in imageGen &&
+    imageGen.enabled &&
+    typeof imageGen.url === 'string' &&
+    imageGen.url.trim() !== ''
+  ) {
+    const url = imageGen.url.trim()
+    const external = isExternalUrl(url)
+    links.push({
+      title: t('Image Generation'),
+      href: url,
+      external,
+      reloadDocument: !external,
+    })
+  }
+
   // About
   if (modules?.about !== false) {
     links.push({ title: t('About'), href: '/about' })

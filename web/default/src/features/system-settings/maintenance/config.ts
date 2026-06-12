@@ -21,6 +21,11 @@ export type HeaderNavAccessConfig = {
   requireAuth: boolean
 }
 
+export type HeaderNavUrlConfig = {
+  enabled: boolean
+  url: string
+}
+
 export type HeaderNavModulesConfig = {
   home: boolean
   console: boolean
@@ -29,7 +34,9 @@ export type HeaderNavModulesConfig = {
   docs: boolean
   about: boolean
   openclaw: boolean
-  [key: string]: boolean | HeaderNavAccessConfig
+  videoGen: HeaderNavUrlConfig
+  imageGen: HeaderNavUrlConfig
+  [key: string]: boolean | HeaderNavAccessConfig | HeaderNavUrlConfig
 }
 
 export type SidebarSectionConfig = {
@@ -53,6 +60,14 @@ export const HEADER_NAV_DEFAULT: HeaderNavModulesConfig = {
   docs: true,
   about: true,
   openclaw: false,
+  videoGen: {
+    enabled: false,
+    url: '',
+  },
+  imageGen: {
+    enabled: false,
+    url: '',
+  },
 }
 
 export const SIDEBAR_MODULES_DEFAULT: SidebarModulesAdminConfig = {
@@ -100,6 +115,8 @@ const cloneHeaderNavDefault = (): HeaderNavModulesConfig => ({
   ...HEADER_NAV_DEFAULT,
   pricing: { ...HEADER_NAV_DEFAULT.pricing },
   rankings: { ...HEADER_NAV_DEFAULT.rankings },
+  videoGen: { ...HEADER_NAV_DEFAULT.videoGen },
+  imageGen: { ...HEADER_NAV_DEFAULT.imageGen },
 })
 
 const parseAccessModule = (
@@ -121,6 +138,30 @@ const parseAccessModule = (
     return {
       enabled: toBoolean(record.enabled, fallback.enabled),
       requireAuth: toBoolean(record.requireAuth, fallback.requireAuth),
+    }
+  }
+  return { ...fallback }
+}
+
+const parseUrlModule = (
+  raw: unknown,
+  fallback: HeaderNavUrlConfig
+): HeaderNavUrlConfig => {
+  if (
+    typeof raw === 'boolean' ||
+    typeof raw === 'string' ||
+    typeof raw === 'number'
+  ) {
+    return {
+      enabled: toBoolean(raw, fallback.enabled),
+      url: fallback.url,
+    }
+  }
+  if (raw && typeof raw === 'object') {
+    const record = raw as Record<string, unknown>
+    return {
+      enabled: toBoolean(record.enabled, fallback.enabled),
+      url: typeof record.url === 'string' ? record.url : fallback.url,
     }
   }
   return { ...fallback }
@@ -148,6 +189,8 @@ export function parseHeaderNavModules(
       ...base,
       pricing: { ...base.pricing },
       rankings: { ...base.rankings },
+      videoGen: { ...base.videoGen },
+      imageGen: { ...base.imageGen },
     }
 
     Object.entries(parsed).forEach(([key, raw]) => {
@@ -157,6 +200,14 @@ export function parseHeaderNavModules(
       }
       if (key === 'rankings') {
         result.rankings = parseAccessModule(raw, base.rankings)
+        return
+      }
+      if (key === 'videoGen') {
+        result.videoGen = parseUrlModule(raw, base.videoGen)
+        return
+      }
+      if (key === 'imageGen') {
+        result.imageGen = parseUrlModule(raw, base.imageGen)
         return
       }
 

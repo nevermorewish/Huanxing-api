@@ -20,6 +20,12 @@ import { getStatus } from '@/lib/api'
 
 export type ModuleAccess = { enabled: boolean; requireAuth: boolean }
 
+/**
+ * Custom-link module: enable/disable toggle plus an admin-configurable URL.
+ * Used by header items that point to an external/standalone page (e.g. video/image generation).
+ */
+export type UrlModuleAccess = { enabled: boolean; url: string }
+
 export type HeaderNavModule = 'rankings' | 'pricing'
 
 export type HeaderNavModules = {
@@ -30,7 +36,9 @@ export type HeaderNavModules = {
   docs: boolean
   about: boolean
   openclaw: boolean
-  [key: string]: boolean | ModuleAccess
+  videoGen: UrlModuleAccess
+  imageGen: UrlModuleAccess
+  [key: string]: boolean | ModuleAccess | UrlModuleAccess
 }
 
 const DEFAULT_HEADER_NAV_MODULES: HeaderNavModules = {
@@ -41,6 +49,8 @@ const DEFAULT_HEADER_NAV_MODULES: HeaderNavModules = {
   docs: true,
   about: true,
   openclaw: false,
+  videoGen: { enabled: false, url: '' },
+  imageGen: { enabled: false, url: '' },
 }
 
 const DEFAULTS: Record<HeaderNavModule, ModuleAccess> = {
@@ -53,6 +63,8 @@ function cloneHeaderNavDefaults(): HeaderNavModules {
     ...DEFAULT_HEADER_NAV_MODULES,
     pricing: { ...DEFAULT_HEADER_NAV_MODULES.pricing },
     rankings: { ...DEFAULT_HEADER_NAV_MODULES.rankings },
+    videoGen: { ...DEFAULT_HEADER_NAV_MODULES.videoGen },
+    imageGen: { ...DEFAULT_HEADER_NAV_MODULES.imageGen },
   }
 }
 
@@ -95,6 +107,30 @@ function parseAccess(raw: unknown, fallback: ModuleAccess): ModuleAccess {
   return { ...fallback }
 }
 
+function parseUrlAccess(
+  raw: unknown,
+  fallback: UrlModuleAccess
+): UrlModuleAccess {
+  if (
+    typeof raw === 'boolean' ||
+    typeof raw === 'number' ||
+    typeof raw === 'string'
+  ) {
+    return {
+      enabled: parseHeaderNavBoolean(raw, fallback.enabled),
+      url: fallback.url,
+    }
+  }
+  if (raw && typeof raw === 'object') {
+    const r = raw as Record<string, unknown>
+    return {
+      enabled: parseHeaderNavBoolean(r.enabled, fallback.enabled),
+      url: typeof r.url === 'string' ? r.url : fallback.url,
+    }
+  }
+  return { ...fallback }
+}
+
 function parseHeaderNavRecord(raw: unknown): Record<string, unknown> | null {
   if (!raw || String(raw).trim() === '') return null
   if (raw && typeof raw === 'object') return raw as Record<string, unknown>
@@ -118,6 +154,14 @@ export function parseHeaderNavModules(raw: unknown): HeaderNavModules {
     }
     if (key === 'rankings') {
       result.rankings = parseAccess(value, result.rankings)
+      return
+    }
+    if (key === 'videoGen') {
+      result.videoGen = parseUrlAccess(value, result.videoGen)
+      return
+    }
+    if (key === 'imageGen') {
+      result.imageGen = parseUrlAccess(value, result.imageGen)
       return
     }
 

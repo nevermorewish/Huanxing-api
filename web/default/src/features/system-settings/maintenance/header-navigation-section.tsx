@@ -32,6 +32,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Switch } from '@/components/ui/switch'
+import { Input } from '@/components/ui/input'
 import { SettingsSection } from '../components/settings-section'
 import { useUpdateOption } from '../hooks/use-update-option'
 import {
@@ -50,6 +51,10 @@ const headerNavSchema = z.object({
   docs: z.boolean(),
   about: z.boolean(),
   openclaw: z.boolean(),
+  videoGenEnabled: z.boolean(),
+  videoGenUrl: z.string(),
+  imageGenEnabled: z.boolean(),
+  imageGenUrl: z.string(),
 })
 
 type HeaderNavFormValues = z.infer<typeof headerNavSchema>
@@ -92,6 +97,22 @@ const toFormValues = (config: HeaderNavModulesConfig): HeaderNavFormValues => ({
     config.openclaw === undefined
       ? HEADER_NAV_DEFAULT.openclaw
       : Boolean(config.openclaw),
+  videoGenEnabled:
+    config.videoGen?.enabled === undefined
+      ? HEADER_NAV_DEFAULT.videoGen.enabled
+      : Boolean(config.videoGen.enabled),
+  videoGenUrl:
+    typeof config.videoGen?.url === 'string'
+      ? config.videoGen.url
+      : HEADER_NAV_DEFAULT.videoGen.url,
+  imageGenEnabled:
+    config.imageGen?.enabled === undefined
+      ? HEADER_NAV_DEFAULT.imageGen.enabled
+      : Boolean(config.imageGen.enabled),
+  imageGenUrl:
+    typeof config.imageGen?.url === 'string'
+      ? config.imageGen.url
+      : HEADER_NAV_DEFAULT.imageGen.url,
 })
 
 export function HeaderNavigationSection({
@@ -128,6 +149,16 @@ export function HeaderNavigationSection({
         ...(config.rankings ?? HEADER_NAV_DEFAULT.rankings),
         enabled: values.rankingsEnabled,
         requireAuth: values.rankingsRequireAuth,
+      },
+      videoGen: {
+        ...(config.videoGen ?? HEADER_NAV_DEFAULT.videoGen),
+        enabled: values.videoGenEnabled,
+        url: values.videoGenUrl.trim(),
+      },
+      imageGen: {
+        ...(config.imageGen ?? HEADER_NAV_DEFAULT.imageGen),
+        enabled: values.imageGenEnabled,
+        url: values.imageGenUrl.trim(),
       },
     }
 
@@ -211,6 +242,39 @@ export function HeaderNavigationSection({
     },
   ]
 
+  const urlModules: Array<{
+    enabledKey: keyof HeaderNavFormValues
+    urlKey: keyof HeaderNavFormValues
+    title: string
+    description: string
+    urlLabel: string
+    urlDescription: string
+    placeholder: string
+  }> = [
+    {
+      enabledKey: 'videoGenEnabled',
+      urlKey: 'videoGenUrl',
+      title: t('Video Generation'),
+      description: t('Top navigation entry linking to a video generation page.'),
+      urlLabel: t('Video Generation URL'),
+      urlDescription: t(
+        'Custom link for the video generation entry. Supports absolute (https://) or relative (/path) URLs.'
+      ),
+      placeholder: 'https://',
+    },
+    {
+      enabledKey: 'imageGenEnabled',
+      urlKey: 'imageGenUrl',
+      title: t('Image Generation'),
+      description: t('Top navigation entry linking to an image generation page.'),
+      urlLabel: t('Image Generation URL'),
+      urlDescription: t(
+        'Custom link for the image generation entry. Supports absolute (https://) or relative (/path) URLs.'
+      ),
+      placeholder: 'https://',
+    },
+  ]
+
   return (
     <SettingsSection
       title={t('Header navigation')}
@@ -290,6 +354,58 @@ export function HeaderNavigationSection({
                           disabled={!form.watch(module.requireAuthDependsOn)}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className='grid gap-4 lg:grid-cols-2'>
+            {urlModules.map((module) => (
+              <div key={module.enabledKey} className='rounded-lg border p-4'>
+                <FormField
+                  control={form.control}
+                  name={module.enabledKey}
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-start justify-between rounded-lg border p-4'>
+                      <div className='space-y-0.5 pe-4'>
+                        <FormLabel className='text-base'>
+                          {module.title}
+                        </FormLabel>
+                        <FormDescription>{module.description}</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value as boolean}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name={module.urlKey}
+                  render={({ field }) => (
+                    <FormItem className='mt-4 rounded-lg border border-dashed p-4'>
+                      <FormLabel className='text-base'>
+                        {module.urlLabel}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={module.placeholder}
+                          value={field.value as string}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          disabled={!form.watch(module.enabledKey)}
+                        />
+                      </FormControl>
+                      <FormDescription>{module.urlDescription}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
