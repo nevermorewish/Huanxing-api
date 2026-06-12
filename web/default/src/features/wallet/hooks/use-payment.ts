@@ -25,6 +25,7 @@ import {
   calculateWaffoPancakeAmount,
   requestPayment,
   requestStripePayment,
+  requestAlipayPayment,
   isApiSuccess,
 } from '../api'
 import {
@@ -77,11 +78,13 @@ export function usePayment() {
 
   // Process payment
   const processPayment = useCallback(
-    async (topupAmount: number, paymentType: string) => {
+    async (topupAmount: number, paymentType: string, alipayPaymentSource?: string) => {
       try {
         setProcessing(true)
 
         const isStripe = isStripePayment(paymentType)
+        const isOfficialAlipay =
+          paymentType === 'alipay' && alipayPaymentSource !== 'epay'
         const amount = Math.floor(topupAmount)
 
         const response = isStripe
@@ -89,7 +92,12 @@ export function usePayment() {
               amount,
               payment_method: 'stripe',
             })
-          : await requestPayment({
+          : isOfficialAlipay
+            ? await requestAlipayPayment({
+                amount,
+                payment_method: 'alipay',
+              })
+            : await requestPayment({
               amount,
               payment_method: paymentType,
             })
@@ -99,15 +107,15 @@ export function usePayment() {
           return false
         }
 
-        // Handle Stripe payment
-        if (isStripe && response.data?.pay_link) {
+        // Handle Stripe and official Alipay payment
+        if ((isStripe || isOfficialAlipay) && response.data?.pay_link) {
           window.open(response.data.pay_link as string, '_blank')
           toast.success(i18next.t('Redirecting to payment page...'))
           return true
         }
 
-        // Handle non-Stripe payment
-        if (!isStripe && response.data) {
+        // Handle Epay-style payment
+        if (!isStripe && !isOfficialAlipay && response.data) {
           const url = (response as unknown as { url?: string }).url
           if (url) {
             submitPaymentForm(url, response.data)

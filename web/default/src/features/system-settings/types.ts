@@ -243,6 +243,11 @@ export type BillingSettings = {
   StripeUnitPrice: number
   StripeMinTopUp: number
   StripePromotionCodesEnabled: boolean
+  AlipayAppId: string
+  AlipayPrivateKey: string
+  AlipayPublicKey: string
+  AlipaySandboxEnabled: boolean
+  AlipayPaymentSource: string
   CreemApiKey: string
   CreemWebhookSecret: string
   CreemTestMode: boolean

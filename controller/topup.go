@@ -26,7 +26,7 @@ func GetTopUpInfo(c *gin.Context) {
 
 	// 获取支付方式
 	payMethods := operation_setting.PayMethods
-	if !complianceConfirmed {
+	if !isEpayTopUpEnabled() {
 		payMethods = []map[string]string{}
 	}
 
@@ -94,8 +94,28 @@ func GetTopUpInfo(c *gin.Context) {
 		}
 	}
 
+	enableAlipay := isAlipayTopUpEnabled()
+	if enableAlipay {
+		hasAlipay := false
+		for _, method := range payMethods {
+			if method["type"] == model.PaymentMethodAlipay {
+				hasAlipay = true
+				break
+			}
+		}
+		if !hasAlipay {
+			payMethods = append(payMethods, map[string]string{
+				"name":  "支付宝",
+				"type":  model.PaymentMethodAlipay,
+				"color": "rgba(var(--semi-blue-5), 1)",
+			})
+		}
+	}
+
 	data := gin.H{
 		"enable_online_topup":              isEpayTopUpEnabled(),
+		"enable_alipay_topup":              enableAlipay,
+		"alipay_payment_source":            setting.AlipayPaymentSource,
 		"enable_stripe_topup":              isStripeTopUpEnabled(),
 		"enable_creem_topup":               isCreemTopUpEnabled(),
 		"enable_waffo_topup":               enableWaffo,
