@@ -65,9 +65,6 @@ func buildAlipayPagePayURL(client *alipay.Client, tradeNo string, subject string
 }
 
 func RequestAlipay(c *gin.Context) {
-	if !requirePaymentCompliance(c) {
-		return
-	}
 	if !isAlipayTopUpEnabled() {
 		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "当前管理员未配置支付宝支付信息"})
 		return
@@ -174,9 +171,6 @@ func AlipayNotify(c *gin.Context) {
 }
 
 func SubscriptionRequestAlipay(c *gin.Context) {
-	if !requirePaymentCompliance(c) {
-		return
-	}
 	if !isAlipayTopUpEnabled() {
 		common.ApiErrorMsg(c, "当前管理员未配置支付宝支付信息")
 		return

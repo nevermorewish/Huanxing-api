@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -13,7 +12,6 @@ import (
 	"github.com/huanxing/huanxing-api/common"
 	"github.com/huanxing/huanxing-api/constant"
 	"github.com/huanxing/huanxing-api/model"
-	"github.com/huanxing/huanxing-api/setting/operation_setting"
 	"gorm.io/gorm"
 )
 
@@ -110,12 +108,6 @@ func channelTypeMonitorHistoryToResponse(item *model.ChannelTypeMonitorHistory) 
 }
 
 func normalizeChannelTypeMonitorInterval(seconds int) int {
-	if seconds <= 0 {
-		minutes := operation_setting.GetMonitorSetting().AutoTestChannelMinutes
-		if minutes > 0 {
-			seconds = int(math.Round(minutes * 60))
-		}
-	}
 	if seconds <= 0 {
 		seconds = defaultChannelTypeMonitorIntervalSeconds
 	}
@@ -488,9 +480,6 @@ func AutomaticallyRunChannelTypeMonitors() {
 	channelTypeMonitorSchedulerOnce.Do(func() {
 		for {
 			time.Sleep(30 * time.Second)
-			if !operation_setting.GetMonitorSetting().AutoTestChannelEnabled {
-				continue
-			}
 			monitors, err := model.ListDueChannelTypeMonitors(common.GetTimestamp())
 			if err != nil {
 				common.SysLog(fmt.Sprintf("failed to list due channel type monitors: %v", err))

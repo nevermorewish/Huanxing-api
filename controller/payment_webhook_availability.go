@@ -112,9 +112,6 @@ func isAlipayOfficialSelected() bool {
 }
 
 func isAlipayTopUpEnabled() bool {
-	if !isPaymentComplianceConfirmed() {
-		return false
-	}
 	return isAlipayOfficialSelected() && isAlipayConfigured()
 }
 
