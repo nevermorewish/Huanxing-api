@@ -26,6 +26,23 @@ export const STATIC_I18N_KEYS = [
   'Rankings',
   'Docs',
   'About',
+  'OpenClaw Client',
+  'Hermes Client',
+
+  // Status and channel monitor dynamic labels
+  'Status Monitor',
+  'Channel Monitor',
+  'Operational',
+  'Degraded',
+  'Failed',
+  'Error',
+  'Validation failed',
+  'Pending check',
+  'Configure monitor rules grouped by channel type.',
+  'Control the sidebar entry for the status monitor.',
+  'Configure the Hermes client download links shown on the public Hermes page.',
+  'Display name used across the Hermes page.',
+  'Hermes desktop client download and intro page.',
 
   // Workspace
   'System Settings',

@@ -108,6 +108,10 @@ export function SidebarModulesSection({
         title: t('Task logs'),
         description: t('Background job tracker for queued work.'),
       },
+      statusMonitor: {
+        title: t('Status Monitor'),
+        description: t('Control the sidebar entry for the status monitor.'),
+      },
     },
     personal: {
       topup: {
@@ -143,6 +147,10 @@ export function SidebarModulesSection({
       subscription: {
         title: t('Subscription Management'),
         description: t('Manage subscription plans and pricing.'),
+      },
+      channelMonitor: {
+        title: t('Channel Monitor'),
+        description: t('Configure monitor rules grouped by channel type.'),
       },
     },
   }

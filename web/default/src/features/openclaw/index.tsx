@@ -245,7 +245,7 @@ function DownloadLink({
     'inline-flex min-h-14 items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-semibold shadow-[0_8px_25px_rgba(224,86,69,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(224,86,69,0.36)]',
     primary
       ? 'bg-[#e05645] text-white hover:bg-[#c94536]'
-      : 'border-2 border-[#e05645] bg-white text-[#e05645] hover:bg-[#e05645] hover:text-white',
+      : 'border-2 border-[#e05645] bg-white text-[#e05645] hover:bg-[#e05645] hover:text-white dark:bg-[#111318] dark:hover:bg-[#e05645]',
   ].join(' ')
 
   if (!href) {
@@ -280,20 +280,20 @@ export function OpenClaw() {
       showThemeSwitch
       showNotifications={false}
     >
-      <main className='min-h-screen overflow-hidden bg-[#faf8f6] font-sans text-[#1a1a1a]'>
+      <main className='min-h-screen overflow-hidden bg-[#faf8f6] font-sans text-[#1a1a1a] dark:bg-[#0a0c10] dark:text-white'>
         <section className='relative px-6 pt-20 pb-20 sm:pt-24 lg:pt-28'>
           <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(249,168,108,0.22),transparent_28%),radial-gradient(circle_at_80%_15%,rgba(224,86,69,0.16),transparent_26%)]' />
           <div className='relative mx-auto max-w-[1200px] text-center'>
-            <div className='mb-8 inline-flex items-center rounded-full border border-[#e8ddd4] bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#e05645] shadow-[0_6px_24px_rgba(90,61,45,0.08)] backdrop-blur'>
+            <div className='mb-8 inline-flex items-center rounded-full border border-[#e8ddd4] bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#e05645] shadow-[0_6px_24px_rgba(90,61,45,0.08)] backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.06] dark:shadow-none'>
               🔥 一键安装的 AI 助手，直接操控你的电脑
             </div>
-            <h1 className='mx-auto max-w-5xl text-[44px] leading-[1.08] font-black text-[#1a1a1a] sm:text-[64px] lg:text-[88px]'>
+            <h1 className='mx-auto max-w-5xl text-[44px] leading-[1.08] font-black text-[#1a1a1a] sm:text-[64px] lg:text-[88px] dark:text-white'>
               3 分钟用上
               <span className='block bg-gradient-to-r from-[#e05645] via-[#f57b6c] to-[#f9a86c] bg-clip-text text-transparent'>
                 小龙虾
               </span>
             </h1>
-            <p className='mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f5752] sm:text-xl'>
+            <p className='mx-auto mt-8 max-w-3xl text-lg leading-8 text-[#5f5752] sm:text-xl dark:text-[#9ba3af]'>
               一键安装 OpenClaw，本地部署直接干活。专为职场用户打造的 AI
               牛马，OpenClaw 技能生态，7×24 小时不间断运行。
             </p>
@@ -321,12 +321,12 @@ export function OpenClaw() {
               ].map(([value, label]) => (
                 <div
                   key={label}
-                  className='rounded-2xl border border-[#eee5dc] bg-white/85 px-6 py-7 shadow-[0_10px_35px_rgba(90,61,45,0.08)]'
+                  className='rounded-2xl border border-[#eee5dc] bg-white/85 px-6 py-7 shadow-[0_10px_35px_rgba(90,61,45,0.08)] dark:border-white/[0.08] dark:bg-[#111318]/85 dark:shadow-none'
                 >
                   <div className='text-4xl font-black text-[#e05645]'>
                     {value}
                   </div>
-                  <div className='mt-2 text-sm font-semibold text-[#6c625c]'>
+                  <div className='mt-2 text-sm font-semibold text-[#6c625c] dark:text-[#9ba3af]'>
                     {label}
                   </div>
                 </div>
@@ -335,13 +335,13 @@ export function OpenClaw() {
           </div>
         </section>
 
-        <section className='bg-white px-6 py-20'>
+        <section className='bg-white px-6 py-20 dark:bg-[#0d1017]'>
           <div className='mx-auto max-w-[1200px]'>
             <div className='mx-auto mb-14 max-w-3xl text-center'>
               <h2 className='text-4xl leading-tight font-black sm:text-5xl'>
                 为什么选择 {brand}
               </h2>
-              <p className='mt-4 text-lg text-[#6c625c]'>
+              <p className='mt-4 text-lg text-[#6c625c] dark:text-[#9ba3af]'>
                 100% 满血版 OpenClaw，更多本地化优化
               </p>
             </div>
@@ -350,20 +350,20 @@ export function OpenClaw() {
               {features.map((feature) => (
                 <article
                   key={feature.title}
-                  className='rounded-2xl border border-[#eee5dc] bg-white p-7 shadow-[0_8px_30px_rgba(90,61,45,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_45px_rgba(90,61,45,0.12)]'
+                  className='rounded-2xl border border-[#eee5dc] bg-white p-7 shadow-[0_8px_30px_rgba(90,61,45,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_45px_rgba(90,61,45,0.12)] dark:border-white/[0.08] dark:bg-[#111318] dark:shadow-none'
                 >
                   <div className='mb-5 flex items-center gap-4'>
-                    <div className='grid size-14 place-items-center rounded-2xl bg-[#fff2ec] text-3xl'>
+                    <div className='grid size-14 place-items-center rounded-2xl bg-[#fff2ec] text-3xl dark:bg-[#321b17]'>
                       {feature.icon}
                     </div>
-                    <span className='rounded-full bg-[#fff2ec] px-3 py-1 text-xs font-bold text-[#e05645]'>
+                    <span className='rounded-full bg-[#fff2ec] px-3 py-1 text-xs font-bold text-[#e05645] dark:bg-[#321b17]'>
                       {feature.tag}
                     </span>
                   </div>
-                  <h3 className='text-xl font-black text-[#1a1a1a]'>
+                  <h3 className='text-xl font-black text-[#1a1a1a] dark:text-white'>
                     {feature.title}
                   </h3>
-                  <p className='mt-4 text-[15px] leading-7 text-[#6c625c]'>
+                  <p className='mt-4 text-[15px] leading-7 text-[#6c625c] dark:text-[#9ba3af]'>
                     {feature.description}
                   </p>
                 </article>
@@ -372,33 +372,33 @@ export function OpenClaw() {
           </div>
         </section>
 
-        <section className='bg-[#f0ebe5] px-6 py-20'>
+        <section className='bg-[#f0ebe5] px-6 py-20 dark:bg-[#0a0c10]'>
           <div className='mx-auto max-w-[1200px]'>
             <div className='mx-auto mb-14 max-w-3xl text-center'>
               <h2 className='text-4xl leading-tight font-black sm:text-5xl'>
                 本地部署 OpenClaw 小龙虾
               </h2>
-              <p className='mt-4 text-lg text-[#6c625c]'>
+              <p className='mt-4 text-lg text-[#6c625c] dark:text-[#9ba3af]'>
                 解锁电脑操控新体验，效率翻倍更便捷
               </p>
             </div>
 
             <div className='grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center'>
-              <div className='rounded-2xl bg-white p-8 shadow-[0_12px_40px_rgba(90,61,45,0.08)] sm:p-10'>
+              <div className='rounded-2xl bg-white p-8 shadow-[0_12px_40px_rgba(90,61,45,0.08)] sm:p-10 dark:bg-[#111318] dark:shadow-none'>
                 <h3 className='mb-8 text-3xl font-black'>
                   为什么选择本地部署？
                 </h3>
                 <div className='space-y-6'>
                   {localDeployReasons.map((reason) => (
                     <div key={reason.title} className='flex gap-4'>
-                      <div className='grid size-12 shrink-0 place-items-center rounded-2xl bg-[#fff2ec] text-2xl'>
+                      <div className='grid size-12 shrink-0 place-items-center rounded-2xl bg-[#fff2ec] text-2xl dark:bg-[#321b17]'>
                         {reason.icon}
                       </div>
                       <div>
-                        <h4 className='text-lg font-black text-[#1a1a1a]'>
+                        <h4 className='text-lg font-black text-[#1a1a1a] dark:text-white'>
                           {reason.title}
                         </h4>
-                        <p className='mt-2 leading-7 text-[#6c625c]'>
+                        <p className='mt-2 leading-7 text-[#6c625c] dark:text-[#9ba3af]'>
                           {reason.description}
                         </p>
                       </div>
@@ -408,8 +408,8 @@ export function OpenClaw() {
               </div>
 
               <div className='rounded-[28px] bg-gradient-to-br from-[#e05645] via-[#f57b6c] to-[#f9a86c] p-1 shadow-[0_20px_60px_rgba(224,86,69,0.25)]'>
-                <div className='rounded-[24px] bg-white/95 p-8 sm:p-10'>
-                  <div className='mx-auto grid size-24 place-items-center rounded-3xl bg-[#fff2ec] text-5xl'>
+                <div className='rounded-[24px] bg-white/95 p-8 sm:p-10 dark:bg-[#111318]/95'>
+                  <div className='mx-auto grid size-24 place-items-center rounded-3xl bg-[#fff2ec] text-5xl dark:bg-[#321b17]'>
                     💻
                   </div>
                   <h3 className='mt-6 text-center text-3xl font-black'>
@@ -420,7 +420,7 @@ export function OpenClaw() {
                       (item) => (
                         <div
                           key={item}
-                          className='rounded-2xl bg-[#f5f0eb] px-4 py-4 text-center font-bold text-[#4b423d]'
+                          className='rounded-2xl bg-[#f5f0eb] px-4 py-4 text-center font-bold text-[#4b423d] dark:bg-white/[0.06] dark:text-[#d8d3ca]'
                         >
                           {item}
                         </div>
@@ -436,13 +436,13 @@ export function OpenClaw() {
           </div>
         </section>
 
-        <section className='bg-white px-6 py-20'>
+        <section className='bg-white px-6 py-20 dark:bg-[#0d1017]'>
           <div className='mx-auto max-w-[1200px]'>
             <div className='mx-auto mb-10 max-w-3xl text-center'>
               <h2 className='text-4xl leading-tight font-black sm:text-5xl'>
                 应用场景
               </h2>
-              <p className='mt-4 text-lg text-[#6c625c]'>
+              <p className='mt-4 text-lg text-[#6c625c] dark:text-[#9ba3af]'>
                 覆盖工作、学习、生活多种场景，提升效率
               </p>
             </div>
@@ -457,7 +457,7 @@ export function OpenClaw() {
                     'rounded-full px-5 py-3 text-sm font-black transition-all duration-300 sm:text-base',
                     activeScenario === scenario.id
                       ? 'bg-[#e05645] text-white shadow-[0_8px_24px_rgba(224,86,69,0.28)]'
-                      : 'bg-[#f5f0eb] text-[#4b423d] hover:bg-[#fff2ec] hover:text-[#e05645]',
+                      : 'bg-[#f5f0eb] text-[#4b423d] hover:bg-[#fff2ec] hover:text-[#e05645] dark:bg-white/[0.06] dark:text-[#d8d3ca] dark:hover:bg-[#321b17] dark:hover:text-[#f57b6c]',
                   ].join(' ')}
                 >
                   {scenario.tab}
@@ -469,13 +469,13 @@ export function OpenClaw() {
               {activeScenarioData.items.map((item) => (
                 <article
                   key={item.title}
-                  className='rounded-2xl border border-[#eee5dc] bg-white p-6 shadow-[0_8px_28px_rgba(90,61,45,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_45px_rgba(90,61,45,0.12)]'
+                  className='rounded-2xl border border-[#eee5dc] bg-white p-6 shadow-[0_8px_28px_rgba(90,61,45,0.07)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_45px_rgba(90,61,45,0.12)] dark:border-white/[0.08] dark:bg-[#111318] dark:shadow-none'
                 >
                   <div className='mb-4 text-4xl'>{item.icon}</div>
-                  <h3 className='text-lg font-black text-[#1a1a1a]'>
+                  <h3 className='text-lg font-black text-[#1a1a1a] dark:text-white'>
                     {item.title}
                   </h3>
-                  <p className='mt-3 text-[15px] leading-7 text-[#6c625c]'>
+                  <p className='mt-3 text-[15px] leading-7 text-[#6c625c] dark:text-[#9ba3af]'>
                     {item.description}
                   </p>
                 </article>

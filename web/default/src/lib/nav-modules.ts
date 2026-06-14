@@ -36,6 +36,7 @@ export type HeaderNavModules = {
   docs: boolean
   about: boolean
   openclaw: boolean
+  hermes: boolean
   videoGen: UrlModuleAccess
   imageGen: UrlModuleAccess
   [key: string]: boolean | ModuleAccess | UrlModuleAccess
@@ -49,6 +50,7 @@ const DEFAULT_HEADER_NAV_MODULES: HeaderNavModules = {
   docs: true,
   about: true,
   openclaw: false,
+  hermes: false,
   videoGen: { enabled: false, url: '' },
   imageGen: { enabled: false, url: '' },
 }

@@ -41,6 +41,11 @@ func SetWebRouter(router *gin.Engine, assets ThemeAssets) {
 	if err != nil {
 		panic(err)
 	}
+	serveIndex := func(c *gin.Context) {
+		c.Set(middleware.RouteTagKey, "web")
+		c.Header("Cache-Control", "no-cache")
+		c.Data(http.StatusOK, "text/html; charset=utf-8", assets.DefaultIndexPage)
+	}
 
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.Use(middleware.GlobalWebRateLimit())
@@ -49,15 +54,29 @@ func SetWebRouter(router *gin.Engine, assets ThemeAssets) {
 		c.Redirect(http.StatusMovedPermanently, "/docs/")
 	})
 	router.GET("/docs/*filepath", serveDocs(docsFS))
+	for _, route := range []string{
+		"/about",
+		"/about/",
+		"/hermes",
+		"/hermes/",
+		"/hermes-client",
+		"/hermes-client/",
+		"/openclaw",
+		"/openclaw/",
+		"/pricing",
+		"/pricing/",
+		"/rankings",
+		"/rankings/",
+	} {
+		router.GET(route, serveIndex)
+	}
 	router.Use(static.Serve("/", defaultFS))
 	router.NoRoute(func(c *gin.Context) {
-		c.Set(middleware.RouteTagKey, "web")
 		if strings.HasPrefix(c.Request.RequestURI, "/v1") || strings.HasPrefix(c.Request.RequestURI, "/api") || strings.HasPrefix(c.Request.RequestURI, "/assets") {
 			controller.RelayNotFound(c)
 			return
 		}
-		c.Header("Cache-Control", "no-cache")
-		c.Data(http.StatusOK, "text/html; charset=utf-8", assets.DefaultIndexPage)
+		serveIndex(c)
 	})
 }
 

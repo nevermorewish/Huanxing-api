@@ -24,6 +24,7 @@ import {
   serializeSidebarModulesAdmin,
 } from '../maintenance/config'
 import { HeaderNavigationSection } from '../maintenance/header-navigation-section'
+import { HermesSection } from '../maintenance/hermes-section'
 import { NoticeSection } from '../maintenance/notice-section'
 import { OpenClawSection } from '../maintenance/openclaw-section'
 import { SidebarModulesSection } from '../maintenance/sidebar-modules-section'
@@ -110,6 +111,21 @@ const SITE_SECTIONS = [
           OpenClawWindowsUrl: settings.OpenClawWindowsUrl,
           OpenClawMacArmUrl: settings.OpenClawMacArmUrl,
           OpenClawMacIntelUrl: settings.OpenClawMacIntelUrl,
+        }}
+      />
+    ),
+  },
+  {
+    id: 'hermes',
+    titleKey: 'Hermes Client',
+    descriptionKey: 'Configure Hermes client download links',
+    build: (settings: SiteSettings) => (
+      <HermesSection
+        defaultValues={{
+          HermesBrandName: settings.HermesBrandName,
+          HermesWindowsUrl: settings.HermesWindowsUrl,
+          HermesMacArmUrl: settings.HermesMacArmUrl,
+          HermesMacIntelUrl: settings.HermesMacIntelUrl,
         }}
       />
     ),

@@ -75,6 +75,10 @@ export type SiteSettings = {
   OpenClawWindowsUrl: string
   OpenClawMacArmUrl: string
   OpenClawMacIntelUrl: string
+  HermesBrandName: string
+  HermesWindowsUrl: string
+  HermesMacArmUrl: string
+  HermesMacIntelUrl: string
 }
 
 export type AuthSettings = {

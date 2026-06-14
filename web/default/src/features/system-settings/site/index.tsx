@@ -42,6 +42,10 @@ const defaultSiteSettings: SiteSettings = {
   OpenClawWindowsUrl: '',
   OpenClawMacArmUrl: '',
   OpenClawMacIntelUrl: '',
+  HermesBrandName: 'Hermes Agent CN Desktop',
+  HermesWindowsUrl: '',
+  HermesMacArmUrl: '',
+  HermesMacIntelUrl: '',
 }
 
 export function SiteSettings() {

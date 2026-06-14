@@ -98,6 +98,11 @@ export function useSidebarData(): SidebarData {
             configUrls: ['/usage-logs/drawing', '/usage-logs/task'],
             icon: ListTodo,
           },
+          {
+            title: t('Status Monitor'),
+            url: '/status-monitor',
+            icon: Activity,
+          },
         ],
       },
       {
@@ -124,6 +129,11 @@ export function useSidebarData(): SidebarData {
             title: t('Channels'),
             url: '/channels',
             icon: Radio,
+          },
+          {
+            title: t('Channel Monitor'),
+            url: '/admin/channels/monitor',
+            icon: Activity,
           },
           {
             title: t('Models'),

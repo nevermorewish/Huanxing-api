@@ -34,6 +34,7 @@ export type HeaderNavModulesConfig = {
   docs: boolean
   about: boolean
   openclaw: boolean
+  hermes: boolean
   videoGen: HeaderNavUrlConfig
   imageGen: HeaderNavUrlConfig
   [key: string]: boolean | HeaderNavAccessConfig | HeaderNavUrlConfig
@@ -60,6 +61,7 @@ export const HEADER_NAV_DEFAULT: HeaderNavModulesConfig = {
   docs: true,
   about: true,
   openclaw: false,
+  hermes: false,
   videoGen: {
     enabled: false,
     url: '',
@@ -83,6 +85,7 @@ export const SIDEBAR_MODULES_DEFAULT: SidebarModulesAdminConfig = {
     log: true,
     midjourney: true,
     task: true,
+    statusMonitor: true,
   },
   personal: {
     enabled: true,
@@ -97,6 +100,7 @@ export const SIDEBAR_MODULES_DEFAULT: SidebarModulesAdminConfig = {
     user: true,
     setting: true,
     subscription: true,
+    channelMonitor: true,
   },
 }
 

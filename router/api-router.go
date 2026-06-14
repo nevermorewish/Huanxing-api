@@ -21,6 +21,7 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/setup", controller.GetSetup)
 		apiRouter.POST("/setup", controller.PostSetup)
 		apiRouter.GET("/status", controller.GetStatus)
+		apiRouter.GET("/status_monitor", controller.GetStatusMonitor)
 		apiRouter.GET("/uptime/status", controller.GetUptimeKumaStatus)
 		apiRouter.GET("/models", middleware.UserAuth(), controller.DashboardListModels)
 		apiRouter.GET("/status/test", middleware.AdminAuth(), controller.TestStatus)
@@ -267,6 +268,17 @@ func SetApiRouter(router *gin.Engine) {
 			channelRoute.POST("/upstream_updates/apply_all", controller.ApplyAllChannelUpstreamModelUpdates)
 			channelRoute.POST("/upstream_updates/detect", controller.DetectChannelUpstreamModelUpdates)
 			channelRoute.POST("/upstream_updates/detect_all", controller.DetectAllChannelUpstreamModelUpdates)
+		}
+		channelTypeMonitorRoute := apiRouter.Group("/admin/channel-type-monitors")
+		channelTypeMonitorRoute.Use(middleware.AdminAuth())
+		{
+			channelTypeMonitorRoute.GET("", controller.ListChannelTypeMonitors)
+			channelTypeMonitorRoute.POST("", controller.CreateChannelTypeMonitor)
+			channelTypeMonitorRoute.GET("/:id", controller.GetChannelTypeMonitor)
+			channelTypeMonitorRoute.PUT("/:id", controller.UpdateChannelTypeMonitor)
+			channelTypeMonitorRoute.DELETE("/:id", controller.DeleteChannelTypeMonitor)
+			channelTypeMonitorRoute.POST("/:id/run", controller.RunChannelTypeMonitor)
+			channelTypeMonitorRoute.GET("/:id/history", controller.ListChannelTypeMonitorHistory)
 		}
 		tokenRoute := apiRouter.Group("/token")
 		tokenRoute.Use(middleware.UserAuth())

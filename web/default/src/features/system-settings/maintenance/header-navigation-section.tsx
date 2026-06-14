@@ -31,8 +31,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import { SettingsSection } from '../components/settings-section'
 import { useUpdateOption } from '../hooks/use-update-option'
 import {
@@ -51,6 +51,7 @@ const headerNavSchema = z.object({
   docs: z.boolean(),
   about: z.boolean(),
   openclaw: z.boolean(),
+  hermes: z.boolean(),
   videoGenEnabled: z.boolean(),
   videoGenUrl: z.string(),
   imageGenEnabled: z.boolean(),
@@ -97,6 +98,10 @@ const toFormValues = (config: HeaderNavModulesConfig): HeaderNavFormValues => ({
     config.openclaw === undefined
       ? HEADER_NAV_DEFAULT.openclaw
       : Boolean(config.openclaw),
+  hermes:
+    config.hermes === undefined
+      ? HEADER_NAV_DEFAULT.hermes
+      : Boolean(config.hermes),
   videoGenEnabled:
     config.videoGen?.enabled === undefined
       ? HEADER_NAV_DEFAULT.videoGen.enabled
@@ -140,6 +145,7 @@ export function HeaderNavigationSection({
       docs: values.docs,
       about: values.about,
       openclaw: values.openclaw,
+      hermes: values.hermes,
       pricing: {
         ...(config.pricing ?? HEADER_NAV_DEFAULT.pricing),
         enabled: values.pricingEnabled,
@@ -207,6 +213,11 @@ export function HeaderNavigationSection({
       title: t('OpenClaw Client'),
       description: t('OpenClaw desktop client download and intro page.'),
     },
+    {
+      key: 'hermes',
+      title: t('Hermes Client'),
+      description: t('Hermes desktop client download and intro page.'),
+    },
   ]
 
   const accessModules: Array<{
@@ -255,7 +266,9 @@ export function HeaderNavigationSection({
       enabledKey: 'videoGenEnabled',
       urlKey: 'videoGenUrl',
       title: t('Video Generation'),
-      description: t('Top navigation entry linking to a video generation page.'),
+      description: t(
+        'Top navigation entry linking to a video generation page.'
+      ),
       urlLabel: t('Video Generation URL'),
       urlDescription: t(
         'Custom link for the video generation entry. Supports absolute (https://) or relative (/path) URLs.'
@@ -266,7 +279,9 @@ export function HeaderNavigationSection({
       enabledKey: 'imageGenEnabled',
       urlKey: 'imageGenUrl',
       title: t('Image Generation'),
-      description: t('Top navigation entry linking to an image generation page.'),
+      description: t(
+        'Top navigation entry linking to an image generation page.'
+      ),
       urlLabel: t('Image Generation URL'),
       urlDescription: t(
         'Custom link for the image generation entry. Supports absolute (https://) or relative (/path) URLs.'
@@ -298,7 +313,7 @@ export function HeaderNavigationSection({
                     </div>
                     <FormControl>
                       <Switch
-                        checked={field.value}
+                        checked={Boolean(field.value)}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
@@ -325,7 +340,7 @@ export function HeaderNavigationSection({
                       </div>
                       <FormControl>
                         <Switch
-                          checked={field.value}
+                          checked={Boolean(field.value)}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
@@ -349,7 +364,7 @@ export function HeaderNavigationSection({
                       </div>
                       <FormControl>
                         <Switch
-                          checked={field.value}
+                          checked={Boolean(field.value)}
                           onCheckedChange={field.onChange}
                           disabled={!form.watch(module.requireAuthDependsOn)}
                         />

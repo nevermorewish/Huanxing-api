@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -111,6 +110,11 @@ func GetStatus(c *gin.Context) {
 		"openclaw_windows_url":   common.OptionMap["OpenClawWindowsUrl"],
 		"openclaw_mac_arm_url":   common.OptionMap["OpenClawMacArmUrl"],
 		"openclaw_mac_intel_url": common.OptionMap["OpenClawMacIntelUrl"],
+
+		"hermes_brand_name":    common.OptionMap["HermesBrandName"],
+		"hermes_windows_url":   common.OptionMap["HermesWindowsUrl"],
+		"hermes_mac_arm_url":   common.OptionMap["HermesMacArmUrl"],
+		"hermes_mac_intel_url": common.OptionMap["HermesMacIntelUrl"],
 
 		"oidc_enabled":                system_setting.GetOIDCSettings().Enabled,
 		"oidc_client_id":              system_setting.GetOIDCSettings().ClientId,
@@ -344,7 +348,7 @@ type PasswordResetRequest struct {
 
 func ResetPassword(c *gin.Context) {
 	var req PasswordResetRequest
-	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	err := common.DecodeJson(c.Request.Body, &req)
 	if req.Email == "" || req.Token == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

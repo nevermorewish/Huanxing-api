@@ -195,8 +195,8 @@ export function PublicHeader(props: PublicHeaderProps) {
             className={cn(
               'flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
               scrolled
-                ? 'bg-background/82 ring-border/70 h-16 rounded-2xl border px-4 shadow-[0_12px_36px_-18px_rgba(15,23,42,0.45)] ring-1 backdrop-blur-2xl dark:bg-background/70 dark:shadow-[0_14px_44px_-18px_rgba(0,0,0,0.65)]'
-                : 'bg-background/72 ring-border/50 h-20 rounded-2xl border px-5 shadow-[0_18px_52px_-28px_rgba(15,23,42,0.35)] ring-1 backdrop-blur-2xl dark:bg-background/58 dark:shadow-[0_18px_56px_-28px_rgba(0,0,0,0.7)]'
+                ? 'bg-background/82 ring-border/70 dark:bg-background/70 h-16 rounded-2xl border px-4 shadow-[0_12px_36px_-18px_rgba(15,23,42,0.45)] ring-1 backdrop-blur-2xl dark:shadow-[0_14px_44px_-18px_rgba(0,0,0,0.65)]'
+                : 'bg-background/72 ring-border/50 dark:bg-background/58 h-20 rounded-2xl border px-5 shadow-[0_18px_52px_-28px_rgba(15,23,42,0.35)] ring-1 backdrop-blur-2xl dark:shadow-[0_18px_56px_-28px_rgba(0,0,0,0.7)]'
             )}
           >
             {/* Logo */}
@@ -225,7 +225,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               </div>
               <span
                 className={cn(
-                  'text-foreground whitespace-nowrap font-black tracking-normal transition-all duration-300',
+                  'text-foreground font-black tracking-normal whitespace-nowrap transition-all duration-300',
                   scrolled ? 'text-xl' : 'text-2xl xl:text-[28px]'
                 )}
               >
@@ -234,7 +234,7 @@ export function PublicHeader(props: PublicHeaderProps) {
             </Link>
 
             {/* Desktop nav */}
-            <div className='hidden items-center gap-2 sm:flex'>
+            <div className='hidden min-w-0 items-center gap-0.5 lg:flex xl:gap-1'>
               {links.map((link, i) => {
                 const isActive = pathname === link.href
                 if (link.external || link.reloadDocument) {
@@ -248,7 +248,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                       tabIndex={link.disabled ? -1 : undefined}
                       onClick={(event) => handleNavLinkClick(event, link)}
                       className={cn(
-                        'text-muted-foreground hover:bg-accent/70 hover:text-foreground rounded-xl px-4 py-2.5 text-lg font-extrabold tracking-normal transition-all duration-200 xl:text-xl',
+                        'text-muted-foreground hover:bg-accent/70 hover:text-foreground shrink-0 rounded-xl px-2 py-2 text-xs font-extrabold tracking-normal whitespace-nowrap transition-all duration-200 xl:px-2.5 xl:text-sm 2xl:px-3 2xl:text-base',
                         link.disabled && 'pointer-events-none opacity-50'
                       )}
                     >
@@ -263,7 +263,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                     disabled={link.disabled}
                     onClick={(event) => handleNavLinkClick(event, link)}
                     className={cn(
-                      'rounded-xl px-4 py-2.5 text-lg font-extrabold tracking-normal transition-all duration-200 xl:text-xl',
+                      'shrink-0 rounded-xl px-2 py-2 text-xs font-extrabold tracking-normal whitespace-nowrap transition-all duration-200 xl:px-2.5 xl:text-sm 2xl:px-3 2xl:text-base',
                       isActive
                         ? 'bg-[#ff9900]/12 text-[#ff9900] shadow-[inset_0_0_0_1px_rgba(255,153,0,0.16)]'
                         : 'text-muted-foreground hover:bg-accent/70 hover:text-foreground',
@@ -311,7 +311,7 @@ export function PublicHeader(props: PublicHeaderProps) {
             </div>
 
             {/* Mobile: compact actions + hamburger */}
-            <div className='flex items-center gap-2 sm:hidden'>
+            <div className='flex items-center gap-2 lg:hidden'>
               {showThemeSwitch && <ThemeSwitch />}
               {showAuthButtons && !loading && isAuthenticated && (
                 <ProfileDropdown />

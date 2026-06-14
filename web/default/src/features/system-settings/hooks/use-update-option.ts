@@ -36,7 +36,45 @@ const STATUS_RELATED_KEYS = [
   'general_setting.quota_display_type',
   'general_setting.custom_currency_symbol',
   'general_setting.custom_currency_exchange_rate',
+  'OpenClawBrandName',
+  'OpenClawWindowsUrl',
+  'OpenClawMacArmUrl',
+  'OpenClawMacIntelUrl',
+  'HermesBrandName',
+  'HermesWindowsUrl',
+  'HermesMacArmUrl',
+  'HermesMacIntelUrl',
 ]
+
+const STATUS_FIELD_MAP: Record<string, string> = {
+  OpenClawBrandName: 'openclaw_brand_name',
+  OpenClawWindowsUrl: 'openclaw_windows_url',
+  OpenClawMacArmUrl: 'openclaw_mac_arm_url',
+  OpenClawMacIntelUrl: 'openclaw_mac_intel_url',
+  HermesBrandName: 'hermes_brand_name',
+  HermesWindowsUrl: 'hermes_windows_url',
+  HermesMacArmUrl: 'hermes_mac_arm_url',
+  HermesMacIntelUrl: 'hermes_mac_intel_url',
+}
+
+function updateCachedStatusOption(
+  key: string,
+  value: string | boolean | number
+) {
+  const statusField = STATUS_FIELD_MAP[key]
+  if (!statusField || typeof window === 'undefined') return
+
+  try {
+    const raw = window.localStorage.getItem('status')
+    if (!raw) return
+
+    const status = JSON.parse(raw) as Record<string, unknown>
+    status[statusField] = value
+    window.localStorage.setItem('status', JSON.stringify(status))
+  } catch {
+    window.localStorage.removeItem('status')
+  }
+}
 
 export function useUpdateOption() {
   const queryClient = useQueryClient()
@@ -50,6 +88,17 @@ export function useUpdateOption() {
 
         // If updating frontend-display-related config, also refresh status
         if (STATUS_RELATED_KEYS.includes(variables.key)) {
+          const statusField = STATUS_FIELD_MAP[variables.key]
+          if (statusField) {
+            queryClient.setQueryData<Record<string, unknown> | null>(
+              ['status'],
+              (current) =>
+                current
+                  ? { ...current, [statusField]: variables.value }
+                  : current
+            )
+            updateCachedStatusOption(variables.key, variables.value)
+          }
           queryClient.invalidateQueries({ queryKey: ['status'] })
         }
 

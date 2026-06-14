@@ -74,6 +74,10 @@ func InitOptionMap() {
 	common.OptionMap["OpenClawWindowsUrl"] = ""
 	common.OptionMap["OpenClawMacArmUrl"] = ""
 	common.OptionMap["OpenClawMacIntelUrl"] = ""
+	common.OptionMap["HermesBrandName"] = "Hermes Agent CN Desktop"
+	common.OptionMap["HermesWindowsUrl"] = ""
+	common.OptionMap["HermesMacArmUrl"] = ""
+	common.OptionMap["HermesMacIntelUrl"] = ""
 	common.OptionMap["Footer"] = common.Footer
 	common.OptionMap["SystemName"] = common.SystemName
 	common.OptionMap["SystemNameEn"] = common.SystemNameEn

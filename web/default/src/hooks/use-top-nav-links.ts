@@ -19,8 +19,8 @@ For commercial licensing, please contact support@huanxing.com
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
-import { useStatus } from '@/hooks/use-status'
 import { parseHeaderNavModulesFromStatus } from '@/lib/nav-modules'
+import { useStatus } from '@/hooks/use-status'
 
 export type TopNavLink = {
   title: string
@@ -109,43 +109,36 @@ export function useTopNavLinks(): TopNavLink[] {
     links.push({ title: t('OpenClaw Client'), href: '/openclaw' })
   }
 
+  // Hermes client (disabled by default; enable via Header navigation settings)
+  if (modules?.hermes === true) {
+    links.push({ title: t('Hermes Client'), href: '/hermes-client' })
+  }
+
   // Video Generation (custom link; disabled by default)
   const videoGen = modules?.videoGen
-  if (
-    videoGen &&
-    typeof videoGen === 'object' &&
-    'url' in videoGen &&
-    videoGen.enabled &&
-    typeof videoGen.url === 'string' &&
-    videoGen.url.trim() !== ''
-  ) {
-    const url = videoGen.url.trim()
+  if (videoGen && typeof videoGen === 'object' && videoGen.enabled) {
+    const url = typeof videoGen.url === 'string' ? videoGen.url.trim() : ''
     const external = isExternalUrl(url)
     links.push({
       title: t('Video Generation'),
-      href: url,
+      href: url || '#',
+      disabled: url === '',
       external,
-      reloadDocument: !external,
+      reloadDocument: url !== '' && !external,
     })
   }
 
   // Image Generation (custom link; disabled by default)
   const imageGen = modules?.imageGen
-  if (
-    imageGen &&
-    typeof imageGen === 'object' &&
-    'url' in imageGen &&
-    imageGen.enabled &&
-    typeof imageGen.url === 'string' &&
-    imageGen.url.trim() !== ''
-  ) {
-    const url = imageGen.url.trim()
+  if (imageGen && typeof imageGen === 'object' && imageGen.enabled) {
+    const url = typeof imageGen.url === 'string' ? imageGen.url.trim() : ''
     const external = isExternalUrl(url)
     links.push({
       title: t('Image Generation'),
-      href: url,
+      href: url || '#',
+      disabled: url === '',
       external,
-      reloadDocument: !external,
+      reloadDocument: url !== '' && !external,
     })
   }
 
