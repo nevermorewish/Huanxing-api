@@ -44,6 +44,9 @@ export const STATIC_I18N_KEYS = [
   'Display name used across the Hermes page.',
   'Hermes desktop client download and intro page.',
 
+  // Analytics dynamic labels
+  'All Time',
+
   // Workspace
   'System Settings',
   'Manage and configure',

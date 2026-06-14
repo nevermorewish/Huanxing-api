@@ -19,6 +19,7 @@ For commercial licensing, please contact support@huanxing.com
 import {
   LayoutDashboard,
   Activity,
+  ChartNoAxesColumnIncreasing,
   Key,
   FileText,
   Wallet,
@@ -144,6 +145,11 @@ export function useSidebarData(): SidebarData {
             title: t('Users'),
             url: '/users',
             icon: Users,
+          },
+          {
+            title: t('User Analytics'),
+            url: '/analytics',
+            icon: ChartNoAxesColumnIncreasing,
           },
           {
             title: t('Redemption Codes'),
