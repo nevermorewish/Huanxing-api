@@ -57,6 +57,15 @@ const STATUS_FIELD_MAP: Record<string, string> = {
   HermesMacIntelUrl: 'hermes_mac_intel_url',
 }
 
+const STATUS_SERVER_DERIVED_KEYS = new Set([
+  'OpenClawWindowsUrl',
+  'OpenClawMacArmUrl',
+  'OpenClawMacIntelUrl',
+  'HermesWindowsUrl',
+  'HermesMacArmUrl',
+  'HermesMacIntelUrl',
+])
+
 function updateCachedStatusOption(
   key: string,
   value: string | boolean | number
@@ -89,7 +98,7 @@ export function useUpdateOption() {
         // If updating frontend-display-related config, also refresh status
         if (STATUS_RELATED_KEYS.includes(variables.key)) {
           const statusField = STATUS_FIELD_MAP[variables.key]
-          if (statusField) {
+          if (statusField && !STATUS_SERVER_DERIVED_KEYS.has(variables.key)) {
             queryClient.setQueryData<Record<string, unknown> | null>(
               ['status'],
               (current) =>

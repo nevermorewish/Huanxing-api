@@ -11,6 +11,7 @@ import (
 	"github.com/huanxing/huanxing-api/middleware"
 	"github.com/huanxing/huanxing-api/model"
 	"github.com/huanxing/huanxing-api/oauth"
+	"github.com/huanxing/huanxing-api/service"
 	"github.com/huanxing/huanxing-api/setting"
 	"github.com/huanxing/huanxing-api/setting/console_setting"
 	"github.com/huanxing/huanxing-api/setting/operation_setting"
@@ -42,7 +43,17 @@ func GetStatus(c *gin.Context) {
 
 	cs := console_setting.GetConsoleSetting()
 	common.OptionMapRWMutex.RLock()
-	defer common.OptionMapRWMutex.RUnlock()
+	headerNavModules := common.OptionMap["HeaderNavModules"]
+	sidebarModulesAdmin := common.OptionMap["SidebarModulesAdmin"]
+	openClawBrandName := common.OptionMap["OpenClawBrandName"]
+	openClawWindowsURL := common.OptionMap["OpenClawWindowsUrl"]
+	openClawMacArmURL := common.OptionMap["OpenClawMacArmUrl"]
+	openClawMacIntelURL := common.OptionMap["OpenClawMacIntelUrl"]
+	hermesBrandName := common.OptionMap["HermesBrandName"]
+	hermesWindowsURL := common.OptionMap["HermesWindowsUrl"]
+	hermesMacArmURL := common.OptionMap["HermesMacArmUrl"]
+	hermesMacIntelURL := common.OptionMap["HermesMacIntelUrl"]
+	common.OptionMapRWMutex.RUnlock()
 
 	passkeySetting := system_setting.GetPasskeySettings()
 	legalSetting := system_setting.GetLegalSettings()
@@ -102,19 +113,19 @@ func GetStatus(c *gin.Context) {
 		"faq_enabled":           cs.FAQEnabled,
 
 		// 模块管理配置
-		"HeaderNavModules":    common.OptionMap["HeaderNavModules"],
-		"SidebarModulesAdmin": common.OptionMap["SidebarModulesAdmin"],
+		"HeaderNavModules":    headerNavModules,
+		"SidebarModulesAdmin": sidebarModulesAdmin,
 
 		// OpenClaw 客户端配置
-		"openclaw_brand_name":    common.OptionMap["OpenClawBrandName"],
-		"openclaw_windows_url":   common.OptionMap["OpenClawWindowsUrl"],
-		"openclaw_mac_arm_url":   common.OptionMap["OpenClawMacArmUrl"],
-		"openclaw_mac_intel_url": common.OptionMap["OpenClawMacIntelUrl"],
+		"openclaw_brand_name":    openClawBrandName,
+		"openclaw_windows_url":   service.ResolveReleaseDownloadURL(openClawWindowsURL, service.ReleasePlatformWindows),
+		"openclaw_mac_arm_url":   service.ResolveReleaseDownloadURL(openClawMacArmURL, service.ReleasePlatformMacArm),
+		"openclaw_mac_intel_url": service.ResolveReleaseDownloadURL(openClawMacIntelURL, service.ReleasePlatformMacIntel),
 
-		"hermes_brand_name":    common.OptionMap["HermesBrandName"],
-		"hermes_windows_url":   common.OptionMap["HermesWindowsUrl"],
-		"hermes_mac_arm_url":   common.OptionMap["HermesMacArmUrl"],
-		"hermes_mac_intel_url": common.OptionMap["HermesMacIntelUrl"],
+		"hermes_brand_name":    hermesBrandName,
+		"hermes_windows_url":   service.ResolveReleaseDownloadURL(hermesWindowsURL, service.ReleasePlatformWindows),
+		"hermes_mac_arm_url":   service.ResolveReleaseDownloadURL(hermesMacArmURL, service.ReleasePlatformMacArm),
+		"hermes_mac_intel_url": service.ResolveReleaseDownloadURL(hermesMacIntelURL, service.ReleasePlatformMacIntel),
 
 		"oidc_enabled":                system_setting.GetOIDCSettings().Enabled,
 		"oidc_client_id":              system_setting.GetOIDCSettings().ClientId,

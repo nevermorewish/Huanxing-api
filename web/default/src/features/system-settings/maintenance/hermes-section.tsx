@@ -92,7 +92,7 @@ export function HermesSection({ defaultValues }: HermesSectionProps) {
       <SettingsSection
         title={t('Hermes Client')}
         description={t(
-          'Configure the Hermes client download links shown on the public Hermes page.'
+          'Configure the Hermes client download links shown on the public Hermes page. Download fields accept direct installer links or Hermes latest.json manifest links.'
         )}
       >
         <Form {...form}>
@@ -126,7 +126,9 @@ export function HermesSection({ defaultValues }: HermesSectionProps) {
                     <Input placeholder='' {...field} />
                   </FormControl>
                   <FormDescription>
-                    {t('Leave empty to disable the Windows download button.')}
+                    {t(
+                      'Leave empty to disable the Windows download button. You can also enter a latest.json manifest URL.'
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -146,7 +148,7 @@ export function HermesSection({ defaultValues }: HermesSectionProps) {
                   </FormControl>
                   <FormDescription>
                     {t(
-                      'Leave empty to disable the macOS (Apple Silicon) download button.'
+                      'Leave empty to disable the macOS (Apple Silicon) download button. You can also enter a latest.json manifest URL.'
                     )}
                   </FormDescription>
                   <FormMessage />
@@ -165,7 +167,7 @@ export function HermesSection({ defaultValues }: HermesSectionProps) {
                   </FormControl>
                   <FormDescription>
                     {t(
-                      'Leave empty to disable the macOS (Intel) download button.'
+                      'Leave empty to disable the macOS (Intel) download button. You can also enter a latest.json manifest URL.'
                     )}
                   </FormDescription>
                   <FormMessage />

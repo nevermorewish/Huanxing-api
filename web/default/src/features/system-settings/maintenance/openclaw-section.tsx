@@ -92,7 +92,7 @@ export function OpenClawSection({ defaultValues }: OpenClawSectionProps) {
       <SettingsSection
         title={t('OpenClaw Client')}
         description={t(
-          'Configure the OpenClaw client brand name and download links shown on the public OpenClaw page.'
+          'Configure the OpenClaw client brand name and download links shown on the public OpenClaw page. Download fields accept direct installer links or electron-builder latest.yml manifest links.'
         )}
       >
         <Form {...form}>
@@ -126,7 +126,9 @@ export function OpenClawSection({ defaultValues }: OpenClawSectionProps) {
                     <Input placeholder='' {...field} />
                   </FormControl>
                   <FormDescription>
-                    {t('Leave empty to disable the Windows download button.')}
+                    {t(
+                      'Leave empty to disable the Windows download button. You can also enter a latest.yml manifest URL.'
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -146,7 +148,7 @@ export function OpenClawSection({ defaultValues }: OpenClawSectionProps) {
                   </FormControl>
                   <FormDescription>
                     {t(
-                      'Leave empty to disable the macOS (Apple Silicon) download button.'
+                      'Leave empty to disable the macOS (Apple Silicon) download button. You can also enter a latest.yml manifest URL.'
                     )}
                   </FormDescription>
                   <FormMessage />
@@ -165,7 +167,7 @@ export function OpenClawSection({ defaultValues }: OpenClawSectionProps) {
                   </FormControl>
                   <FormDescription>
                     {t(
-                      'Leave empty to disable the macOS (Intel) download button.'
+                      'Leave empty to disable the macOS (Intel) download button. You can also enter a latest.yml manifest URL.'
                     )}
                   </FormDescription>
                   <FormMessage />
