@@ -73,6 +73,21 @@ import {
   type ChannelTypeMonitorPayload,
 } from './api'
 
+type ChannelTypeMonitorRow = {
+  channel_type: number
+  channel_type_name: string
+  monitor: ChannelTypeMonitor | null
+}
+
+const MONITOR_SUPPORTED_CHANNEL_TYPES = new Set([
+  1, 4, 11, 14, 15, 16, 17, 18, 20, 21, 23, 24, 25, 26, 27, 33, 34, 35, 37, 38,
+  39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 56, 57,
+])
+
+const MONITOR_CHANNEL_TYPE_OPTIONS = CHANNEL_TYPE_OPTIONS.filter((option) =>
+  MONITOR_SUPPORTED_CHANNEL_TYPES.has(option.value)
+)
+
 const statusVariant: Record<
   string,
   'default' | 'secondary' | 'destructive' | 'outline'
@@ -143,6 +158,34 @@ export function ChannelTypeMonitorPage() {
     () => new Set(monitors.map((item) => item.channel_type)),
     [monitors]
   )
+  const monitorRows = useMemo<ChannelTypeMonitorRow[]>(() => {
+    const monitorByType = new Map(
+      monitors.map((monitor) => [monitor.channel_type, monitor])
+    )
+    const knownTypes = new Set(
+      MONITOR_CHANNEL_TYPE_OPTIONS.map((item) => item.value)
+    )
+    const rows = MONITOR_CHANNEL_TYPE_OPTIONS.map((option) => {
+      const monitor = monitorByType.get(option.value) ?? null
+      return {
+        channel_type: option.value,
+        channel_type_name: monitor?.channel_type_name ?? option.label,
+        monitor,
+      }
+    })
+
+    for (const monitor of monitors) {
+      if (!knownTypes.has(monitor.channel_type)) {
+        rows.push({
+          channel_type: monitor.channel_type,
+          channel_type_name: monitor.channel_type_name,
+          monitor,
+        })
+      }
+    }
+
+    return rows
+  }, [monitors])
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -203,7 +246,18 @@ export function ChannelTypeMonitorPage() {
   })
 
   const toggleEnabledMutation = useMutation({
-    mutationFn: (monitor: ChannelTypeMonitor) => {
+    mutationFn: (row: ChannelTypeMonitorRow) => {
+      const monitor = row.monitor
+      if (!monitor) {
+        return createChannelTypeMonitor({
+          channel_type: row.channel_type,
+          group_name: '',
+          api_url: '',
+          test_model: '',
+          enabled: true,
+          interval_seconds: defaultPayload.interval_seconds,
+        })
+      }
       const payload: ChannelTypeMonitorPayload = {
         channel_type: monitor.channel_type,
         group_name: monitor.group_name,
@@ -214,7 +268,7 @@ export function ChannelTypeMonitorPage() {
       }
       return updateChannelTypeMonitor(monitor.id, payload)
     },
-    onSuccess: (res) => {
+    onSuccess: (res, row) => {
       if (!res.success) {
         toast.error(res.message || t('Failed to update monitor status'))
         return
@@ -223,7 +277,9 @@ export function ChannelTypeMonitorPage() {
         queryKey: ['channel-type-monitors'],
       })
       void queryClient.invalidateQueries({ queryKey: ['status-monitor'] })
-      toast.success(t('Monitor status updated'))
+      toast.success(
+        row.monitor ? t('Monitor status updated') : t('Monitor saved')
+      )
     },
   })
 
@@ -267,10 +323,13 @@ export function ChannelTypeMonitorPage() {
     },
   })
 
-  const prepareCreate = () => {
+  const prepareCreate = (channelType?: number) => {
     const firstAvailable =
-      CHANNEL_TYPE_OPTIONS.find((option) => !usedTypes.has(option.value))
-        ?.value ?? 1
+      channelType ??
+      MONITOR_CHANNEL_TYPE_OPTIONS.find(
+        (option) => !usedTypes.has(option.value)
+      )?.value ??
+      1
     setEditing(null)
     setPayload({
       ...defaultPayload,
@@ -282,6 +341,11 @@ export function ChannelTypeMonitorPage() {
 
   const openCreate = () => {
     prepareCreate()
+    setFormOpen(true)
+  }
+
+  const openCreateForType = (channelType: number) => {
+    prepareCreate(channelType)
     setFormOpen(true)
   }
 
@@ -345,6 +409,7 @@ export function ChannelTypeMonitorPage() {
                   <TableHead>API Key</TableHead>
                   <TableHead>{t('Test Model')}</TableHead>
                   <TableHead>{t('Interval')}</TableHead>
+                  <TableHead>{t('Monitoring')}</TableHead>
                   <TableHead>{t('Status')}</TableHead>
                   <TableHead>{t('Last Check')}</TableHead>
                   <TableHead>{t('Latency')}</TableHead>
@@ -354,106 +419,145 @@ export function ChannelTypeMonitorPage() {
               <TableBody>
                 {monitorsQuery.isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={10} className='h-24 text-center'>
+                    <TableCell colSpan={11} className='h-24 text-center'>
                       <Loader2 className='text-muted-foreground mx-auto h-5 w-5 animate-spin' />
                     </TableCell>
                   </TableRow>
-                ) : monitors.length === 0 ? (
+                ) : monitorsQuery.isError ? (
                   <TableRow>
                     <TableCell
-                      colSpan={10}
+                      colSpan={11}
+                      className='text-muted-foreground h-24 text-center'
+                    >
+                      {t('Failed to load')}
+                    </TableCell>
+                  </TableRow>
+                ) : monitorRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={11}
                       className='text-muted-foreground h-24 text-center'
                     >
                       {t('No monitoring data')}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  monitors.map((monitor) => (
-                    <TableRow key={monitor.id}>
-                      <TableCell className='font-medium'>
-                        {t(monitor.channel_type_name)}
-                      </TableCell>
-                      <TableCell>{monitor.group_name}</TableCell>
-                      <TableCell className='max-w-[220px] truncate'>
-                        {monitor.api_url || t('Use channel default')}
-                      </TableCell>
-                      <TableCell>
-                        {monitor.has_api_key
-                          ? t('Configured')
-                          : t('Use channel default')}
-                      </TableCell>
-                      <TableCell className='max-w-[180px] truncate'>
-                        {monitor.test_model || t('Use channel default')}
-                      </TableCell>
-                      <TableCell>{monitor.interval_seconds}s</TableCell>
-                      <TableCell>
-                        <Switch
-                          className='mr-2 align-middle'
-                          size='sm'
-                          checked={monitor.enabled}
-                          onCheckedChange={() =>
-                            toggleEnabledMutation.mutate(monitor)
-                          }
-                          disabled={toggleEnabledMutation.isPending}
-                        />
-                        <Badge
-                          variant={
-                            monitor.enabled
-                              ? statusVariant[monitor.last_status] || 'outline'
-                              : 'outline'
-                          }
-                        >
-                          {monitor.enabled
-                            ? t(statusLabelKey(monitor.last_status))
-                            : t('Disabled')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {formatTime(monitor.last_checked_at)}
-                      </TableCell>
-                      <TableCell>
-                        {formatLatency(monitor.last_latency_ms)}
-                      </TableCell>
-                      <TableCell>
-                        <div className='flex flex-wrap gap-2'>
-                          <Button
-                            size='icon-sm'
-                            variant='outline'
-                            title={t('Run check now')}
-                            onClick={() => runMutation.mutate(monitor.id)}
-                            disabled={runMutation.isPending}
+                  monitorRows.map((row) => {
+                    const monitor = row.monitor
+                    const monitorEnabled = Boolean(monitor?.enabled)
+                    return (
+                      <TableRow key={row.channel_type}>
+                        <TableCell className='font-medium'>
+                          {t(row.channel_type_name)}
+                        </TableCell>
+                        <TableCell>
+                          {monitor?.group_name || t('Use channel default')}
+                        </TableCell>
+                        <TableCell className='max-w-[220px] truncate'>
+                          {monitor?.api_url || t('Use channel default')}
+                        </TableCell>
+                        <TableCell>
+                          {monitor?.has_api_key
+                            ? t('Configured')
+                            : t('Use channel default')}
+                        </TableCell>
+                        <TableCell className='max-w-[180px] truncate'>
+                          {monitor?.test_model || t('Use channel default')}
+                        </TableCell>
+                        <TableCell>
+                          {monitor?.interval_seconds ??
+                            defaultPayload.interval_seconds}
+                          s
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            size='sm'
+                            checked={monitorEnabled}
+                            aria-label={`${t(row.channel_type_name)} ${t('Monitoring')}`}
+                            onCheckedChange={() =>
+                              toggleEnabledMutation.mutate(row)
+                            }
+                            disabled={toggleEnabledMutation.isPending}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              monitorEnabled
+                                ? statusVariant[monitor?.last_status ?? ''] ||
+                                  'outline'
+                                : 'outline'
+                            }
                           >
-                            <Play />
-                          </Button>
-                          <Button
-                            size='icon-sm'
-                            variant='outline'
-                            title={t('History')}
-                            onClick={() => setHistoryTarget(monitor)}
-                          >
-                            <History />
-                          </Button>
-                          <Button
-                            size='icon-sm'
-                            variant='outline'
-                            title={t('Edit')}
-                            onClick={() => openEdit(monitor)}
-                          >
-                            <Pencil />
-                          </Button>
-                          <Button
-                            size='icon-sm'
-                            variant='outline'
-                            title={t('Delete')}
-                            onClick={() => deleteMutation.mutate(monitor.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                            {monitorEnabled
+                              ? t(statusLabelKey(monitor?.last_status))
+                              : t('Disabled')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {formatTime(monitor?.last_checked_at)}
+                        </TableCell>
+                        <TableCell>
+                          {formatLatency(monitor?.last_latency_ms)}
+                        </TableCell>
+                        <TableCell>
+                          <div className='flex flex-wrap gap-2'>
+                            {monitor ? (
+                              <>
+                                <Button
+                                  size='icon-sm'
+                                  variant='outline'
+                                  title={t('Run check now')}
+                                  onClick={() => runMutation.mutate(monitor.id)}
+                                  disabled={runMutation.isPending}
+                                >
+                                  <Play />
+                                </Button>
+                                <Button
+                                  size='icon-sm'
+                                  variant='outline'
+                                  title={t('History')}
+                                  onClick={() => setHistoryTarget(monitor)}
+                                >
+                                  <History />
+                                </Button>
+                                <Button
+                                  size='icon-sm'
+                                  variant='outline'
+                                  title={t('Edit')}
+                                  onClick={() => openEdit(monitor)}
+                                >
+                                  <Pencil />
+                                </Button>
+                                <Button
+                                  size='icon-sm'
+                                  variant='outline'
+                                  title={t('Delete')}
+                                  onClick={() =>
+                                    deleteMutation.mutate(monitor.id)
+                                  }
+                                  disabled={deleteMutation.isPending}
+                                >
+                                  <Trash2 />
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                size='icon-sm'
+                                variant='outline'
+                                title={t('New Monitor')}
+                                onClick={() =>
+                                  openCreateForType(row.channel_type)
+                                }
+                              >
+                                <Plus />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>
@@ -485,7 +589,7 @@ export function ChannelTypeMonitorPage() {
                   }))
                 }
                 disabled={Boolean(editing)}
-                items={CHANNEL_TYPE_OPTIONS.map((option) => ({
+                items={MONITOR_CHANNEL_TYPE_OPTIONS.map((option) => ({
                   value: String(option.value),
                   label: t(option.label),
                 }))}
@@ -501,7 +605,7 @@ export function ChannelTypeMonitorPage() {
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
                   <SelectGroup>
-                    {CHANNEL_TYPE_OPTIONS.map((option) => (
+                    {MONITOR_CHANNEL_TYPE_OPTIONS.map((option) => (
                       <SelectItem
                         key={option.value}
                         value={String(option.value)}
