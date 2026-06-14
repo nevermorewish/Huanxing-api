@@ -63,10 +63,6 @@ import {
 import { SectionPageLayout } from '@/components/layout'
 import { CHANNEL_TYPE_OPTIONS } from '@/features/channels/constants'
 import {
-  getOptionValue,
-  useSystemOptions,
-} from '@/features/system-settings/hooks/use-system-options'
-import {
   createChannelTypeMonitor,
   deleteChannelTypeMonitor,
   listChannelTypeMonitorHistory,
@@ -130,17 +126,6 @@ export function ChannelTypeMonitorPage() {
   const [historyTarget, setHistoryTarget] = useState<ChannelTypeMonitor | null>(
     null
   )
-  const { data: systemOptions } = useSystemOptions()
-
-  const defaultIntervalSeconds = useMemo(() => {
-    const settings = getOptionValue(systemOptions?.data, {
-      'monitor_setting.auto_test_channel_minutes': 10,
-    })
-    return Math.max(
-      60,
-      Math.round(settings['monitor_setting.auto_test_channel_minutes'] * 60)
-    )
-  }, [systemOptions?.data])
 
   const monitorsQuery = useQuery({
     queryKey: ['channel-type-monitors'],
@@ -217,6 +202,31 @@ export function ChannelTypeMonitorPage() {
     },
   })
 
+  const toggleEnabledMutation = useMutation({
+    mutationFn: (monitor: ChannelTypeMonitor) => {
+      const payload: ChannelTypeMonitorPayload = {
+        channel_type: monitor.channel_type,
+        group_name: monitor.group_name,
+        api_url: monitor.api_url,
+        test_model: monitor.test_model,
+        enabled: !monitor.enabled,
+        interval_seconds: monitor.interval_seconds,
+      }
+      return updateChannelTypeMonitor(monitor.id, payload)
+    },
+    onSuccess: (res) => {
+      if (!res.success) {
+        toast.error(res.message || t('Failed to update monitor status'))
+        return
+      }
+      void queryClient.invalidateQueries({
+        queryKey: ['channel-type-monitors'],
+      })
+      void queryClient.invalidateQueries({ queryKey: ['status-monitor'] })
+      toast.success(t('Monitor status updated'))
+    },
+  })
+
   const deleteMutation = useMutation({
     mutationFn: deleteChannelTypeMonitor,
     onSuccess: (res) => {
@@ -266,7 +276,7 @@ export function ChannelTypeMonitorPage() {
       ...defaultPayload,
       channel_type: firstAvailable,
       api_key: '',
-      interval_seconds: defaultIntervalSeconds,
+      interval_seconds: defaultPayload.interval_seconds,
     })
   }
 
@@ -377,6 +387,15 @@ export function ChannelTypeMonitorPage() {
                       </TableCell>
                       <TableCell>{monitor.interval_seconds}s</TableCell>
                       <TableCell>
+                        <Switch
+                          className='mr-2 align-middle'
+                          size='sm'
+                          checked={monitor.enabled}
+                          onCheckedChange={() =>
+                            toggleEnabledMutation.mutate(monitor)
+                          }
+                          disabled={toggleEnabledMutation.isPending}
+                        />
                         <Badge
                           variant={
                             monitor.enabled
@@ -579,7 +598,7 @@ export function ChannelTypeMonitorPage() {
               />
               <p className='text-muted-foreground text-xs'>
                 {t(
-                  'Scheduled checks only run when scheduled channel testing is enabled in System Settings / Operations / Monitoring and Alerts.'
+                  'Scheduled checks run for this monitor when it is enabled and this interval has elapsed.'
                 )}
               </p>
             </div>
@@ -588,7 +607,7 @@ export function ChannelTypeMonitorPage() {
                 <Label>{t('Enable')}</Label>
                 <p className='text-muted-foreground text-xs'>
                   {t(
-                    'Disabling keeps the configuration but excludes it from scheduled checks.'
+                    'Disabling keeps the configuration, excludes it from scheduled checks, and hides it from the status monitor page.'
                   )}
                 </p>
               </div>
