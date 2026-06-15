@@ -421,32 +421,3 @@ func TestRequestOpenAI2ClaudeMessage_ConvertsTextFileContentToText(t *testing.T)
 	require.NotNil(t, content[0].Text)
 	require.Equal(t, "alpha\nbeta", *content[0].Text)
 }
-
-func TestRequestOpenAI2ClaudeMessage_MapsDeveloperRoleToSystem(t *testing.T) {
-	request := dto.GeneralOpenAIRequest{
-		Model: "claude-3-5-sonnet",
-		Messages: []dto.Message{
-			{
-				Role:    "developer",
-				Content: "follow project instructions",
-			},
-			{
-				Role:    "user",
-				Content: "hi",
-			},
-		},
-	}
-
-	claudeRequest, err := RequestOpenAI2ClaudeMessage(nil, request)
-	require.NoError(t, err)
-	require.Len(t, claudeRequest.Messages, 1)
-	require.Equal(t, "user", claudeRequest.Messages[0].Role)
-	require.Equal(t, "hi", claudeRequest.Messages[0].Content)
-
-	systemContent, ok := claudeRequest.System.([]dto.ClaudeMediaMessage)
-	require.True(t, ok)
-	require.Len(t, systemContent, 1)
-	require.Equal(t, "text", systemContent[0].Type)
-	require.NotNil(t, systemContent[0].Text)
-	require.Equal(t, "follow project instructions", *systemContent[0].Text)
-}

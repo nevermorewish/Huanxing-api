@@ -1,13 +1,11 @@
 package claude
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/huanxing/huanxing-api/common"
 	"github.com/huanxing/huanxing-api/constant"
@@ -259,22 +257,20 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 		Role: "tool",
 	}
 	for i, message := range textRequest.Messages {
-		role := normalizeOpenAIClaudeRole(message.Role)
-		if role == "" {
-			role = "user"
+		if message.Role == "" {
+			textRequest.Messages[i].Role = "user"
 		}
-		textRequest.Messages[i].Role = role
 		fmtMessage := dto.Message{
-			Role:    role,
+			Role:    message.Role,
 			Content: message.Content,
 		}
-		if role == "tool" {
+		if message.Role == "tool" {
 			fmtMessage.ToolCallId = message.ToolCallId
 		}
-		if role == "assistant" && message.ToolCalls != nil {
+		if message.Role == "assistant" && message.ToolCalls != nil {
 			fmtMessage.ToolCalls = message.ToolCalls
 		}
-		if lastMessage.Role == role && lastMessage.Role != "tool" {
+		if lastMessage.Role == message.Role && lastMessage.Role != "tool" {
 			if lastMessage.IsStringContent() && message.IsStringContent() {
 				fmtMessage.SetStringContent(strings.Trim(fmt.Sprintf("%s %s", lastMessage.StringContent(), message.StringContent()), "\""))
 				// delete last message
@@ -294,8 +290,8 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 	var systemMessages []dto.ClaudeMediaMessage
 
 	for _, message := range formatMessages {
-		if isClaudeSystemInstructionRole(message.Role) {
-			// Claude accepts system as text blocks; collect system/developer messages here.
+		if message.Role == "system" {
+			// 根据Claude API规范，system字段使用数组格式更有通用性
 			if message.IsStringContent() {
 				if text := message.StringContent(); text != "" {
 					systemMessages = append(systemMessages, dto.ClaudeMediaMessage{
@@ -304,6 +300,7 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 					})
 				}
 			} else {
+				// 支持复合内容的system消息（虽然不常见，但需要考虑完整性）
 				for _, ctx := range message.ParseContent() {
 					if ctx.Type == "text" && ctx.Text != "" {
 						systemMessages = append(systemMessages, dto.ClaudeMediaMessage{
@@ -311,6 +308,7 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 							Text: common.GetPointer[string](ctx.Text),
 						})
 					}
+					// 未来可以在这里扩展对图片等其他类型的支持
 				}
 			}
 		} else {
@@ -374,17 +372,33 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 					case "text":
 						if mediaMessage.Text != "" {
 							claudeMediaMessages = append(claudeMediaMessages, dto.ClaudeMediaMessage{
-								Type:         "text",
-								Text:         common.GetPointer[string](mediaMessage.Text),
-								CacheControl: mediaMessage.CacheControl,
+								Type: "text",
+								Text: common.GetPointer[string](mediaMessage.Text),
 							})
 						}
 					default:
-						var err error
-						claudeMediaMessages, err = appendOpenAIContentPartForClaude(c, claudeMediaMessages, mediaMessage)
-						if err != nil {
-							return nil, err
+						source := mediaMessage.ToFileSource()
+						if source == nil {
+							continue
 						}
+						base64Data, mimeType, err := service.GetBase64Data(c, source, "formatting image for Claude")
+						if err != nil {
+							return nil, fmt.Errorf("get file data failed: %s", err.Error())
+						}
+						claudeMediaMessage := dto.ClaudeMediaMessage{
+							Source: &dto.ClaudeMessageSource{
+								Type: "base64",
+							},
+						}
+						if strings.HasPrefix(mimeType, "application/pdf") {
+							claudeMediaMessage.Type = "document"
+						} else {
+							claudeMediaMessage.Type = "image"
+						}
+
+						claudeMediaMessage.Source.MediaType = mimeType
+						claudeMediaMessage.Source.Data = base64Data
+						claudeMediaMessages = append(claudeMediaMessages, claudeMediaMessage)
 						continue
 					}
 				}
@@ -404,12 +418,6 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 						})
 					}
 				}
-				if len(claudeMediaMessages) == 0 {
-					claudeMediaMessages = append(claudeMediaMessages, dto.ClaudeMediaMessage{
-						Type: "text",
-						Text: common.GetPointer[string]("..."),
-					})
-				}
 				claudeMessage.Content = claudeMediaMessages
 			}
 			claudeMessages = append(claudeMessages, claudeMessage)
@@ -424,107 +432,6 @@ func RequestOpenAI2ClaudeMessage(c *gin.Context, textRequest dto.GeneralOpenAIRe
 	claudeRequest.Prompt = ""
 	claudeRequest.Messages = claudeMessages
 	return &claudeRequest, nil
-}
-
-func normalizeOpenAIClaudeRole(role string) string {
-	role = strings.TrimSpace(role)
-	switch {
-	case strings.EqualFold(role, "system"):
-		return "system"
-	case strings.EqualFold(role, "developer"):
-		return "developer"
-	case strings.EqualFold(role, "user"):
-		return "user"
-	case strings.EqualFold(role, "assistant"):
-		return "assistant"
-	case strings.EqualFold(role, "tool"):
-		return "tool"
-	default:
-		return role
-	}
-}
-
-func isClaudeSystemInstructionRole(role string) bool {
-	role = strings.TrimSpace(role)
-	return strings.EqualFold(role, "system") || strings.EqualFold(role, "developer")
-}
-
-func appendOpenAIContentPartForClaude(c *gin.Context, messages []dto.ClaudeMediaMessage, mediaMessage dto.MediaContent) ([]dto.ClaudeMediaMessage, error) {
-	source := mediaMessage.ToFileSource()
-	if source == nil {
-		return messages, nil
-	}
-
-	if mediaMessage.Type == dto.ContentTypeFile {
-		if file := mediaMessage.GetFile(); file != nil && file.FileData != "" {
-			if mimeType := inferMimeTypeFromOpenAIFileName(file.FileName); mimeType != "" {
-				source = types.NewFileSourceFromData(file.FileData, mimeType)
-			}
-		}
-	}
-
-	base64Data, mimeType, err := service.GetBase64Data(c, source, "formatting content for Claude")
-	if err != nil {
-		return messages, fmt.Errorf("get file data failed: %s", err.Error())
-	}
-
-	switch {
-	case strings.HasPrefix(mimeType, "text/"):
-		text, ok := decodeBase64Text(base64Data)
-		if ok && text != "" {
-			messages = append(messages, dto.ClaudeMediaMessage{
-				Type:         "text",
-				Text:         common.GetPointer[string](text),
-				CacheControl: mediaMessage.CacheControl,
-			})
-		}
-	case strings.HasPrefix(mimeType, "application/pdf"):
-		messages = append(messages, dto.ClaudeMediaMessage{
-			Type: "document",
-			Source: &dto.ClaudeMessageSource{
-				Type:      "base64",
-				MediaType: mimeType,
-				Data:      base64Data,
-			},
-			CacheControl: mediaMessage.CacheControl,
-		})
-	case strings.HasPrefix(mimeType, "image/"):
-		messages = append(messages, dto.ClaudeMediaMessage{
-			Type: "image",
-			Source: &dto.ClaudeMessageSource{
-				Type:      "base64",
-				MediaType: mimeType,
-				Data:      base64Data,
-			},
-			CacheControl: mediaMessage.CacheControl,
-		})
-	}
-
-	return messages, nil
-}
-
-func inferMimeTypeFromOpenAIFileName(fileName string) string {
-	fileName = strings.TrimSpace(fileName)
-	if fileName == "" {
-		return ""
-	}
-	dot := strings.LastIndex(fileName, ".")
-	if dot < 0 || dot+1 >= len(fileName) {
-		return ""
-	}
-	mimeType := service.GetMimeTypeByExtension(fileName[dot+1:])
-	if mimeType == "" || mimeType == "application/octet-stream" {
-		return ""
-	}
-	return mimeType
-}
-
-func decodeBase64Text(base64Data string) (string, bool) {
-	decoded, err := base64.StdEncoding.DecodeString(base64Data)
-	if err != nil || !utf8.Valid(decoded) {
-		return "", false
-	}
-	return string(decoded), true
 }
 
 func StreamResponseClaude2OpenAI(claudeResponse *dto.ClaudeResponse) *dto.ChatCompletionsStreamResponse {
