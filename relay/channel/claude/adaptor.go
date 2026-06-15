@@ -19,8 +19,6 @@ import (
 type Adaptor struct {
 }
 
-const claudeConvertedRequestUserAgent = "Huanxing-api"
-
 func (a *Adaptor) ConvertGeminiRequest(*gin.Context, *relaycommon.RelayInfo, *dto.GeminiChatRequest) (any, error) {
 	//TODO implement me
 	return nil, errors.New("not implemented")
@@ -81,16 +79,6 @@ func CommonClaudeHeadersOperation(c *gin.Context, req *http.Header, info *relayc
 	model_setting.GetClaudeSettings().WriteHeaders(info.OriginModelName, req)
 }
 
-func shouldNormalizeConvertedRequestUserAgent(info *relaycommon.RelayInfo) bool {
-	if info == nil {
-		return false
-	}
-	if info.RelayFormat == types.RelayFormatClaude {
-		return false
-	}
-	return !info.ShouldPassThroughRequestBody()
-}
-
 func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *relaycommon.RelayInfo) error {
 	channel.SetupApiRequestHeader(info, c, req)
 	req.Set("x-api-key", info.ApiKey)
@@ -99,9 +87,6 @@ func (a *Adaptor) SetupRequestHeader(c *gin.Context, req *http.Header, info *rel
 		anthropicVersion = "2023-06-01"
 	}
 	req.Set("anthropic-version", anthropicVersion)
-	if shouldNormalizeConvertedRequestUserAgent(info) {
-		req.Set("User-Agent", claudeConvertedRequestUserAgent)
-	}
 	if channel.ShouldPassThroughRequestHeaders(info) {
 		return nil
 	}

@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/huanxing/huanxing-api/dto"
 	relaycommon "github.com/huanxing/huanxing-api/relay/common"
-	"github.com/huanxing/huanxing-api/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -87,67 +86,6 @@ func TestSetupRequestHeader_PassThroughBodyKeepsClientClaudeCodeHeaders(t *testi
 	require.Equal(t, "2023-06-01", headers.Get("anthropic-version"))
 	require.Equal(t, "upstream-key", headers.Get("x-api-key"))
 	require.Equal(t, "cli", headers.Get("x-app"))
-}
-
-func TestSetupRequestHeader_OpenAIConvertedRequestNormalizesUserAgent(t *testing.T) {
-	t.Parallel()
-
-	gin.SetMode(gin.TestMode)
-	recorder := httptest.NewRecorder()
-	ctx, _ := gin.CreateTestContext(recorder)
-	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/chat/completions", nil)
-	ctx.Request.Header.Set("Content-Type", "application/json")
-	ctx.Request.Header.Set("Accept", "application/json")
-	ctx.Request.Header.Set("User-Agent", "OpenAI/Python 2.24.0")
-
-	headers := http.Header{}
-	err := (&Adaptor{}).SetupRequestHeader(ctx, &headers, &relaycommon.RelayInfo{
-		RelayFormat: types.RelayFormatOpenAI,
-		ChannelMeta: &relaycommon.ChannelMeta{
-			ApiKey: "upstream-key",
-			ChannelSetting: dto.ChannelSettings{
-				PassThroughBodyEnabled:        true,
-				PassThroughClaudeMessagesOnly: true,
-			},
-		},
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, "application/json", headers.Get("Content-Type"))
-	require.Equal(t, "application/json", headers.Get("Accept"))
-	require.Equal(t, claudeConvertedRequestUserAgent, headers.Get("User-Agent"))
-	require.Equal(t, "upstream-key", headers.Get("x-api-key"))
-	require.Equal(t, "2023-06-01", headers.Get("anthropic-version"))
-}
-
-func TestSetupRequestHeader_ClaudeEntryKeepsClientUserAgent(t *testing.T) {
-	t.Parallel()
-
-	gin.SetMode(gin.TestMode)
-	recorder := httptest.NewRecorder()
-	ctx, _ := gin.CreateTestContext(recorder)
-	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/messages", nil)
-	ctx.Request.Header.Set("Content-Type", "application/json")
-	ctx.Request.Header.Set("Accept", "application/json")
-	ctx.Request.Header.Set("User-Agent", "claude-cli/2.1.156 (external, cli)")
-	ctx.Request.Header.Set("anthropic-beta", "claude-code-20250219")
-
-	headers := http.Header{}
-	err := (&Adaptor{}).SetupRequestHeader(ctx, &headers, &relaycommon.RelayInfo{
-		RelayFormat: types.RelayFormatClaude,
-		ChannelMeta: &relaycommon.ChannelMeta{
-			ApiKey: "upstream-key",
-			ChannelSetting: dto.ChannelSettings{
-				PassThroughBodyEnabled:        true,
-				PassThroughClaudeMessagesOnly: true,
-			},
-		},
-	})
-
-	require.NoError(t, err)
-	require.Equal(t, "claude-cli/2.1.156 (external, cli)", headers.Get("User-Agent"))
-	require.Equal(t, "claude-code-20250219", headers.Get("anthropic-beta"))
-	require.Equal(t, "upstream-key", headers.Get("x-api-key"))
 }
 
 func TestFormatClaudeResponseInfo_MessageDelta_FullUsage(t *testing.T) {
