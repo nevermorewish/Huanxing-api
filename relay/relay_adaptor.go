@@ -43,6 +43,7 @@ import (
 	taskVidu "github.com/huanxing/huanxing-api/relay/channel/task/vidu"
 	"github.com/huanxing/huanxing-api/relay/channel/tencent"
 	"github.com/huanxing/huanxing-api/relay/channel/vertex"
+	"github.com/huanxing/huanxing-api/relay/channel/visionary"
 	"github.com/huanxing/huanxing-api/relay/channel/volcengine"
 	"github.com/huanxing/huanxing-api/relay/channel/xai"
 	"github.com/huanxing/huanxing-api/relay/channel/xunfei"
@@ -120,6 +121,8 @@ func GetAdaptor(apiType int) channel.Adaptor {
 		return &replicate.Adaptor{}
 	case constant.APITypeCodex:
 		return &codex.Adaptor{}
+	case constant.APITypeVisionary:
+		return &visionary.Adaptor{}
 	}
 	return nil
 }
