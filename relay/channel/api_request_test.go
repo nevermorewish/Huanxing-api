@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/huanxing/huanxing-api/dto"
 	relaycommon "github.com/huanxing/huanxing-api/relay/common"
+	"github.com/huanxing/huanxing-api/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -108,6 +109,66 @@ func TestSetupApiRequestHeader_PassThroughBodyCopiesClientFingerprintHeaders(t *
 	require.Empty(t, headers.Get("Content-Length"))
 	require.Empty(t, headers.Get("Host"))
 	require.Empty(t, headers.Get("x-api-key"))
+}
+
+func TestSetupApiRequestHeader_ClaudeMessagesOnlyDoesNotPassThroughOpenAIEntry(t *testing.T) {
+	t.Parallel()
+
+	gin.SetMode(gin.TestMode)
+	recorder := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(recorder)
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/chat/completions", nil)
+	ctx.Request.Header.Set("Content-Type", "application/json")
+	ctx.Request.Header.Set("Accept", "application/json")
+	ctx.Request.Header.Set("User-Agent", "openai-client/1.0")
+	ctx.Request.Header.Set("X-Stainless-Package-Version", "0.94.0")
+	ctx.Request.Header.Set("anthropic-beta", "claude-code-20250219")
+
+	headers := http.Header{}
+	SetupApiRequestHeader(&relaycommon.RelayInfo{
+		RelayFormat: types.RelayFormatOpenAI,
+		ChannelMeta: &relaycommon.ChannelMeta{
+			ChannelSetting: dto.ChannelSettings{
+				PassThroughBodyEnabled:        true,
+				PassThroughClaudeMessagesOnly: true,
+			},
+		},
+	}, ctx, &headers)
+
+	require.Equal(t, "application/json", headers.Get("Content-Type"))
+	require.Equal(t, "application/json", headers.Get("Accept"))
+	require.Equal(t, "openai-client/1.0", headers.Get("User-Agent"))
+	require.Empty(t, headers.Get("X-Stainless-Package-Version"))
+	require.Empty(t, headers.Get("anthropic-beta"))
+}
+
+func TestSetupApiRequestHeader_ClaudeMessagesOnlyPassesThroughClaudeEntry(t *testing.T) {
+	t.Parallel()
+
+	gin.SetMode(gin.TestMode)
+	recorder := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(recorder)
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/messages", nil)
+	ctx.Request.Header.Set("Content-Type", "application/json")
+	ctx.Request.Header.Set("Accept", "application/json")
+	ctx.Request.Header.Set("X-Stainless-Package-Version", "0.94.0")
+	ctx.Request.Header.Set("anthropic-beta", "claude-code-20250219")
+
+	headers := http.Header{}
+	SetupApiRequestHeader(&relaycommon.RelayInfo{
+		RelayFormat: types.RelayFormatClaude,
+		ChannelMeta: &relaycommon.ChannelMeta{
+			ChannelSetting: dto.ChannelSettings{
+				PassThroughBodyEnabled:        true,
+				PassThroughClaudeMessagesOnly: true,
+			},
+		},
+	}, ctx, &headers)
+
+	require.Equal(t, "application/json", headers.Get("Content-Type"))
+	require.Equal(t, "application/json", headers.Get("Accept"))
+	require.Equal(t, "0.94.0", headers.Get("X-Stainless-Package-Version"))
+	require.Equal(t, "claude-code-20250219", headers.Get("anthropic-beta"))
 }
 
 func TestApplyHeaderOverrideToRequest_OverridesUserAgent(t *testing.T) {

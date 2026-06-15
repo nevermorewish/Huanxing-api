@@ -552,6 +552,8 @@ export function useChannelsColumns(): ColumnDef<Channel>[] {
         // Regular channel row
         const settings = parseChannelSettings(channel.setting)
         const isPassThrough = settings.pass_through_body_enabled === true
+        const isClaudeMessagesOnly =
+          settings.pass_through_claude_messages_only === true
 
         return (
           <div className='flex items-center gap-2'>
@@ -571,9 +573,13 @@ export function useChannelsColumns(): ColumnDef<Channel>[] {
                         }
                       ></TooltipTrigger>
                       <TooltipContent side='top'>
-                        {t(
-                          'Request body pass-through is enabled. The request body will be sent directly to the upstream without any conversion.'
-                        )}
+                        {isClaudeMessagesOnly
+                          ? t(
+                              'Request body pass-through is limited to /v1/messages. OpenAI-compatible entries are converted normally.'
+                            )
+                          : t(
+                              'Request body pass-through is enabled. The request body will be sent directly to the upstream without any conversion.'
+                            )}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

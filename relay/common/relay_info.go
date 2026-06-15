@@ -233,6 +233,22 @@ func (info *RelayInfo) InitChannelMeta(c *gin.Context) {
 	}
 }
 
+func (info *RelayInfo) ShouldPassThroughRequestBody() bool {
+	if model_setting.GetGlobalSettings().PassThroughRequestEnabled {
+		return true
+	}
+	if info == nil || info.ChannelMeta == nil {
+		return false
+	}
+	if !info.ChannelSetting.PassThroughBodyEnabled {
+		return false
+	}
+	if info.ChannelSetting.PassThroughClaudeMessagesOnly {
+		return info.RelayFormat == types.RelayFormatClaude
+	}
+	return true
+}
+
 func (info *RelayInfo) ToString() string {
 	if info == nil {
 		return "RelayInfo<nil>"
@@ -781,8 +797,8 @@ func FailTaskInfo(reason string) *TaskInfo {
 // store: 数据存储授权字段，涉及用户隐私（仅 OpenAI、Responses API 支持，默认允许透传，禁用后可能导致 Codex 无法使用）
 // safety_identifier: 安全标识符，用于向 OpenAI 报告违规用户（仅 OpenAI 支持，涉及用户隐私）
 // stream_options.include_obfuscation: 响应流混淆控制字段（仅 OpenAI Responses API 支持）
-func RemoveDisabledFields(jsonData []byte, channelOtherSettings dto.ChannelOtherSettings, channelPassThroughEnabled bool) ([]byte, error) {
-	if model_setting.GetGlobalSettings().PassThroughRequestEnabled || channelPassThroughEnabled {
+func RemoveDisabledFields(jsonData []byte, channelOtherSettings dto.ChannelOtherSettings, passThroughEnabled bool) ([]byte, error) {
+	if model_setting.GetGlobalSettings().PassThroughRequestEnabled || passThroughEnabled {
 		return jsonData, nil
 	}
 

@@ -238,6 +238,7 @@ function hasAdvancedSettingsValues(values: ChannelFormValues): boolean {
     values.force_format ||
     values.thinking_to_content ||
     values.pass_through_body_enabled ||
+    values.pass_through_claude_messages_only ||
     values.system_prompt_override ||
     values.claude_beta_query ||
     values.upstream_model_update_check_enabled ||
@@ -398,6 +399,7 @@ export function ChannelMutateDrawer({
   const upstreamModelUpdateCheckEnabled = form.watch(
     'upstream_model_update_check_enabled'
   )
+  const passThroughBodyEnabled = form.watch('pass_through_body_enabled')
   const currentSettings = form.watch('settings')
   const {
     unlocked: doubaoApiEditUnlocked,
@@ -3140,6 +3142,32 @@ export function ChannelMutateDrawer({
                             <FormControl>
                               <Switch
                                 checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name='pass_through_claude_messages_only'
+                        render={({ field }) => (
+                          <FormItem className='flex items-center justify-between px-4 py-3'>
+                            <div className='space-y-0.5'>
+                              <FormLabel>
+                                {t('Only pass through Claude Messages entry')}
+                              </FormLabel>
+                              <FormDescription>
+                                {t(
+                                  'When request body pass-through is enabled, only /v1/messages uses the original body; OpenAI-compatible entries are converted normally'
+                                )}
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                disabled={!passThroughBodyEnabled}
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
