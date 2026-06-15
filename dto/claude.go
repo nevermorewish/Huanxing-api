@@ -450,8 +450,8 @@ type Thinking struct {
 	BudgetTokens *int   `json:"budget_tokens,omitempty"`
 	// Display controls whether thinking content is returned in the response.
 	// Used with adaptive thinking on Claude Opus 4.7+: "summarized" restores
-	// the visible summary that was default on Opus 4.6; "omitted" (default on
-	// 4.7) suppresses it. Pass-through field from upstream Anthropic API.
+	// the visible summary; "omitted" suppresses it. Pass-through field from
+	// upstream Anthropic API.
 	Display string `json:"display,omitempty"`
 }
 
