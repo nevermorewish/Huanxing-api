@@ -377,7 +377,9 @@ func runChannelTypeMonitorCheck(monitor *model.ChannelTypeMonitor) (*model.Chann
 		isStream = true
 	}
 	testModel := resolveMonitorModel(channel, monitor)
-	result := testChannel(channel, testModel, "", isStream)
+	result := testChannelWithOptions(channel, testModel, "", isStream, channelTestOptions{
+		skipConsumeLog: true,
+	})
 	latencyMs := int(time.Since(tik).Milliseconds())
 	status := model.ChannelTypeMonitorStatusOperational
 	message := ""

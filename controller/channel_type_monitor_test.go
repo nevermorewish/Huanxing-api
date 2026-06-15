@@ -5,11 +5,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/huanxing/huanxing-api/common"
+	"github.com/huanxing/huanxing-api/dto"
 	"github.com/huanxing/huanxing-api/model"
+	relaycommon "github.com/huanxing/huanxing-api/relay/common"
+	"github.com/huanxing/huanxing-api/types"
 	"gorm.io/gorm"
 )
 
@@ -90,5 +94,67 @@ func TestUpdateChannelTypeMonitorPersistsOverrides(t *testing.T) {
 	}
 	if saved.TestModel != "gpt-test" {
 		t.Fatalf("test_model = %q", saved.TestModel)
+	}
+}
+
+func TestChannelTypeMonitorSkipsModelTestConsumeLog(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("open sqlite: %v", err)
+	}
+	originalDB := model.DB
+	originalLogDB := model.LOG_DB
+	originalRedisEnabled := common.RedisEnabled
+	model.DB = db
+	model.LOG_DB = db
+	common.RedisEnabled = false
+	t.Cleanup(func() {
+		model.DB = originalDB
+		model.LOG_DB = originalLogDB
+		common.RedisEnabled = originalRedisEnabled
+	})
+
+	if err := model.DB.AutoMigrate(&model.User{}, &model.Log{}); err != nil {
+		t.Fatalf("auto migrate: %v", err)
+	}
+	if err := model.DB.Create(&model.User{Id: 1, Username: "root"}).Error; err != nil {
+		t.Fatalf("create user: %v", err)
+	}
+
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Request = httptest.NewRequest(http.MethodPost, "/v1/chat/completions", nil)
+	ctx.Set("username", "root")
+	now := time.Now()
+	info := &relaycommon.RelayInfo{
+		OriginModelName:   "gpt-test",
+		UsingGroup:        "default",
+		StartTime:         now,
+		FirstResponseTime: now,
+		ChannelMeta:       &relaycommon.ChannelMeta{},
+	}
+	channel := &model.Channel{Id: 123}
+	usage := &dto.Usage{PromptTokens: 1, CompletionTokens: 1, TotalTokens: 2}
+
+	recordChannelTestConsumeLog(ctx, channel, info, types.PriceData{}, usage, nil, 0, 1, channelTestOptions{
+		skipConsumeLog: true,
+	})
+
+	var count int64
+	if err := model.LOG_DB.Model(&model.Log{}).Where("token_name = ?", "模型测试").Count(&count).Error; err != nil {
+		t.Fatalf("count skipped logs: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("expected no model test logs, got %d", count)
+	}
+
+	recordChannelTestConsumeLog(ctx, channel, info, types.PriceData{}, usage, nil, 0, 1, channelTestOptions{})
+
+	if err := model.LOG_DB.Model(&model.Log{}).Where("token_name = ?", "模型测试").Count(&count).Error; err != nil {
+		t.Fatalf("count recorded logs: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("expected one model test log, got %d", count)
 	}
 }

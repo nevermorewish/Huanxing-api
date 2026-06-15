@@ -43,6 +43,10 @@ type testResult struct {
 	newAPIError *types.NewAPIError
 }
 
+type channelTestOptions struct {
+	skipConsumeLog bool
+}
+
 func normalizeChannelTestEndpoint(channel *model.Channel, modelName, endpointType string) string {
 	normalized := strings.TrimSpace(endpointType)
 	if normalized != "" {
@@ -58,6 +62,10 @@ func normalizeChannelTestEndpoint(channel *model.Channel, modelName, endpointTyp
 }
 
 func testChannel(channel *model.Channel, testModel string, endpointType string, isStream bool) testResult {
+	return testChannelWithOptions(channel, testModel, endpointType, isStream, channelTestOptions{})
+}
+
+func testChannelWithOptions(channel *model.Channel, testModel string, endpointType string, isStream bool, options channelTestOptions) testResult {
 	tik := time.Now()
 	var unsupportedTestChannelTypes = []int{
 		constant.ChannelTypeMidjourney,
@@ -483,6 +491,19 @@ func testChannel(channel *model.Channel, testModel string, endpointType string, 
 	tok := time.Now()
 	milliseconds := tok.Sub(tik).Milliseconds()
 	consumedTime := float64(milliseconds) / 1000.0
+	recordChannelTestConsumeLog(c, channel, info, priceData, usage, tieredResult, quota, int(consumedTime), options)
+	common.SysLog(fmt.Sprintf("testing channel #%d, response: \n%s", channel.Id, string(respBody)))
+	return testResult{
+		context:     c,
+		localErr:    nil,
+		newAPIError: nil,
+	}
+}
+
+func recordChannelTestConsumeLog(c *gin.Context, channel *model.Channel, info *relaycommon.RelayInfo, priceData types.PriceData, usage *dto.Usage, tieredResult *billingexpr.TieredResult, quota int, useTimeSeconds int, options channelTestOptions) {
+	if options.skipConsumeLog {
+		return
+	}
 	other := buildTestLogOther(c, info, priceData, usage, tieredResult)
 	model.RecordConsumeLog(c, 1, model.RecordConsumeLogParams{
 		ChannelId:        channel.Id,
@@ -492,17 +513,11 @@ func testChannel(channel *model.Channel, testModel string, endpointType string, 
 		TokenName:        "模型测试",
 		Quota:            quota,
 		Content:          "模型测试",
-		UseTimeSeconds:   int(consumedTime),
+		UseTimeSeconds:   useTimeSeconds,
 		IsStream:         info.IsStream,
 		Group:            info.UsingGroup,
 		Other:            other,
 	})
-	common.SysLog(fmt.Sprintf("testing channel #%d, response: \n%s", channel.Id, string(respBody)))
-	return testResult{
-		context:     c,
-		localErr:    nil,
-		newAPIError: nil,
-	}
 }
 
 func attachTestBillingRequestInput(info *relaycommon.RelayInfo, request dto.Request) error {
