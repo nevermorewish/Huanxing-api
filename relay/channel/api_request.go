@@ -63,7 +63,7 @@ func ShouldPassThroughRequestHeaders(info *common.RelayInfo) bool {
 	if info.ChannelMeta == nil {
 		return false
 	}
-	if info.ShouldPassThroughRequestBody() {
+	if info.ChannelSetting.PassThroughBodyEnabled {
 		return true
 	}
 	return false

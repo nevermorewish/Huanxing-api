@@ -111,7 +111,7 @@ func TestSetupApiRequestHeader_PassThroughBodyCopiesClientFingerprintHeaders(t *
 	require.Empty(t, headers.Get("x-api-key"))
 }
 
-func TestSetupApiRequestHeader_ClaudeMessagesOnlyDoesNotPassThroughOpenAIEntry(t *testing.T) {
+func TestSetupApiRequestHeader_ClaudeMessagesOnlyStillPassesThroughOpenAIEntryHeaders(t *testing.T) {
 	t.Parallel()
 
 	gin.SetMode(gin.TestMode)
@@ -138,8 +138,8 @@ func TestSetupApiRequestHeader_ClaudeMessagesOnlyDoesNotPassThroughOpenAIEntry(t
 	require.Equal(t, "application/json", headers.Get("Content-Type"))
 	require.Equal(t, "application/json", headers.Get("Accept"))
 	require.Equal(t, "openai-client/1.0", headers.Get("User-Agent"))
-	require.Empty(t, headers.Get("X-Stainless-Package-Version"))
-	require.Empty(t, headers.Get("anthropic-beta"))
+	require.Equal(t, "0.94.0", headers.Get("X-Stainless-Package-Version"))
+	require.Equal(t, "claude-code-20250219", headers.Get("anthropic-beta"))
 }
 
 func TestSetupApiRequestHeader_ClaudeMessagesOnlyPassesThroughClaudeEntry(t *testing.T) {
