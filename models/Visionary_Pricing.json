@@ -1,0 +1,23 @@
+{
+  "type": "huanxing-model-pricing",
+  "version": 1,
+  "exported_at": "2026-06-16T00:00:00.000Z",
+  "data": {
+    "ModelPrice": {
+      "gpt-image-2": 0.1055,
+      "nano-banana-pro": 0.067,
+      "nano-banana-pro-cl": 0.067,
+      "nano-banana-2": 0.0505,
+      "nano-banana-2-2k": 0.0505,
+      "nano-banana-2-4k": 0.0755
+    }
+  },
+  "source": {
+    "pricing_source": "models/大模型价格 (4).xlsx",
+    "worksheet": "图片模型",
+    "price_field": "我们USD/张",
+    "discount": "5折",
+    "model_count": 6,
+    "filter": "Visionary drawing/image models only"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "channels": [
+    {
+      "id": 0,
+      "type": 58,
+      "key": "sk-REPLACE_WITH_VISIONARY_KEY",
+      "openai_organization": "",
+      "test_model": "gpt-image-2",
+      "status": 1,
+      "name": "Visionary_Image",
+      "weight": 0,
+      "created_time": 0,
+      "test_time": 0,
+      "response_time": 0,
+      "base_url": "https://visionary.beer",
+      "other": "",
+      "balance": 0,
+      "balance_updated_time": 0,
+      "models": "gpt-image-2,nano-banana-pro,nano-banana-2,nano-banana-2-2k,nano-banana-2-4k,nano-banana-pro-cl",
+      "group": "default",
+      "used_quota": 0,
+      "model_mapping": "",
+      "status_code_mapping": "",
+      "priority": 0,
+      "auto_ban": 1,
+      "other_info": "",
+      "tag": "visionary,image",
+      "setting": "{\"force_format\":false,\"thinking_to_content\":false,\"proxy\":\"\",\"pass_through_body_enabled\":false,\"system_prompt\":\"\",\"system_prompt_override\":false}",
+      "param_override": "",
+      "header_override": "",
+      "remark": "Visionary image models from https://visionary.beer/api-docs",
+      "channel_info": {
+        "is_multi_key": false,
+        "multi_key_size": 0,
+        "multi_key_status_list": null,
+        "multi_key_polling_index": 0,
+        "multi_key_mode": ""
+      },
+      "settings": "{\"upstream_model_update_check_enabled\":false,\"upstream_model_update_auto_sync_enabled\":false,\"upstream_model_update_ignored_models\":[],\"upstream_model_update_last_detected_models\":[],\"upstream_model_update_last_check_time\":0,\"allow_service_tier\":false,\"disable_store\":false,\"allow_safety_identifier\":false,\"allow_include_obfuscation\":false,\"allow_inference_geo\":false}",
+      "use_site_token": false,
+      "token_group": ""
+    }
+  ],
+  "count": 1,
+  "export_time": "2026-06-15T02:31:59+08:00",
+  "version": 1,
+  "source": {
+    "docs_url": "https://visionary.beer/api-docs",
+    "pricing_url": "https://visionary.beer/pricing",
+    "model_credit_config_url": "https://visionary.beer/api/model-credit-configs",
+    "base_url": "https://visionary.beer",
+    "channel_type": 58,
+    "image_model_count": 6,
+    "model_count": 6,
+    "filter": "Visionary image models supported by frogClaw channel type 58"
+  }
+}
