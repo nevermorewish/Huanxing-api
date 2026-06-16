@@ -1,10 +1,10 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GPT-Image-2 | 寰星云科 API 使用文档</title>
-    <meta name="description" content="使用 OpenAI 系列的 GPT-Image-2 在寰星云科 API 生成与编辑图像。" />
+    <title>GPT-Image-2 绘图教程 | 寰星云科 API 使用文档</title>
+    <meta name="description" content="GPT-Image-2 的前置准备、Images API 调用方式、参数说明和返回结果说明。" />
     <link rel="icon" href="/docs/logo.png" />
     <link rel="stylesheet" href="/docs/styles.css" />
   </head>
@@ -17,57 +17,225 @@
         <article class="page">
           <header class="page-heading">
             <p class="eyebrow">绘图模型</p>
-            <h1>GPT-Image-2</h1>
+            <h1>GPT-Image-2 绘图教程</h1>
           </header>
 
-          <p>GPT-Image-2 是 OpenAI 风格的图像模型，长项在文字遵循度、版式构图、文字排版与多步编辑。寰星云科把它挂在 OpenAI 兼容接口下，用标准的 <code>/v1/images/generations</code> 端点调用。</p>
+          <h2 id="前置准备">前置准备</h2>
+          <p><code>gpt-image-2</code> 模型属于 <strong>gptimage 分组</strong>。使用前需要先创建令牌分组为 <code>gptimage</code> 的 API 令牌。</p>
 
-          <h2>调用示例</h2>
-          <pre><code>curl https://api.huanxing.ai/v1/images/generations \
-  -H "Authorization: Bearer sk-你的令牌" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-image-2",
-    "prompt": "A vintage poster of a sci-fi convention, with bold title \"NEON FUTURE\" at top, retro 80s palette",
-    "size": "1024x1024",
-    "quality": "high",
-    "n": 1
-  }'</code></pre>
+          <h2 id="调用方式">调用方式</h2>
+          <p>OpenAI 官方文档把图片能力分为 Responses API、Images API、Chat Completions API 等不同入口。对当前服务的 <code>gpt-image-2</code> 来说，出图请使用 Images API。</p>
 
-          <h2>支持的尺寸与画幅</h2>
           <table class="table">
-            <thead><tr><th>size</th><th>用途</th></tr></thead>
+            <thead>
+              <tr>
+                <th>API</th>
+                <th>官方常见用途</th>
+                <th><code>gpt-image-2</code> 使用建议</th>
+                <th>结论</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td><code>1024x1024</code></td><td>正方形，社交媒体头图</td></tr>
-              <tr><td><code>1024x1792</code></td><td>竖版海报 / 手机封面</td></tr>
-              <tr><td><code>1792x1024</code></td><td>横版头图 / 网页 Banner</td></tr>
+              <tr>
+                <td>Responses API</td>
+                <td>图片输入分析，也可通过工具生成图片输出</td>
+                <td>不要作为 <code>gpt-image-2</code> 的出图入口。需要出图请使用 Images API。</td>
+                <td>不支持</td>
+              </tr>
+              <tr>
+                <td>Images API</td>
+                <td>生成图片，或上传图片进行编辑</td>
+                <td>支持文生图和图片编辑，是 <code>gpt-image-2</code> 的推荐调用方式。</td>
+                <td>推荐</td>
+              </tr>
+              <tr>
+                <td>Chat Completions API</td>
+                <td>多模态聊天、图片输入分析、文本输出</td>
+                <td>不要作为 <code>gpt-image-2</code> 的出图入口；<code>size</code>、<code>quality</code>、<code>output_format</code> 等 Images 参数不会按图片接口生效。</td>
+                <td>不支持</td>
+              </tr>
             </tbody>
           </table>
 
-          <h2>遮罩编辑</h2>
-          <p>把一张图叠加 PNG 透明遮罩，告诉模型「这块区域可以重新画」：</p>
-          <pre><code>curl https://api.huanxing.ai/v1/images/edits \
-  -H "Authorization: Bearer sk-你的令牌" \
-  -F image=@source.png \
-  -F mask=@mask.png \
-  -F prompt="把树替换为一棵樱花树" \
-  -F model=gpt-image-2 \
-  -F size=1024x1024</code></pre>
-          <p>遮罩中透明部分代表「允许重画」。</p>
-
-          <h2>写文字 / 字体</h2>
-          <p>GPT-Image-2 对英文短语处理较好，中文较长字符串建议拆短句、明确字体风格描述（例如「黑体加粗」「书法毛笔」「等宽科技感」）。</p>
-
-          <h2>避免常见误解</h2>
+          <h3 id="images-api">方式一：Images API（推荐）</h3>
+          <p>Images API 是 <code>gpt-image-2</code> 的推荐出图方式，分为两个接口：</p>
           <ul class="list">
-            <li>它不是 GPT-4 / GPT-5 文本模型，写代码或回答问题请用对话模型。</li>
-            <li>不支持流式输出，必须等图全部生成完成再返回。</li>
-            <li>同一份 prompt 多次请求结果会不同，要稳定结果请固定 <code>seed</code>（如果当前渠道支持）。</li>
+            <li>文生图：<code>POST <span data-api-base>{{API_BASE_URL}}</span>/v1/images/generations</code></li>
+            <li>图片编辑 / 图生图：<code>POST <span data-api-base>{{API_BASE_URL}}</span>/v1/images/edits</code></li>
           </ul>
+          <p>新手可以先照着示例传 <code>model</code>、<code>prompt</code>，并把 <code>n</code> 设为 <code>1</code>；需要上传图片时再使用 <code>image</code> 字段。</p>
 
-          <div class="callout">
-            <p>如果你需要批量出图，建议先用最便宜的尺寸 + <code>quality=standard</code> 做大量草图筛选，确定方向后再用 <code>high</code> 出最终成品。</p>
+          <div class="hint-container tip">
+            <p class="hint-container-title">推荐用法</p>
+            <p>文生图使用 <code>/v1/images/generations</code>，上传参考图进行图片编辑使用 <code>/v1/images/edits</code>。</p>
           </div>
+
+          <h4 id="generations">文生图：<code>/v1/images/generations</code></h4>
+          <h5 id="generations-example">接口示例</h5>
+          <pre><code>curl --location '<span data-api-base>{{API_BASE_URL}}</span>/v1/images/generations' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer 你的gptimage分组令牌' \
+  --header 'Accept: */*' \
+  --data '{
+    "model": "gpt-image-2",
+    "prompt": "一只橘猫戴着橙色围巾抱着水獭，温暖插画风格",
+    "size": "3840x2160",
+    "quality": "high",
+    "output_format": "png",
+    "response_format": "url",
+    "n": 1
+  }'</code></pre>
+
+          <h5 id="generations-params">文生图参数</h5>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>参数</th>
+                <th>类型</th>
+                <th>支持情况</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>model</code></td><td>string</td><td>支持</td><td>固定填写 <code>gpt-image-2</code>。</td></tr>
+              <tr><td><code>prompt</code></td><td>string</td><td>支持</td><td>图片描述提示词，建议写清楚主体、场景、风格、比例和文字内容。</td></tr>
+              <tr><td><code>n</code></td><td>integer</td><td>仅支持 <code>1</code></td><td>只支持一次返回 1 张图。需要多张图片时请自行循环请求。</td></tr>
+              <tr><td><code>size</code></td><td>string</td><td>支持</td><td>支持 <code>auto</code> 和符合限制的尺寸，如 <code>1024x1024</code>、<code>1536x1024</code>、<code>1024x1536</code>、<code>1536x864</code>、<code>3840x2160</code>。</td></tr>
+              <tr><td><code>quality</code></td><td>string</td><td>支持</td><td>可选 <code>low</code>、<code>medium</code>、<code>high</code>、<code>auto</code>。草稿图可用 <code>low</code>，正式出图可用 <code>high</code>。</td></tr>
+              <tr><td><code>response_format</code></td><td>string</td><td>支持</td><td>可选 <code>url</code>、<code>b64_json</code>。默认建议用 <code>url</code>；<code>b64_json</code> 适合程序自行保存图片。</td></tr>
+              <tr><td><code>output_format</code></td><td>string</td><td>部分支持</td><td>推荐 <code>png</code> 或 <code>jpeg</code>，不建议使用 <code>webp</code>。</td></tr>
+              <tr><td><code>output_compression</code></td><td>integer</td><td>支持</td><td>建议只在 <code>output_format</code> 为 <code>jpeg</code> 时使用，取值 <code>0</code> 到 <code>100</code>。</td></tr>
+              <tr><td><code>background</code></td><td>string</td><td>部分支持</td><td>建议使用默认值或 <code>opaque</code>，不支持 <code>transparent</code>。</td></tr>
+              <tr><td><code>moderation</code></td><td>string</td><td>支持</td><td>可选 <code>auto</code>、<code>low</code>。这是安全审核参数，不会直接改变画面风格。</td></tr>
+              <tr><td><code>user</code></td><td>string</td><td>支持</td><td>可选，用于标记你自己的终端用户或业务来源，普通调用可以不传。</td></tr>
+              <tr><td><code>stream</code></td><td>boolean</td><td>不支持</td><td>请不要开启。</td></tr>
+              <tr><td><code>partial_images</code></td><td>integer</td><td>不支持</td><td>依赖 <code>stream</code> 的中间图返回能力，不支持。</td></tr>
+              <tr><td><code>style</code></td><td>string</td><td>不建议使用</td><td>这是旧模型常见参数，<code>gpt-image-2</code> 不需要传。</td></tr>
+            </tbody>
+          </table>
+
+          <h4 id="edits">图片编辑 / 图生图：<code>/v1/images/edits</code></h4>
+          <p><code>/v1/images/edits</code> 使用 <code>multipart/form-data</code> 上传图片。<code>image</code> 是二进制图片文件，<code>prompt</code> 用来描述希望怎样修改图片。</p>
+
+          <h5 id="edits-example">接口示例</h5>
+          <pre><code>curl --location '<span data-api-base>{{API_BASE_URL}}</span>/v1/images/edits' \
+  --header 'Authorization: Bearer 你的gptimage分组令牌' \
+  --header 'Accept: */*' \
+  --form 'model="gpt-image-2"' \
+  --form 'prompt="把图片里的主体保留，在右上角加一枚红色小印章，印章上写 DEMO"' \
+  --form 'image=@"/path/to/your-image.jpg"' \
+  --form 'size="1024x1024"' \
+  --form 'quality="high"' \
+  --form 'output_format="png"' \
+  --form 'response_format="url"'</code></pre>
+
+          <h5 id="edits-params">图片编辑参数</h5>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>参数</th>
+                <th>类型</th>
+                <th>支持情况</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>model</code></td><td>string</td><td>支持</td><td>固定填写 <code>gpt-image-2</code>。</td></tr>
+              <tr><td><code>prompt</code></td><td>string</td><td>支持</td><td>写清楚要保留什么、修改什么、最终希望得到什么。</td></tr>
+              <tr><td><code>image</code></td><td>file</td><td>支持</td><td>必填，上传要编辑的图片二进制文件。建议一次只上传 1 张图片。</td></tr>
+              <tr><td><code>mask</code></td><td>file</td><td>支持</td><td>可选，局部修改时可传 PNG mask；不传则按整图编辑理解。</td></tr>
+              <tr><td><code>n</code></td><td>integer</td><td>仅支持 <code>1</code></td><td>只支持一次返回 1 张图。需要多张图片时请自行循环请求。</td></tr>
+              <tr><td><code>size</code></td><td>string</td><td>支持</td><td>同文生图，支持 <code>auto</code> 和符合限制的尺寸。</td></tr>
+              <tr><td><code>quality</code></td><td>string</td><td>支持</td><td>可选 <code>low</code>、<code>medium</code>、<code>high</code>、<code>auto</code>。</td></tr>
+              <tr><td><code>response_format</code></td><td>string</td><td>支持</td><td>可选 <code>url</code>、<code>b64_json</code>。默认建议用 <code>url</code>。</td></tr>
+              <tr><td><code>output_format</code></td><td>string</td><td>部分支持</td><td>推荐 <code>png</code> 或 <code>jpeg</code>，不建议使用 <code>webp</code>。</td></tr>
+              <tr><td><code>output_compression</code></td><td>integer</td><td>支持</td><td>建议只在 <code>output_format</code> 为 <code>jpeg</code> 时使用，取值 <code>0</code> 到 <code>100</code>。</td></tr>
+              <tr><td><code>background</code></td><td>string</td><td>部分支持</td><td>建议使用默认值或 <code>opaque</code>，不支持 <code>transparent</code>。</td></tr>
+              <tr><td><code>moderation</code></td><td>string</td><td>支持</td><td>可选 <code>auto</code>、<code>low</code>。这是安全审核参数，不会直接改变画面风格。</td></tr>
+              <tr><td><code>input_fidelity</code></td><td>string</td><td>支持</td><td>图片编辑时可传 <code>high</code>，用于尽量保留原图主体和细节。</td></tr>
+              <tr><td><code>user</code></td><td>string</td><td>支持</td><td>可选，普通调用可以不传。</td></tr>
+              <tr><td><code>stream</code></td><td>boolean</td><td>不支持</td><td>请不要开启。</td></tr>
+              <tr><td><code>partial_images</code></td><td>integer</td><td>不支持</td><td>依赖 <code>stream</code> 的中间图返回能力，不支持。</td></tr>
+            </tbody>
+          </table>
+          <p>如果需要局部修改，可以额外传 <code>mask</code>。<code>mask</code> 建议使用 PNG 图片，透明区域表示允许模型重点修改的位置；不传 <code>mask</code> 时，模型会根据提示词对整张图进行编辑。</p>
+
+          <h4 id="common-notes">通用说明</h4>
+          <h5 id="sizes-quality">尺寸与质量</h5>
+          <p>常用尺寸：</p>
+          <ul class="list compact">
+            <li><strong>1024 x 1024</strong>：正方形</li>
+            <li><strong>1536 x 1024</strong>：横向</li>
+            <li><strong>1024 x 1536</strong>：纵向</li>
+            <li><strong>2048 x 2048</strong>：2K 正方形</li>
+            <li><strong>2048 x 1152</strong>：2K 横向</li>
+            <li><strong>3840 x 2160</strong>：4K 横向</li>
+            <li><strong>2160 x 3840</strong>：4K 纵向</li>
+            <li><strong>auto</strong>：自动（默认）</li>
+          </ul>
+          <p>尺寸限制：</p>
+          <ul class="list compact">
+            <li>最大边长必须小于或等于 3840 像素。</li>
+            <li>宽和高都必须是 16 的倍数。</li>
+            <li>长边与短边的比例不能超过 3:1。</li>
+            <li>总像素数必须不少于 655,360，且不超过 8,294,400。</li>
+          </ul>
+          <p>质量选项包括 <code>low</code>、<code>medium</code>、<code>high</code>、<code>auto</code>。不确定时可保持 <code>auto</code>，草稿图可用 <code>low</code>，最终图可用 <code>high</code>。</p>
+
+          <div class="hint-container tip">
+            <p class="hint-container-title">参数怎么选</p>
+            <ul>
+              <li>最简单文生图：只传 <code>model</code>、<code>prompt</code>，并把 <code>n</code> 设为 <code>1</code>。</li>
+              <li>想要更高清晰度：可以加 <code>quality: "high"</code>。</li>
+              <li>想控制尺寸：加 <code>size</code>，比如 <code>1024x1024</code> 或 <code>1536x1024</code>。</li>
+              <li>想拿图片链接：使用默认 <code>response_format: "url"</code>。</li>
+              <li>想让程序自己保存图片：使用 <code>response_format: "b64_json"</code>。</li>
+              <li>不要把 <code>n</code> 设置成大于 <code>1</code>，多张图片需要自己循环请求。</li>
+            </ul>
+          </div>
+
+          <h5 id="response">返回结果</h5>
+          <p>默认返回图片下载地址：</p>
+          <pre><code>{
+  "created": 1776923999,
+  "data": [
+    {
+      "url": "https://{图片下载域名}/file_download/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "revised_prompt": "..."
+    }
+  ]
+}</code></pre>
+          <p>返回的 <code>url</code> 即为生成的图片地址，直接访问即可下载。<code>revised_prompt</code> 是模型实际使用前改写过的提示词，看到它是正常现象，不是报错。</p>
+          <p>如果请求里传了 <code>"response_format": "b64_json"</code>，返回内容会变成 Base64 图片数据：</p>
+          <pre><code>{
+  "created": 1776923999,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...",
+      "revised_prompt": "..."
+    }
+  ]
+}</code></pre>
+          <p>这时响应里通常没有 <code>url</code>，需要客户端自己把 <code>b64_json</code> 解码成图片文件。普通用户更推荐使用默认的 <code>url</code>，最容易保存和分享。</p>
+
+          <h3 id="responses-api">方式二：Responses API（不支持）</h3>
+          <div class="hint-container warning">
+            <p class="hint-container-title">不支持</p>
+            <p>当前服务的 <code>gpt-image-2</code> 不支持通过 <code>/v1/responses</code> 出图。请不要使用 <code>image_generation</code> 工具、<code>input</code> 或 <code>input_image</code> 来调用 <code>gpt-image-2</code> 生成图片。</p>
+            <p>需要文生图请使用 <code>/v1/images/generations</code>；需要上传图片编辑请使用 <code>/v1/images/edits</code>。</p>
+          </div>
+
+          <h3 id="chat-completions-api">方式三：Chat Completions API（不支持）</h3>
+          <div class="hint-container warning">
+            <p class="hint-container-title">不支持</p>
+            <p>当前服务的 <code>gpt-image-2</code> 不支持通过 <code>/v1/chat/completions</code> 出图。请不要把 <code>messages</code>、<code>image_url</code>、<code>size</code>、<code>quality</code>、<code>output_format</code> 等参数放到 Chat Completions 里调用图片生成。</p>
+          </div>
+
+          <div class="hint-container tip">
+            <p class="hint-container-title">给开发者</p>
+            <p>如果你的客户端只支持 Chat Completions，并且必须接入图片能力，建议优先改为支持 OpenAI Images API。不要把 <code>/v1/chat/completions</code> 当成 <code>/v1/images/generations</code> 的替代品。</p>
+          </div>
+
         </article>
         <nav class="page-nav" data-mount="prevnext"></nav>
       </main>
