@@ -62,6 +62,52 @@ path: FengchiClaw-0.4.14-darwin-arm64.dmg
 	require.Equal(t, "https://ai.fengchiyun.com/downloads/fengchiclaw/latest/FengchiClaw-0.4.14-win-x64.exe", resolved)
 }
 
+func TestResolveReleaseYAMLDownloadURLPrefersMacDMGOverZip(t *testing.T) {
+	body := []byte(`version: 0.4.19
+files:
+  - url: FengchiClaw-0.4.19-mac-x64.zip
+    sha512: x64zip
+    size: 270145289
+  - url: FengchiClaw-0.4.19-mac-arm64.zip
+    sha512: armzip
+    size: 261589894
+  - url: FengchiClaw-0.4.19-mac-arm64.zip
+    sha512: armzip
+    size: 261589894
+  - url: FengchiClaw-0.4.19-mac-x64.dmg
+    sha512: x64dmg
+    size: 234200194
+  - url: FengchiClaw-0.4.19-mac-x64.dmg
+    sha512: x64dmg
+    size: 234200194
+  - url: FengchiClaw-0.4.19-mac-arm64.dmg
+    sha512: armdmg
+    size: 227551314
+  - url: FengchiClaw-0.4.19-mac-arm64.dmg
+    sha512: armdmg
+    size: 227551314
+path: FengchiClaw-0.4.19-mac-x64.zip
+sha512: x64zip
+releaseDate: '2026-06-17T05:49:42.332Z'
+`)
+
+	armResolved, err := resolveReleaseYAMLDownloadURL(
+		"https://ai.fengchiyun.com/downloads/fengchiclaw/latest/latest-mac.yml",
+		body,
+		ReleasePlatformMacArm,
+	)
+	require.NoError(t, err)
+	require.Equal(t, "https://ai.fengchiyun.com/downloads/fengchiclaw/latest/FengchiClaw-0.4.19-mac-arm64.dmg", armResolved)
+
+	intelResolved, err := resolveReleaseYAMLDownloadURL(
+		"https://ai.fengchiyun.com/downloads/fengchiclaw/latest/latest-mac.yml",
+		body,
+		ReleasePlatformMacIntel,
+	)
+	require.NoError(t, err)
+	require.Equal(t, "https://ai.fengchiyun.com/downloads/fengchiclaw/latest/FengchiClaw-0.4.19-mac-x64.dmg", intelResolved)
+}
+
 func TestResolveReleaseYAMLDownloadURLErrorsWithoutMatchingPlatform(t *testing.T) {
 	body := []byte(`version: 0.4.14
 files:

@@ -185,12 +185,60 @@ func resolveReleaseYAMLDownloadURL(manifestURL string, body []byte, platform Rel
 		return "", fmt.Errorf("manifest has no path or files")
 	}
 
+	bestScore := 0
+	var bestURL string
 	for _, candidate := range candidates {
-		if matchesPlatform(candidate, platform) {
-			return resolveManifestRelativeURL(manifestURL, candidate)
+		score := releaseYAMLCandidateScore(candidate, platform)
+		if score > bestScore {
+			bestScore = score
+			bestURL = candidate
 		}
 	}
+	if bestURL != "" {
+		return resolveManifestRelativeURL(manifestURL, bestURL)
+	}
 	return "", fmt.Errorf("manifest has no %s download URL", platform)
+}
+
+func releaseYAMLCandidateScore(candidate string, platform ReleasePlatform) int {
+	if !matchesPlatform(candidate, platform) {
+		return 0
+	}
+
+	name := strings.ToLower(candidate)
+	score := 100
+	switch platform {
+	case ReleasePlatformMacArm, ReleasePlatformMacIntel:
+		if strings.Contains(name, ".dmg") {
+			score += 50
+		}
+		if strings.Contains(name, ".zip") {
+			score += 10
+		}
+	default:
+		if strings.Contains(name, ".exe") {
+			score += 50
+		}
+		if strings.Contains(name, ".msi") {
+			score += 40
+		}
+	}
+
+	switch platform {
+	case ReleasePlatformMacArm:
+		if strings.Contains(name, "arm64") || strings.Contains(name, "aarch64") || strings.Contains(name, "apple") {
+			score += 20
+		}
+	case ReleasePlatformMacIntel:
+		if strings.Contains(name, "x64") || strings.Contains(name, "x86_64") || strings.Contains(name, "intel") {
+			score += 20
+		}
+	default:
+		if strings.Contains(name, "x64") || strings.Contains(name, "win64") {
+			score += 20
+		}
+	}
+	return score
 }
 
 func platformAssetScore(key string, platformValue string, fileName string, label string, platform ReleasePlatform) int {
