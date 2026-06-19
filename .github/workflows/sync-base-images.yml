@@ -60,6 +60,12 @@ jobs:
             docker://docker.io/library/node:24-alpine \
             docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-node:24-alpine
 
+      - name: Sync node 22
+        run: |
+          skopeo copy --all \
+            docker://docker.io/library/node:22-alpine \
+            docker://${ACR_REGISTRY}/${ACR_NAMESPACE}/base-node:22-alpine
+
       - name: Sync alpine 3.20
         run: |
           skopeo copy --all \
