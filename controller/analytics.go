@@ -5,7 +5,9 @@ import (
 	"encoding/csv"
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +24,7 @@ type UserModelUsage struct {
 
 type UserAnalyticsRanking struct {
 	Username     string           `json:"username"`
+	DisplayName  string           `json:"display_name"`
 	Remark       string           `json:"remark"`
 	Role         int              `json:"role"`
 	RequestCount int64            `json:"request_count"`
@@ -99,6 +102,7 @@ func GetUserAnalytics(c *gin.Context) {
 		user := usersById[row.UserId]
 		rankings = append(rankings, UserAnalyticsRanking{
 			Username:     user.Username,
+			DisplayName:  user.DisplayName,
 			Remark:       user.Remark,
 			Role:         user.Role,
 			RequestCount: row.RequestCount,
@@ -117,26 +121,55 @@ func GetUserAnalytics(c *gin.Context) {
 	})
 }
 
-// ExportUserAnalytics exports per-user, per-model usage statistics within an
-// optional [start, end] time range as a UTF-8 (BOM) CSV file that opens
-// directly in Excel. start/end are unix seconds; either may be omitted.
+// ExportUserAnalytics exports per-user usage statistics within an optional
+// [start, end] time range as a UTF-8 (BOM) CSV file that opens directly in
+// Excel. One row per user (highest consumption first); the per-model breakdown
+// is rendered in a single multi-line "Model Usage" cell, mirroring the
+// analytics page. start/end are unix seconds; either may be omitted.
 func ExportUserAnalytics(c *gin.Context) {
 	start := parseUnixQuery(c.Query("start"))
 	end := parseUnixQuery(c.Query("end"))
 	lang := c.DefaultQuery("lang", "en")
 
+	// Rows arrive grouped by (user_id, model_name), ordered by user then by
+	// per-model quota desc, so each user's models stay sorted by consumption.
 	rows, err := getUserModelUsageRows(0, start, end, nil)
 	if err != nil {
 		common.ApiError(c, err)
 		return
 	}
 
-	userIds := make([]int, 0, len(rows))
-	seen := make(map[int]bool)
+	type userAggregate struct {
+		UserId       int
+		RequestCount int64
+		TokenCount   int64
+		QuotaSum     int64
+		Models       []userModelUsageRow
+	}
+	aggregates := make([]*userAggregate, 0)
+	aggByUser := make(map[int]*userAggregate)
 	for _, row := range rows {
-		if row.UserId > 0 && !seen[row.UserId] {
-			seen[row.UserId] = true
-			userIds = append(userIds, row.UserId)
+		agg := aggByUser[row.UserId]
+		if agg == nil {
+			agg = &userAggregate{UserId: row.UserId}
+			aggByUser[row.UserId] = agg
+			aggregates = append(aggregates, agg)
+		}
+		agg.RequestCount += row.RequestCount
+		agg.TokenCount += row.TokenCount
+		agg.QuotaSum += row.QuotaSum
+		agg.Models = append(agg.Models, row)
+	}
+
+	// Highest-consumption users first.
+	sort.SliceStable(aggregates, func(i, j int) bool {
+		return aggregates[i].QuotaSum > aggregates[j].QuotaSum
+	})
+
+	userIds := make([]int, 0, len(aggregates))
+	for _, agg := range aggregates {
+		if agg.UserId > 0 {
+			userIds = append(userIds, agg.UserId)
 		}
 	}
 	usersById := getUsersByIds(userIds)
@@ -146,16 +179,21 @@ func ExportUserAnalytics(c *gin.Context) {
 	buf.WriteString("\xEF\xBB\xBF")
 	writer := csv.NewWriter(buf)
 	_ = writer.Write(analyticsExportHeaders(lang))
-	for _, row := range rows {
-		user := usersById[row.UserId]
+	for _, agg := range aggregates {
+		user := usersById[agg.UserId]
+		modelLines := make([]string, 0, len(agg.Models))
+		for _, m := range agg.Models {
+			modelLines = append(modelLines, formatModelUsageLine(
+				m.ModelName, m.RequestCount, float64(m.QuotaSum)/common.QuotaPerUnit, lang))
+		}
 		_ = writer.Write([]string{
-			user.Username,
+			analyticsDisplayName(user),
 			user.Remark,
 			analyticsRoleLabel(user.Role, lang),
-			row.ModelName,
-			strconv.FormatInt(row.RequestCount, 10),
-			strconv.FormatInt(row.TokenCount, 10),
-			strconv.FormatFloat(float64(row.QuotaSum)/common.QuotaPerUnit, 'f', 4, 64),
+			strconv.FormatInt(agg.RequestCount, 10),
+			strconv.FormatInt(agg.TokenCount, 10),
+			strconv.FormatFloat(float64(agg.QuotaSum)/common.QuotaPerUnit, 'f', 2, 64),
+			strings.Join(modelLines, "\n"),
 		})
 	}
 	writer.Flush()
@@ -163,6 +201,25 @@ func ExportUserAnalytics(c *gin.Context) {
 	filename := fmt.Sprintf("user-analytics-%s.csv", time.Now().Format("20060102-150405"))
 	c.Header("Content-Disposition", "attachment; filename="+filename)
 	c.Data(http.StatusOK, "text/csv; charset=utf-8", buf.Bytes())
+}
+
+// analyticsDisplayName prefers the user's display name, falling back to the
+// username when no display name is set.
+func analyticsDisplayName(user userAnalyticsUserInfo) string {
+	if user.DisplayName != "" {
+		return user.DisplayName
+	}
+	return user.Username
+}
+
+// formatModelUsageLine renders one model's usage as "model / N次 / $X.XX",
+// matching the analytics page's Model Usage cell.
+func formatModelUsageLine(modelName string, requestCount int64, consumption float64, lang string) string {
+	unit := ""
+	if lang == "zh" {
+		unit = "次"
+	}
+	return fmt.Sprintf("%s / %d%s / $%.2f", modelName, requestCount, unit, consumption)
 }
 
 func parseUnixQuery(value string) int64 {
@@ -178,9 +235,9 @@ func parseUnixQuery(value string) int64 {
 
 func analyticsExportHeaders(lang string) []string {
 	if lang == "zh" {
-		return []string{"用户名", "备注", "角色", "模型", "请求次数", "Token 数", "消费 ($)"}
+		return []string{"显示名称", "备注", "角色", "请求次数", "Token 数", "消费 ($)", "模型用量"}
 	}
-	return []string{"Username", "Remark", "Role", "Model", "Requests", "Tokens", "Consumption ($)"}
+	return []string{"Display Name", "Remark", "Role", "Requests", "Tokens", "Consumption ($)", "Model Usage"}
 }
 
 func analyticsRoleLabel(role int, lang string) string {
@@ -301,10 +358,11 @@ func getUserModelUsage(periodStart, start, end int64, userIds []int) (map[int][]
 }
 
 type userAnalyticsUserInfo struct {
-	Id       int    `gorm:"column:id"`
-	Username string `gorm:"column:username"`
-	Remark   string `gorm:"column:remark"`
-	Role     int    `gorm:"column:role"`
+	Id          int    `gorm:"column:id"`
+	Username    string `gorm:"column:username"`
+	DisplayName string `gorm:"column:display_name"`
+	Remark      string `gorm:"column:remark"`
+	Role        int    `gorm:"column:role"`
 }
 
 func extractUserIds(rows []userAnalyticsRankingRow) []int {
@@ -325,7 +383,7 @@ func getUsersByIds(userIds []int) map[int]userAnalyticsUserInfo {
 
 	var users []userAnalyticsUserInfo
 	if err := model.DB.Model(&model.User{}).
-		Select("id, username, remark, role").
+		Select("id, username, display_name, remark, role").
 		Where("id IN ?", userIds).
 		Find(&users).Error; err != nil {
 		common.SysLog("failed to load analytics users: " + err.Error())

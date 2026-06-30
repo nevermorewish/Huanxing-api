@@ -193,6 +193,7 @@ export function Analytics() {
             start={exportRange.start}
             end={exportRange.end}
             onChange={setExportRange}
+            dateOnly
             className='w-auto min-w-[200px]'
           />
           <Button
@@ -259,7 +260,7 @@ export function Analytics() {
               <TableHeader>
                 <TableRow className='bg-muted/50'>
                   <TableHead className='w-16'>{t('Rank')}</TableHead>
-                  <TableHead>{t('Username')}</TableHead>
+                  <TableHead>{t('Display Name')}</TableHead>
                   <TableHead>{t('Role')}</TableHead>
                   <TableHead className='text-right'>
                     {t('Consumption ($)')}
@@ -285,7 +286,7 @@ export function Analytics() {
                       </TableCell>
                       <TableCell className='font-medium'>
                         <div className='flex flex-col gap-0.5'>
-                          <span>{row.username || '-'}</span>
+                          <span>{row.display_name || row.username || '-'}</span>
                           {row.remark ? (
                             <span className='text-muted-foreground text-xs font-normal'>
                               {row.remark}

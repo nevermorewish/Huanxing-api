@@ -30,6 +30,7 @@ export type UserModelUsage = {
 
 export type AnalyticsRanking = {
   username?: string
+  display_name?: string
   remark?: string
   role?: number
   consumption?: number

@@ -34,14 +34,28 @@ interface CompactDateTimeRangePickerProps {
   end?: Date
   onChange: (range: { start?: Date; end?: Date }) => void
   className?: string
+  /**
+   * When true, only the date (no hour/minute) is shown and editable. The
+   * resulting range still spans the full day: start -> 00:00:00, end -> 23:59:59.
+   */
+  dateOnly?: boolean
 }
 
-function toInputValue(date?: Date): string {
-  return date ? dayjs(date).format('YYYY-MM-DDTHH:mm') : ''
+function toInputValue(date: Date | undefined, dateOnly?: boolean): string {
+  if (!date) return ''
+  return dayjs(date).format(dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm')
 }
 
-function fromInputValue(value: string): Date | undefined {
+function fromInputValue(
+  value: string,
+  opts?: { dateOnly?: boolean; endOfDay?: boolean }
+): Date | undefined {
   if (!value) return undefined
+  if (opts?.dateOnly) {
+    const d = dayjs(value)
+    if (!d.isValid()) return undefined
+    return (opts.endOfDay ? d.endOf('day') : d.startOf('day')).toDate()
+  }
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? undefined : date
 }
@@ -51,35 +65,33 @@ export function CompactDateTimeRangePicker({
   end,
   onChange,
   className,
+  dateOnly,
 }: CompactDateTimeRangePickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [draftStart, setDraftStart] = useState(toInputValue(start))
-  const [draftEnd, setDraftEnd] = useState(toInputValue(end))
+  const [draftStart, setDraftStart] = useState(toInputValue(start, dateOnly))
+  const [draftEnd, setDraftEnd] = useState(toInputValue(end, dateOnly))
 
   const label = useMemo(() => {
     if (!start && !end) return t('Date Range')
-    // The popover's <input type="datetime-local"> only supports minute
-    // precision, so seconds are always 00 (manual pick) or 59 (preset
-    // end-of-day). Hide them in the trigger label to keep the button
-    // width compact while still showing the meaningful timestamp.
-    const startText = start ? dayjs(start).format('YYYY-MM-DD HH:mm') : '-'
-    const endText = end ? dayjs(end).format('YYYY-MM-DD HH:mm') : '-'
+    const fmt = dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'
+    const startText = start ? dayjs(start).format(fmt) : '-'
+    const endText = end ? dayjs(end).format(fmt) : '-'
     return `${startText} ~ ${endText}`
-  }, [end, start, t])
+  }, [end, start, t, dateOnly])
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
-      setDraftStart(toInputValue(start))
-      setDraftEnd(toInputValue(end))
+      setDraftStart(toInputValue(start, dateOnly))
+      setDraftEnd(toInputValue(end, dateOnly))
     }
     setOpen(nextOpen)
   }
 
   const applyDraft = () => {
     onChange({
-      start: fromInputValue(draftStart),
-      end: fromInputValue(draftEnd),
+      start: fromInputValue(draftStart, { dateOnly }),
+      end: fromInputValue(draftEnd, { dateOnly, endOfDay: true }),
     })
     setOpen(false)
   }
@@ -144,7 +156,7 @@ export function CompactDateTimeRangePicker({
                 {t('Start Time')}
               </div>
               <Input
-                type='datetime-local'
+                type={dateOnly ? 'date' : 'datetime-local'}
                 value={draftStart}
                 onChange={(e) => setDraftStart(e.target.value)}
                 className='h-8 font-mono text-xs'
@@ -158,7 +170,7 @@ export function CompactDateTimeRangePicker({
                 {t('End Time')}
               </div>
               <Input
-                type='datetime-local'
+                type={dateOnly ? 'date' : 'datetime-local'}
                 value={draftEnd}
                 onChange={(e) => setDraftEnd(e.target.value)}
                 className='h-8 font-mono text-xs'
