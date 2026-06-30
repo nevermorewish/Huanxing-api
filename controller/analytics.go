@@ -1,6 +1,11 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/csv"
+	"fmt"
+	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -8,13 +13,21 @@ import (
 	"github.com/huanxing/huanxing-api/model"
 )
 
-type UserAnalyticsRanking struct {
-	Username     string  `json:"username"`
-	Email        string  `json:"email"`
-	Role         int     `json:"role"`
+type UserModelUsage struct {
+	ModelName    string  `json:"model_name"`
 	RequestCount int64   `json:"request_count"`
 	TokenCount   int64   `json:"token_count"`
 	Consumption  float64 `json:"consumption"`
+}
+
+type UserAnalyticsRanking struct {
+	Username     string           `json:"username"`
+	Remark       string           `json:"remark"`
+	Role         int              `json:"role"`
+	RequestCount int64            `json:"request_count"`
+	TokenCount   int64            `json:"token_count"`
+	Consumption  float64          `json:"consumption"`
+	Models       []UserModelUsage `json:"models"`
 }
 
 type UserAnalyticsResponse struct {
@@ -73,17 +86,25 @@ func GetUserAnalytics(c *gin.Context) {
 		return
 	}
 
-	usersById := getUserAnalyticsUsersById(rows)
+	userIds := extractUserIds(rows)
+	usersById := getUsersByIds(userIds)
+	modelUsageByUser, err := getUserModelUsage(periodStart, 0, 0, userIds)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
 	rankings := make([]UserAnalyticsRanking, 0, len(rows))
 	for _, row := range rows {
 		user := usersById[row.UserId]
 		rankings = append(rankings, UserAnalyticsRanking{
 			Username:     user.Username,
-			Email:        user.Email,
+			Remark:       user.Remark,
 			Role:         user.Role,
 			RequestCount: row.RequestCount,
 			TokenCount:   row.TokenCount,
 			Consumption:  float64(row.QuotaSum) / common.QuotaPerUnit,
+			Models:       modelUsageByUser[row.UserId],
 		})
 	}
 
@@ -94,6 +115,93 @@ func GetUserAnalytics(c *gin.Context) {
 		TotalConsumption: float64(totalQuota) / common.QuotaPerUnit,
 		Rankings:         rankings,
 	})
+}
+
+// ExportUserAnalytics exports per-user, per-model usage statistics within an
+// optional [start, end] time range as a UTF-8 (BOM) CSV file that opens
+// directly in Excel. start/end are unix seconds; either may be omitted.
+func ExportUserAnalytics(c *gin.Context) {
+	start := parseUnixQuery(c.Query("start"))
+	end := parseUnixQuery(c.Query("end"))
+	lang := c.DefaultQuery("lang", "en")
+
+	rows, err := getUserModelUsageRows(0, start, end, nil)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	userIds := make([]int, 0, len(rows))
+	seen := make(map[int]bool)
+	for _, row := range rows {
+		if row.UserId > 0 && !seen[row.UserId] {
+			seen[row.UserId] = true
+			userIds = append(userIds, row.UserId)
+		}
+	}
+	usersById := getUsersByIds(userIds)
+
+	buf := &bytes.Buffer{}
+	// UTF-8 BOM so Excel renders non-ASCII (e.g. Chinese) correctly.
+	buf.WriteString("\xEF\xBB\xBF")
+	writer := csv.NewWriter(buf)
+	_ = writer.Write(analyticsExportHeaders(lang))
+	for _, row := range rows {
+		user := usersById[row.UserId]
+		_ = writer.Write([]string{
+			user.Username,
+			user.Remark,
+			analyticsRoleLabel(user.Role, lang),
+			row.ModelName,
+			strconv.FormatInt(row.RequestCount, 10),
+			strconv.FormatInt(row.TokenCount, 10),
+			strconv.FormatFloat(float64(row.QuotaSum)/common.QuotaPerUnit, 'f', 4, 64),
+		})
+	}
+	writer.Flush()
+
+	filename := fmt.Sprintf("user-analytics-%s.csv", time.Now().Format("20060102-150405"))
+	c.Header("Content-Disposition", "attachment; filename="+filename)
+	c.Data(http.StatusOK, "text/csv; charset=utf-8", buf.Bytes())
+}
+
+func parseUnixQuery(value string) int64 {
+	if value == "" {
+		return 0
+	}
+	n, err := strconv.ParseInt(value, 10, 64)
+	if err != nil || n < 0 {
+		return 0
+	}
+	return n
+}
+
+func analyticsExportHeaders(lang string) []string {
+	if lang == "zh" {
+		return []string{"用户名", "备注", "角色", "模型", "请求次数", "Token 数", "消费 ($)"}
+	}
+	return []string{"Username", "Remark", "Role", "Model", "Requests", "Tokens", "Consumption ($)"}
+}
+
+func analyticsRoleLabel(role int, lang string) string {
+	if lang == "zh" {
+		switch role {
+		case common.RoleRootUser:
+			return "超级管理员"
+		case common.RoleAdminUser:
+			return "管理员"
+		default:
+			return "普通用户"
+		}
+	}
+	switch role {
+	case common.RoleRootUser:
+		return "Root"
+	case common.RoleAdminUser:
+		return "Admin"
+	default:
+		return "User"
+	}
 }
 
 func getAnalyticsPeriodStart(period string) int64 {
@@ -137,21 +245,79 @@ func getUserAnalyticsRankingRows(periodStart int64) ([]userAnalyticsRankingRow, 
 	return rows, err
 }
 
+type userModelUsageRow struct {
+	UserId       int    `gorm:"column:user_id"`
+	ModelName    string `gorm:"column:model_name"`
+	RequestCount int64  `gorm:"column:request_count"`
+	TokenCount   int64  `gorm:"column:token_count"`
+	QuotaSum     int64  `gorm:"column:quota_sum"`
+}
+
+// getUserModelUsageRows aggregates consume logs grouped by (user_id, model_name).
+// periodStart (when > 0) and start/end (when > 0) bound the time range. When
+// userIds is non-empty, results are restricted to those users.
+func getUserModelUsageRows(periodStart, start, end int64, userIds []int) ([]userModelUsageRow, error) {
+	query := model.LOG_DB.Model(&model.Log{}).
+		Select("user_id, model_name, COUNT(*) as request_count, COALESCE(SUM(prompt_tokens + completion_tokens), 0) as token_count, COALESCE(SUM(quota), 0) as quota_sum").
+		Where("type = ?", model.LogTypeConsume).
+		Group("user_id, model_name").
+		Order("user_id ASC, quota_sum DESC")
+	if periodStart > 0 {
+		query = query.Where("created_at >= ?", periodStart)
+	}
+	if start > 0 {
+		query = query.Where("created_at >= ?", start)
+	}
+	if end > 0 {
+		query = query.Where("created_at <= ?", end)
+	}
+	if len(userIds) > 0 {
+		query = query.Where("user_id IN ?", userIds)
+	}
+
+	var rows []userModelUsageRow
+	err := query.Find(&rows).Error
+	return rows, err
+}
+
+func getUserModelUsage(periodStart, start, end int64, userIds []int) (map[int][]UserModelUsage, error) {
+	result := make(map[int][]UserModelUsage)
+	if len(userIds) == 0 {
+		return result, nil
+	}
+	rows, err := getUserModelUsageRows(periodStart, start, end, userIds)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		result[row.UserId] = append(result[row.UserId], UserModelUsage{
+			ModelName:    row.ModelName,
+			RequestCount: row.RequestCount,
+			TokenCount:   row.TokenCount,
+			Consumption:  float64(row.QuotaSum) / common.QuotaPerUnit,
+		})
+	}
+	return result, nil
+}
+
 type userAnalyticsUserInfo struct {
 	Id       int    `gorm:"column:id"`
 	Username string `gorm:"column:username"`
-	Email    string `gorm:"column:email"`
+	Remark   string `gorm:"column:remark"`
 	Role     int    `gorm:"column:role"`
 }
 
-func getUserAnalyticsUsersById(rows []userAnalyticsRankingRow) map[int]userAnalyticsUserInfo {
+func extractUserIds(rows []userAnalyticsRankingRow) []int {
 	userIds := make([]int, 0, len(rows))
 	for _, row := range rows {
 		if row.UserId > 0 {
 			userIds = append(userIds, row.UserId)
 		}
 	}
+	return userIds
+}
 
+func getUsersByIds(userIds []int) map[int]userAnalyticsUserInfo {
 	usersById := make(map[int]userAnalyticsUserInfo)
 	if len(userIds) == 0 {
 		return usersById
@@ -159,7 +325,7 @@ func getUserAnalyticsUsersById(rows []userAnalyticsRankingRow) map[int]userAnaly
 
 	var users []userAnalyticsUserInfo
 	if err := model.DB.Model(&model.User{}).
-		Select("id, username, email, role").
+		Select("id, username, remark, role").
 		Where("id IN ?", userIds).
 		Find(&users).Error; err != nil {
 		common.SysLog("failed to load analytics users: " + err.Error())

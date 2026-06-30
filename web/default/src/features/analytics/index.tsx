@@ -18,10 +18,19 @@ For commercial licensing, please contact support@huanxing.com
 */
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Activity, DollarSign, Loader2, UserCheck, Users } from 'lucide-react'
+import {
+  Activity,
+  DollarSign,
+  Download,
+  Loader2,
+  UserCheck,
+  Users,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { getRoleLabelKey } from '@/lib/roles'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -33,7 +42,13 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SectionPageLayout } from '@/components/layout'
-import { getUserAnalytics, type AnalyticsPeriod } from './api'
+import { CompactDateTimeRangePicker } from '@/features/usage-logs/components/compact-date-time-range-picker'
+import {
+  exportUserAnalytics,
+  getUserAnalytics,
+  type AnalyticsPeriod,
+  type AnalyticsRanking,
+} from './api'
 
 const PERIODS: { value: AnalyticsPeriod; labelKey: string }[] = [
   { value: '7d', labelKey: '7 Days' },
@@ -48,6 +63,32 @@ function formatNumber(value?: number) {
 
 function formatCurrency(value?: number) {
   return `$${(value ?? 0).toFixed(2)}`
+}
+
+function ModelUsageCell({ models }: { models?: AnalyticsRanking['models'] }) {
+  const { t } = useTranslation()
+  const list = models ?? []
+
+  if (list.length === 0) {
+    return <span className='text-muted-foreground'>-</span>
+  }
+
+  return (
+    <div className='flex flex-col gap-1 py-1'>
+      {list.map((m, i) => (
+        <span
+          key={`${m.model_name ?? 'model'}-${i}`}
+          className='text-foreground/90 font-mono text-xs leading-relaxed whitespace-nowrap'
+        >
+          <span className='font-medium'>{m.model_name || '-'}</span>
+          <span className='text-muted-foreground'> / </span>
+          {formatNumber(m.request_count)}
+          <span className='text-muted-foreground'>{t('times')} / </span>
+          {formatCurrency(m.consumption)}
+        </span>
+      ))}
+    </div>
+  )
 }
 
 function StatCard({
@@ -78,8 +119,13 @@ function StatCard({
 }
 
 export function Analytics() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [period, setPeriod] = useState<AnalyticsPeriod>('7d')
+  const [exportRange, setExportRange] = useState<{
+    start?: Date
+    end?: Date
+  }>({})
+  const [isExporting, setIsExporting] = useState(false)
 
   const {
     data: res,
@@ -95,6 +141,38 @@ export function Analytics() {
     t(PERIODS.find((item) => item.value === period)?.labelKey ?? '') || ''
   const rankings = data?.rankings ?? []
 
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const lang = i18n.language?.startsWith('zh') ? 'zh' : 'en'
+      const blob = await exportUserAnalytics({
+        start: exportRange.start
+          ? Math.floor(exportRange.start.getTime() / 1000)
+          : undefined,
+        end: exportRange.end
+          ? Math.floor(exportRange.end.getTime() / 1000)
+          : undefined,
+        lang,
+      })
+      const url = URL.createObjectURL(
+        blob instanceof Blob ? blob : new Blob([blob], { type: 'text/csv' })
+      )
+      const link = document.createElement('a')
+      const date = new Date().toISOString().slice(0, 10)
+      link.href = url
+      link.download = `user-analytics-${date}.csv`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      toast.success(t('Export successful'))
+    } catch (_error) {
+      toast.error(t('Export failed'))
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <SectionPageLayout>
       <SectionPageLayout.Title>
@@ -107,9 +185,30 @@ export function Analytics() {
         {t('View user usage rankings and identify active users')}
       </SectionPageLayout.Description>
       <SectionPageLayout.Actions>
-        {isFetching && !isLoading ? (
-          <Loader2 className='text-muted-foreground size-4 animate-spin' />
-        ) : null}
+        <div className='flex flex-wrap items-center gap-2'>
+          {isFetching && !isLoading ? (
+            <Loader2 className='text-muted-foreground size-4 animate-spin' />
+          ) : null}
+          <CompactDateTimeRangePicker
+            start={exportRange.start}
+            end={exportRange.end}
+            onChange={setExportRange}
+            className='w-auto min-w-[200px]'
+          />
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className='mr-1.5 size-4 animate-spin' />
+            ) : (
+              <Download className='mr-1.5 size-4' />
+            )}
+            {t('Export Excel')}
+          </Button>
+        </div>
       </SectionPageLayout.Actions>
       <SectionPageLayout.Content>
         <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
@@ -161,13 +260,15 @@ export function Analytics() {
                 <TableRow className='bg-muted/50'>
                   <TableHead className='w-16'>{t('Rank')}</TableHead>
                   <TableHead>{t('Username')}</TableHead>
-                  <TableHead>{t('Email')}</TableHead>
                   <TableHead>{t('Role')}</TableHead>
                   <TableHead className='text-right'>
                     {t('Consumption ($)')}
                   </TableHead>
                   <TableHead className='text-right'>{t('Requests')}</TableHead>
                   <TableHead className='text-right'>{t('Tokens')}</TableHead>
+                  <TableHead className='min-w-[220px]'>
+                    {t('Model Usage')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,10 +284,14 @@ export function Analytics() {
                         </Badge>
                       </TableCell>
                       <TableCell className='font-medium'>
-                        {row.username || '-'}
-                      </TableCell>
-                      <TableCell className='text-muted-foreground'>
-                        {row.email || '-'}
+                        <div className='flex flex-col gap-0.5'>
+                          <span>{row.username || '-'}</span>
+                          {row.remark ? (
+                            <span className='text-muted-foreground text-xs font-normal'>
+                              {row.remark}
+                            </span>
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant='outline'>
@@ -201,6 +306,9 @@ export function Analytics() {
                       </TableCell>
                       <TableCell className='text-right font-mono'>
                         {formatNumber(row.token_count)}
+                      </TableCell>
+                      <TableCell className='align-top'>
+                        <ModelUsageCell models={row.models} />
                       </TableCell>
                     </TableRow>
                   ))

@@ -228,6 +228,7 @@ func SetApiRouter(router *gin.Engine) {
 		analyticsRoute.Use(middleware.AdminAuth())
 		{
 			analyticsRoute.GET("/user-analytics", controller.GetUserAnalytics)
+			analyticsRoute.GET("/user-analytics/export", controller.ExportUserAnalytics)
 		}
 		channelRoute := apiRouter.Group("/channel")
 		channelRoute.Use(middleware.AdminAuth())
